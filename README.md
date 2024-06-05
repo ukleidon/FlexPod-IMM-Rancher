@@ -65,7 +65,7 @@ The Ansible playbooks and CVD are structured in a way that a Fibre Channel Boot,
 
 
 
- -------------  The confiuration for multi-tenancy and secure-multi-tenancy is available now --------------------------
+The confiuration for multi-tenancy and secure-multi-tenancy is available now 
 
  The new setup of FlexPod with ansible is now based on the initial infrastructure setup without any workloads,
  and the workload setup on top of the infrastructure. This changed the way variables are defined and used.
@@ -94,21 +94,19 @@ The Ansible playbooks and CVD are structured in a way that a Fibre Channel Boot,
         /[tenant]/vars.yml:   File for all tenant specific variables                              ---- NEW ----
                  /airgap:     All files required for airgapped installations.                     ---- NEW ----
                  /manifests:  All K8s manifests used for this tenant                              ---- NEW ----
- ----------------------------------------------------------------------------------------------------------------------
- ----------------------------------------------------------------------------------------------------------------------
  
  To simplify the definiton of tenants and the structure with group_vars, host_vars and tenant specific
  variables, the role env_vars is introduces.
 
 
-      Define the variable files required for an role regardless if ansible will source it based on
-      the group or host definition. This takes care that the required group_vars are used even if
-      the actual entity is not part of the group.
-      Like: For UCS there is no host entry and a tenant host will not be listed in the ucs group.
-      With default behavior some variables are not used as ucs.yml is not sources.
-      The env_vars role will take care that ucs.yml is sourced before the tenant/vars.yaml is.   
-      With this we take care that all required information is avaliable to setup a tenant on top
-      of the FlexPod infrastructure. 
+Define the variable files required for an role regardless if ansible will source it based on
+the group or host definition. This takes care that the required group_vars are used even if
+the actual entity is not part of the group.
+Like: For UCS there is no host entry and a tenant host will not be listed in the ucs group.
+With default behavior some variables are not used as ucs.yml is not sources.
+The env_vars role will take care that ucs.yml is sourced before the tenant/vars.yaml is.   
+With this we take care that all required information is avaliable to setup a tenant on top
+of the FlexPod infrastructure. 
 
  roles/TENANT/env_vars/detauls/main.yml:
   env_vars_all_file: "{{ playbook_dir }}/group_vars/all.yml"    # source the all.yml file
@@ -127,12 +125,8 @@ The Ansible playbooks and CVD are structured in a way that a Fibre Channel Boot,
       - "{{ env_vars_ucs_file }}"
       - "{{ env_vars_tenant_file }}"
 
- TASK [TENANT/env_vars : Include cluster environment variables] ****************************************************************
+ TASK [TENANT/env_vars : Include cluster environment variables] 
  ok: [localhost] => (item=/home/admin/CVD/group_vars/all.yml)
  ok: [localhost] => (item=/home/admin/CVD/group_vars/ucs.yml)
  ok: [localhost] => (item=/home/admin/CVD/tenants/ac01/vars.yml)
-
-
-
-################################################################################################################################
 
