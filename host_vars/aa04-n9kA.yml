@@ -1,0 +1,63 @@
+---
+vpc_source:          10.255.255.1 #"{{ hostvars['nx2'].ansible_host }}"
+vpc_destination:     10.255.255.2 #"{{ hostvars['nx1'].ansible_host }}"
+vpc_role_priority:   "10"
+# NTP Distribution IP for N9K-B in the IB-MGMT VLAN
+IB_MGMT_ntp_dist_IP: "{{ ib_mgmt_ntp_servers[1].ip_address }}{{ ntp_distribution_nm_cidr }}"
+# Interface Lists; more interfaces can be added for additional BW
+#
+uplink_interface_list:
+  - interface:       "Ethernet1/47"
+    description:     "Port-Channel to Core Switches for Mgmt"
+  - interface:       "Ethernet1/48"
+    description:     "Port-Channel to Core Switches for Mgmt"
+
+peerlink_interface_list:
+  - interface:       "Ethernet1/53"
+    description:     "n9kB:Eth1/53"
+  - interface:       "Ethernet1/54"
+    description:     "n9kB:Eth1/54"
+#
+FI_A_interface_list:
+  - interface:       "Ethernet1/49"
+    description:     "FI-A:Eth1/50"
+#
+FI_B_interface_list:
+  - interface:       "Ethernet1/50"
+    description:     "FI-B:Eth1/50"
+#
+storage_A_interface_list:
+  - interface:       "Ethernet1/17"
+    description:     "A400-01n1:e2a"
+  - interface:       "Ethernet1/18"
+    description:     "A400-01n1:e2b"
+#
+storage_B_interface_list:
+  - interface:       "Ethernet1/19"
+    description:     "A400-01n2:e2a"
+  - interface:       "Ethernet1/20"
+    description:     "A400-01n2:e2b"
+#
+storage_C_interface_list:
+  - interface:       "Ethernet1/29"
+    description:     "C250-01n1:e2a"
+  - interface:       "Ethernet1/30"
+    description:     "C250-01n1:e2b"
+#
+storage_D_interface_list:
+  - interface:       "Ethernet1/31"
+    description:     "C250-01n2:e2a"
+  - interface:       "Ethernet1/32"
+    description:     "C250-01n2:e2b"
+#
+vpc_interface_list:
+  - interface:       "Ethernet1/46"
+    description:     "To peer 9K switch for VPC KeepAlive"
+#
+#all_interfaces: "{{ uplink_interface_list + peerlink_interface_list + FI_A_interface_list + FI_B_interface_list + storage_A_interface_list + storage_B_interface_list + storage_C_interface_list + storage_D_interface_list vpc_interface_list }}"
+all_interfaces: "{{ uplink_interface_list + peerlink_interface_list + FI_A_interface_list + FI_B_interface_list + storage_A_interface_list + storage_B_interface_list + vpc_interface_list}}"
+#
+# The baseIP is used as the last digit of the SVI IP address to support HSRP configuration configured in the all.yml or
+# tenant.yml files. The number must be between 2 and 254 and must be different as for nexus A.
+baseIP: 250
+

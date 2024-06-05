@@ -1,0 +1,77 @@
+---
+# 
+# This Playbook sets up a physical Tenant on FlexPod, configuring Nexus switches, NetApp storage and UCS profiles.
+#
+# Configure VLANs, VRF, and IP addresses for the tenant
+- hosts: nexus
+  connection: network_cli
+  gather_facts: no
+  roles:
+  - { role: DAY0/env_vars }
+  - { role: DAY0/nexus_config, tags: [ 'nexus_vlan' ] }
+  - { role: DAY0/nexus_config_ip, tags: [ 'gpusystem' ] }
+  tags:
+  - nexus_config
+
+# Configure VLANs, LIFs, SVM, and LUNs for the tenant
+- name: Configure ONTAP for FlexPod
+  hosts: ontap
+  gather_facts: False
+  connection: local
+  roles:
+  - { role: DAY0/env_vars }
+  - { role: DAY0/ontap_network, tags: [ 'ontap_network' ] }
+  - { role: DAY0/ontap_svm, tags: [ 'ontap_svm' ] }
+  - { role: DAY0/ontap_volumes, tags: [ 'ontap_volumes' ] }
+  - { role: DAY0/ontap_lifs, tags: [ 'ontap_lifs' ] }
+  - { role: DAY0/ontap_luns, tags: [ 'ontap_luns' ] }
+  tags:
+  - ontap_config
+  - flexpod_config
+
+# Create various pools, policies, and a server profile template
+#
+- name: "Create Tenant in Intersight "
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - group_vars/ucs.yml
+  roles:
+  - { role: DAY0/env_vars }
+  - { role: DAY0/ucs_create_pools }
+  - { role: DAY0/ucs_create_server_policies }
+  - { role: DAY0/ucs_create_sp_template }
+  tags:
+  - ucs_config
+
+
+#Execute the below ONTAP Role after installing and configuring ESXi Hosts
+- name: Configure ONTAP NVMe Setup and finalize ONTAP storage
+  hosts: ontap
+  gather_facts: False
+  connection: local
+  roles:
+  - { role: DAY0/env_vars }
+    #  - { role: TENANT/ontap_nvme, tags: [ 'ontap_nvme' ] }
+  - { role: DAY0/ontap_finalize_setup, tags: [ 'ontap_finalize_setup' ]}
+  tags:
+  - ontap_config_part_2
+  - flexpod_config
+
+# This Playbook sets up both Nexus switches for Ethernet switching in FlexPod
+# After executing this playbook, LAN connectivity should be configured
+#
+- hosts: nexus
+  connection: network_cli
+  gather_facts: no
+  vars_files:
+    - group_vars/storagegrid.yml
+    - group_vars/proxmox.yml
+
+  roles:
+    ### Configure Nexus Switching
+    #
+    - DAY0/nexus_config_proxmox
+    #
+  tags:
+  - proxmox_config

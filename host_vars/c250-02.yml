@@ -1,0 +1,107 @@
+---
+# Role variables as per NetApp's prescriptive guidance
+# This can be overridden by a var-file.yml at the command line
+# User's input variables
+
+##############################################################################################################################
+# Cluster specific variables
+##############################################################################################################################
+
+#Name of the ONTAP Cluster
+cluster_name: C250-02
+
+#Location of the ONTAP Cluster
+cluster_location: "Fraunhofer IESE, Kaiserslautern"
+
+#Cluster management LIF already exists (pre-requisite), so note down name of cluster management LIF and enter below.
+cluster_mgmt_interface: cluster_mgmt
+
+#ONTAP Licensing Format
+#Note: ONTAP 9.10.1 and later for FAS/AFF storage systems uses a new file-based licensing solution known as NetApp 
+# License File, or NLF. Prior versions of ONTAP used 28-character keys called as legacy license keys.
+ontap_license_key_format:  #Options are "legacy" and "NLF" and "none"
+  #  - legacy
+  #  - NLF
+  - none
+
+#List the Legacy License Keys for the different features that you need
+legacy_license_keys:
+  - <license 1 code>
+  - <license 2 code>
+
+#Path to NetApp License File (NLF)
+nlf_filepath:
+  - "/root/license/EvalNLF-Core-license.txt"
+  - "/root/license/EvalNLF-data-license.txt"
+  - "/root/license/EvalNLF-encryption-license.txt"
+  - "/root/license/EvalNLF-hybrid-license.txt"
+  - "/root/license/EvalNLF-NVMe-license.txt"
+  
+#Details for configuring NetApp AutoSupport
+autosupport_vars:
+  mail_hosts: dt-mail.dt.local
+  noteto: "email-address"
+  proxy_url: "dt-proxy.dt.local:81"
+  from_address: "c250-02@iese.fraunhofer.local"
+  to_addresses: "all@inter.net"
+
+#SNMP related variables
+enable_snmp: false
+#Please make sure to fill out the below details if you have chosen to enable SNMP, leaving it empty will cause the setup to fail
+snmp_contact: "email-address"
+snmp_location: "Fraunhofer IESE, Kaiserslautern"
+traphost_ip: "172.16.4.11"
+snmp_community: "public"
+
+#SNMPv3 related variables
+user: snmpv3_user   #The name of the user to manage
+authentication_protocol: md5   #Authentication protocol for the snmp user (Choices: none, md5, sha, sha2-256)
+authentication_password: <enter password>   #Password for the authentication protocol
+privacy_protocol: none   #Privacy protocol for the snmp user (Choices: none, des, aes128)
+privacy_password: <enter password>   #Password for the privacy protocol
+
+#Cluster Login banner Text message
+cluster_login_banner: Access restricted to authorized users
+
+#Text sent in the subject line of the AutoSupport message
+autosupport_message: "FlexPod ONTAP Storage configuration completed"
+
+##############################################################################################################################
+# Node/ Controller level information
+##############################################################################################################################
+
+ha_pairs:
+  - ha_no: 1
+    node_port_count: "2"
+    node_data_ports: ["e2a","e2b","e2c","e2d"]
+    node_fcp_ports: ["5a","5b"]
+    fcp_port_speed: "32"
+    node_specs:
+    - node_name: c250-02n1
+      sp: {ip: 172.16.0.23, mask: 255.255.252.0, gateway: 172.16.0.1}
+      node_mgmt_ip: 172.16.4.26
+      partner_mgmt_ip: 172.16.4.28
+      data_aggregates:  # !!! Do NOT add the aggregate hosting the root volume for the node !!!
+        - {aggr_name: c250_02n1_aggr1, disk_type: SSD, diskcount: 13}  #Options for disk_type: SAS, SSD, SSD-NVM
+    - node_name: c250-02n2
+      sp: {ip: 172.16.0.24, mask: 255.255.252.0, gateway: 172.16.0.1}
+      node_mgmt_ip: 172.16.4.28
+      partner_mgmt_ip: 172.16.4.26
+      data_aggregates:  # !!! Do NOT add the aggregate hosting the root volume for the node !!!
+        - {aggr_name: c250_02n2_aggr1, disk_type: SSD, diskcount: 13}  #Options for disk_type: SAS, SSD, SSD-NVM
+        
+##############################################################################################################################
+# Default/Best Practice related information - Change only if required
+##############################################################################################################################
+
+#Following variable is used in a task to ensure auto revert for cluster management LIF is set to True.
+cluster_mgmt_auto_revert: true
+
+#Name of the Interface group to be created
+ifgrp_name: a0a
+
+ifgrp_mode: multimode_lacp
+
+#Job Schedule
+job_schedule:
+  - {job_name: 15min, job_minutes: 15}

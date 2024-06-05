@@ -1,0 +1,94 @@
+#################################################################################################################
+# The following parameter are for general use and should not be changed unless there is a good reason for.
+
+#########################
+# Ethernet QoS Policy
+description_of_ethernet_qos_policy   : "Ethernet QoS Policy setting MTU to 9000 and priority to Best Effort"
+mtu                                  : 9000
+class_of_service                     : 0
+burst                                : 10240
+priority                             : "Best Effort"
+rate_limit                           : 0
+
+#################################################################################################################
+
+# Default Ethernet Adapter Policy for Windows
+description_of_ethernet_adapter_win_policy  : "Ethernet Adapter Policy for Windows - Platform defaults"
+win_number_of_interrupts    : 8
+win_receive_queue_count     : 4
+win_receive_ring_size       : 512
+win_transmit_queue_count    : 1
+win_transmit_ring_size      : 256
+win_completion_queue_count  : 5
+win_completion_ring_size    : 1
+
+# RoCE Ethernet Adapter Policy for Windows
+description_of_ethernet_adapter_winroce_policy  : "Ethernet Adapter Policy for Windows - RoCE enabled"
+winroce_number_of_interrupts    : 11
+winroce_receive_queue_count     : 8
+winroce_receive_ring_size       : 4096
+winroce_transmit_queue_count    : 1
+winroce_transmit_ring_size      : 4096
+winroce_completion_queue_count  : 9
+winroce_completion_ring_size    : 1
+
+# Default Ethernet Adapter Policy for Linux
+description_of_ethernet_adapter_linux_policy  : "Ethernet Adapter Policy for Linux - Platform defaults"
+linux_number_of_interrupts    : 8
+linux_receive_queue_count     : 4
+linux_receive_ring_size       : 512
+linux_transmit_queue_count    : 1
+linux_transmit_ring_size      : 256
+linux_completion_queue_count  : 5
+linux_completion_ring_size    : 1
+
+# RoCE Ethernet Adapter Policy for Linux
+description_of_ethernet_adapter_linuxroce_policy  : "Ethernet Adapter Policy for Linux - RoCE enabled"
+linuxroce_number_of_interrupts    : 11
+linuxroce_receive_queue_count     : 8
+linuxroce_receive_ring_size       : 4096
+linuxroce_transmit_queue_count    : 1
+linuxroce_transmit_ring_size      : 4096
+linuxroce_completion_queue_count  : 9
+linuxroce_completion_ring_size    : 1
+
+# Default Ethernet Adapter Policy for VMware
+description_of_ethernet_adapter_vmware_policy  : "Ethernet Adapter Policy for VMware - Platform defaults"
+vmware_number_of_interrupts    : 4
+vmware_receive_queue_count     : 1
+vmware_receive_ring_size       : 512
+vmware_transmit_queue_count    : 1
+vmware_transmit_ring_size      : 256
+vmware_completion_queue_count  : 2
+vmware_completion_ring_size    : 1
+
+# Ethernet Adapter Policy for VMware High Traffic Interface (Applies to vDS0)
+description_of_ethernet_adapter_hightrf_policy  : "Ethernet Adapter Policy for High Traffic"
+vmht_number_of_interrupts    : 11
+vmht_receive_queue_count     : 8
+vmht_receive_ring_size       : 4096
+vmht_transmit_queue_count    : 1
+vmht_transmit_ring_size      : 4096
+vmht_completion_queue_count  : 9
+vmht_completion_ring_size    : 1
+
+# Ethernet Adapter Policy for VMware 16 Rx Queues - 4th Gen VIC (Applies to iSCSI Boot/NVMe-TCP Interface)
+description_of_ethernet_adapter_16rxq4g_policy  : "Ethernet Adapter Policy for 16Rx Qs - 4th Gen VIC"
+vm164g_number_of_interrupts    : 19
+vm164g_receive_queue_count     : 16
+vm164g_receive_ring_size       : 4096
+vm164g_transmit_queue_count    : 1
+vm164g_transmit_ring_size      : 4096
+vm164g_completion_queue_count  : 17
+vm164g_completion_ring_size    : 1
+
+# Ethernet Adapter Policy for VMware 16 Rx Queues - 5th Gen VIC (Applies to iSCSI Boot/NVMe-TCP Interface)
+description_of_ethernet_adapter_16rxq5g_policy  : "Ethernet Adapter Policy for 16Rx Qs - 5th Gen VIC"
+vm165g_number_of_interrupts    : 19
+vm165g_receive_queue_count     : 16
+vm165g_receive_ring_size       : 16384
+vm165g_transmit_queue_count    : 1
+vm165g_transmit_ring_size      : 16384
+vm165g_completion_queue_count  : 17
+vm165g_completion_ring_size    : 1
+

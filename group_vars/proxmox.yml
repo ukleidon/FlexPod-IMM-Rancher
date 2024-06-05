@@ -1,0 +1,22 @@
+---
+proxmox1_PC:
+  - interface: "port-channel47"
+    # id must be same as port-channel number
+    id: "47"
+    speed: "auto"
+    duplex: "auto"
+    description: "Uplink-Proxmox-1"
+#
+proxmox2_PC:
+  - interface: "port-channel48"
+    # id must be same as port-channel number
+    id: "48"
+    speed: "auto"
+    duplex: "auto"
+    description: "Uplink-Proxmox-2"
+#
+proxmox_port_channels: "{{ proxmox1_PC + proxmox2_PC }}"
+#
+
+vlans_list: "{{ all_vlans_list }},{{ sg_vlans_list }},{{ t_all_vlans_list }}"
+#

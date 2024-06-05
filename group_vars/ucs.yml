@@ -1,0 +1,138 @@
+---
+######################################################################################################################
+#
+# Key Variables used to configure UCS and Intersight infrastructure setup
+#
+######################################################################################################################
+#
+# !!!! Intersight API key and private key must be created before running the playbool.  !!!!
+# #1 Please logon to Intersight and create the Organization for this tenant if required.
+# #2 Create a Role with administrator privileges in the Organization.
+# #3 Assign the new role to your User and switch to the new role.
+# #4 Create a new API key with the created role.
+# 
+# Enter Intersight API Key ID and the location of the SecretKey file
+# 
+api_key_id        : 5c8bbb507564612d307b0837/5c8bb9d67564612d307ae010/663a31907564613101d41d73
+api_private_key   : Keys/AC01.txt
+#
+# The api_url for EMEA instance must be specified manually!
+# This is not required for the US instance of Intersight.
+#
+#api_uri           : https://eu-central-1.intersight.com/api/v1
+# 
+#
+# Prefix added to the pool/policy/profile configuration to eaisly identify items created by Ansible
+# For tenants, the tenant_name will be used as prefix.
+prefix        : "AC01"
+
+# Organization Name. This Org is used to define the FlexPod infrastructure and for non SMT deployments also 
+# for the Tenants. For SMT deployments the tenant_name will be used as org_name.
+#org_name      : "default"
+org_name      : "{{ organization }}"
+
+
+###############################################################################
+#
+# Server Configuration
+#
+##############################################################################
+
+# Server CPU Type - set to Intel or AMD
+server_cpu_type: "Intel"
+
+# VIC Type - set to 4G for 4th Gen VICs or 5G for 5th Gen VICs - Also add 4G or 5G to Server Profile Template Name
+vic_type: "5G"
+
+###############################################################################
+#
+# Various Pools
+#
+###############################################################################
+
+# Chassis Configuration - UUID Pool
+name_of_uuid_pool: 'Global-UUID-Pool'
+uuid_prefix: 'AA000000-0000-0001'
+uuid_size: 99
+uuid_from: 'AA00-000000000001'
+
+#
+# IP Address Pool for Management Access (out-of-band access)
+# Remove the lines if no OOB Management IP pool is needed.
+#
+oob_name_of_ip_pool_for_management_access       : "OOB-MGMT-IP-Pool"
+oob_management_ip_pool_details                  : "OOB-MGMT-IP-Pool"
+oob_ip_pool_start_for_management_access         : 10.104.0.201
+oob_size_of_ip_pool_for_management_access       : 50
+oob_gateway_mgmt                                : 10.104.0.1
+oob_netmask_mgmt                                : 255.255.255.0
+oob_primary_dns_mgmt                            : "{{ dns_servers[0].ip_address }}"
+oob_secondary_dns_mgmt                          : "{{ dns_servers[1].ip_address }}"
+
+###############################################################################
+#
+# GLOBAL Server Policies used for all tenants
+#
+###############################################################################
+# IMC Access Policy - Configures the KVM to be accessed In-Band
+# The in-band vlan must be enabled on the trunk between Nexus 9K and UCS FI
+name_of_imc_access_policy           : "{{ prefix }}-IMC-Access-Policy"
+description_of_imc_access_policy    : "IMC Access Policy for KVM Access"
+
+# KVM Access Policy - Enables (true) or disables (false) Tunneled KVM Server Access
+# Ensure the Intersight Account allows Tunneled KVM> To enable Tunneled KVM for 
+# account,  go to Settings > Security and Privacy and enable Tunneled KVM settings
+name_of_kvm_policy                  : "{{ prefix }}-KVM-Policy"
+description_of_kvm_policy           : "KVM Policy to set Tunneled KVM to {{enable_tunneled_kvm}}"
+enable_tunneled_kvm                 : 'true'
+
+# IPMI over LAN Policy 
+name_of_ipmi_policy                 : "{{ prefix }}-Enable-IPMIoLAN-Policy"
+description_of_ipmi_policy          : "Enable IPMI over LAN"
+
+# Local User Policy to enable KVM and IPMI Access
+name_of_LocalUser_policy            : "{{ prefix }}-LocalUser-Policy"
+name_of_local_user                  : "fpadmin"
+password_for_local_user             : "HighV0lt"
+
+# Ethernet Network Control Policy to enable CDP and LLDP
+name_of_ethernet_network_control_policy         : "{{ prefix }}-Enable-CDP-LLDP-Policy"
+description_of_ethernet_network_control_policy  : "Ethernet Network Control Policy to enable CDP and LLDP"
+
+
+# Ethernet Network Group Policies for iSCSI interfaces (only required when configure_iscsi== true) 
+# Ignore the configuration for iSCSI-A and iSCSI-B Network Group policies if iSCSI is not configured
+
+# Ethernet Network Group Policy - VLAN details of iscsi-a vNIC Interface
+# iSCSI-A VLAN will be set as Native VLAN - NVMe-TCP-A VLAN Added if using NVMe-TCP
+name_of_network_group_policy_for_iscsi_a                : "{{ prefix }}-iSCSI-A-NetGrp-Policy"
+description_of_network_group_policy_for_iscsi_a         : "VLAN details of iscsi-a vNIC Interface; iSCSI-A VLAN set as Native VLAN"
+
+# Ethernet Network Group Policy - VLAN details of iscsi-b vNIC Interface
+# iSCSI-B allowed VLAN will be set as Native VLAN - NVMe-TCP-B VLAN Added
+name_of_network_group_policy_for_iscsi_b                : "{{ prefix }}-iSCSI-B-NetGrp-Policy"
+description_of_network_group_policy_for_iscsi_b         : "VLAN details of iscsi-b vNIC Interface; iSCSI-B VLAN set as Native VLAN"
+
+# Boot mode for server. Either put Uefi or Legacy
+# UEFI secure boot true or flase
+boot_mode                   : "Uefi"
+enable_uefi_secureboot      : 'true'
+
+# Boot LUN ID on Storage
+lun_id                      : 0
+
+#
+#VSAN Parameters
+#
+vsan_A_name: 'FlexPod-Fabric-A'
+vsan_A_id: 101
+vsan_A_fcoe_vlan: 101
+#
+vsan_B_name: 'FlexPod-Fabric-B'
+vsan_B_id: 102
+vsan_B_fcoe_vlan: 102
+#
+# Setting some defaults
+os_bond: 'false'
+configure_local: 'false'
+os_type: 'vmware'

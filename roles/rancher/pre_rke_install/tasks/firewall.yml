@@ -1,0 +1,17 @@
+---
+- name: "Add Interfaces to defined zone"
+  ansible.posix.firewalld:
+    zone: "{{ item.zone }}"
+    interface: "{{ item.name }}"
+    permanent: true
+    state: enabled
+  with_list: "{{ firewall_interfaces }}"
+
+
+- name: "Restart Firewalld"
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+
+
+

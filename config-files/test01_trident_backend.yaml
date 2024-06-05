@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-tbc-ontap-secret
+type: Opaque
+stringData:
+  username: vsadmin
+  password: "GpuSystem24!"
+---
+apiVersion: trident.netapp.io/v1
+kind: TridentBackendConfig
+metadata:
+  name: backend-tbc-ontap-nas
+spec:
+  version: 1
+  storageDriverName: ontap-nas
+  managementLIF: "172.18.0.101"
+  backendName: tbc-ontap-nas
+  exportPolicy: default
+  storagePrefix: "test01_"
+  svm: "test01_svm"
+  autoExportPolicy: true
+  autoExportCIDRs: ['172.18.3.0/24']
+  credentials:
+    name: backend-tbc-ontap-secret

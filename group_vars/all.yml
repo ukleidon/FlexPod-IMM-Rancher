@@ -1,0 +1,284 @@
+########################################################################################################################
+# 
+# Key Variables used to build the core infrastructure setup and used as input for workload
+# specific tenant deployments.
+#
+########################################################################################################################
+
+# -------------  The confiuration for multi-tenancy and secure-multi-tenancy is available now --------------------------
+#
+# The new setup of FlexPod with ansible is now based on the initial infrastructure setup without any workloads,
+# and the workload setup on top of the infrastructure. This changed the way variables are defined and used.
+#
+# vars:                        This directory is removed in the new structure.     ---- Removed ----
+# group_vars                   Directory used to define inventory-group specific variables.
+# group_vars/all.yml:          This file: For variables required for the complete stack.
+#           /ucs.yml:          Infrastructure part of the Intersight/UCS configuration.
+#           /nexus.yml:        Infrastructure part of the Nexus configuration. i.e. VPC, port-channels, ...
+#           /mds.yml:          Infrastructure part of the MDS configuration.
+#           /ontap.yml:        Infrastrucrure part of the NetApp Ontap configuration.
+#           /vmware.yml:       Global settings for VMware deployments used by all tenants.
+# host_vars                    Directory for all host(name) specific variables.
+# host_vars/n9kA.yml           Host specific varables for Nexus A
+#          /n9kB.yml           Host specific varables for Nexus B
+#          /mdsA.yml           Host specific varables for MDS A
+#          /mdsB.yml           Host specific varables for MDS B
+#          /c250-1.yml         Host specific varables for NetApp Storage 1          ---- NEW ----
+# tenants/                     Directory to collect all tenant relevant artifacts   ---- NEW ----
+# tenants/[tenant1]            Directory to collect all artifacts for [tenant1]     ---- NEW ----
+#        /[tenant1]/vars.yml:  File for all tenant specific variables               ---- NEW ----
+#                  /airgap:    All files required for airgapped installations.      ---- NEW ----
+#                  /manifests: All K8s manifests used for this tenant               ---- NEW ----
+# -----------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------
+#
+# The organization specified here is used as Organizaton name for non SMT deployments. 
+# In SMT deployments the tenant_name will be used as Organization name.
+organization      : "RTP4-AC01"
+
+# Local User and password are used in Intersight and for the SVM admin.
+# The user is configured in Intersight local user policy in addition to the users defined in the tenant config.
+# The SVM vsadmin password will be replaced with the definition in the tenant configuration!!
+name_of_local_user                  : "fpadmin"
+password_for_local_user             : "DataSpace24!"
+
+# Backup Directory for some playbooks to store configuration before chaning
+backup_dir:  "/home/admin/backup"
+#
+# -----------------------------------------------------------------------------------------------------
+#
+# Important Variables used in all.yml for the new structure. Some are overwritten in the tenant configs.
+#
+# 
+# Specify the primery OS type for this deployment. The os_type will be overwritten in the tenant configuration.
+# the os_type can be: 'linux', 'vmware', or 'windows'
+# Default is defined as vmware as this is the most used at the moment.
+os_type: 'vmware'
+#
+# tenants_dir: Directory where tenant spcific artifacts are stored
+# Each tenant managed by this framework will have a dedicated directory,
+# i.e. /opt/FlexPod/tenants/test01
+# Here are tenant specific information and files located required to deploy
+# an workload or appliocation. 
+# This can be used for air-gapped installations of K8s or other stacks.
+#
+tenants_dir: "{{ playbook_dir }}/tenants"
+#
+#
+# Multi-Tenancy is the new default. This means that multiple tenants (applications) can be deployed on the same 
+# FlexPod site-by-site. The deployment of tenant X should/will not impact any other tenant of the same FlexPod.
+# The default Multi-Tenancy uses tenant specific VLANs, IP ranges, rules, names and so on, but all run in the same
+# UCS Organization and Network VRF. Resource sharing and network communication between the different tenants is 
+# allowed and possible. All SVI on the Nexus switches are deployed in the default VRF.
+# To use default Multi-Tenant option set SMT to false.
+# SMT:  false
+# Secure-Mutlti-Tenancy is an deployment option to restrice the sharing of resources and communication between tenants.
+# Each tenant will have his own Organization in Intersight and use an dedicated VRF on the network.
+# Network communication between tenants must be realized with dedicated external routers and/or firewalls.
+# To enalbe secure-multi-tenancy set SMT to true.
+SMT: true
+
+# This is the top-level variable file that will be used for the FlexPod setup. It is setup in this case to have iSCSI
+# SAN boot with NVMe-TCP and NFS storage protocols. Notice that the configure_fc variable is set to false, meaning iSCSI
+# boot is configured. We are also assuming that FC-NVMe will only be used with FC boot and that NVMe-TCP will only be
+# used with iSCSI boot. Also, all protocols can be set to 'true'. 
+#
+#-----------------------------------------------------------------------------------------------------------------------
+#
+# Setting the following variables to anything but 'true' ('false' is suggested when not using 'true'), will cause the 
+# protocol to not be configured.
+configure_iscsi: 'true'
+configure_nvme_tcp: 'false'  # Only set this to 'true' if configure_iscsi is set to 'true'
+
+configure_fc: 'true'
+configure_fc_nvme: 'false'   # Only set this to 'true' if configure_fc is set to 'true'  
+
+configure_nfs: 'true'       # In FlexPod, nfs is always used unless you have an All SAN Array (ASA)
+#
+# Specify the primery OS type for this deployment.
+# the os_type can be: 'linux', 'vmware', or 'windows'
+#os_type: 'vmware'
+
+# Update the the following lines to setup NTP Server(s)
+# By default we are setting up NTP Distribution on the Nexus switches and the first two NTP servers 
+# are Nexus Switch mgmt0 IP addresses.
+# If you don't want to use the Nexus switches as NTP server set the next line to false.
+use_n9k_as_ntp_server: 'true'
+# 
+# InBand Management NTP Addresses to be used by all internal Hosts, Virtual Machines and services.
+# A VLAN interface with the specified IP addresses will be created on the switches
+ib_mgmt_ntp_servers:                
+  - ip_address: "10.104.0.3"        # IP Address for first Nexus (n9kA)
+  - ip_address: "10.104.0.4"        # IP Address for second Nexus (n9kB)
+  - ip_address: "172.20.10.11"      # external NTP server
+
+ntp_servers:
+  - ip_address: "172.20.10.11"     # Default: mgmt0 IP from first Nexus (n9kA)
+  - ip_address: "172.20.10.14"     # Default: mgmt0 IP from second Nexus (n9kA)
+#
+# Update the the following lines to setup DNS Server(s)
+# Note: The Nexus and MDS scripts assume exactly 2 DNS servers.
+dns_servers:
+  - ip_address: "10.104.1.4"
+  - ip_address: "10.104.0.4"
+
+# DNS Domain Name
+dns_domain_name: "aa04.cspgb4.local"
+
+# Update the the following line to setup Timezone
+time_zone: 'Americas/New_York'
+
+# ------------------------------------------------------------------------------------------------------------
+#  Global Network configuration required to configure the FlexPod infrastructure.
+#
+# This is the list of all the VLANs that will be defined on Nexus, Storage, UCS, and VMware
+# VLAN Names are adjustable and can be modified in here
+# Comment out any VLANs that are not used here and below (iSCSI and NVMe-TCP)
+#
+native_vlan_name: 'Native-Vlan' # Native VLAN
+native_vlan_id: 1
+oob_vlan_name: 'OOB-MGMT' # Out of Band Mgmt VLAN
+oob_vlan_id: 1110
+ib_vlan_name: 'ib-mgmt' # IN BAND Management VLAN
+ib_vlan_id: 1111
+nfs_vlan_name: 'nfs-vlan' # NFS Traffic between ESXi and Storage
+nfs_vlan_id: 1113
+#
+#------------------------------------------------------------------------------------
+# The following variables are optional. 
+# We keep them in this file to be backward compatiple with other FlexPod playbooks.
+#
+#vm_vlan_name: 'vm-traffic' # VLAN to carry VM traffic on VDS
+#vm_vlan_id: 1112
+#vmotion_vlan_name: 'vMotion' # vMotion VLAN
+#vmotion_vlan_id: 3300
+#iscsiA_vlan_name: 'iscsi-a' # iSCSI-A VLAN (if needed)
+#iscsiA_vlan_id: 1118
+#iscsiB_vlan_name: 'iscsi-b' # iSCSI-B VLAN (if needed)
+#iscsiB_vlan_id: 1119
+#nvme_tcpA_vlan_name: 'Infra-NVMe-TCP-A' # NVMe-TCP-A VLAN (if needed)
+#nvme_tcpA_vlan_id: 2198
+#nvme_tcpB_vlan_name: 'Infra-NVMe-TCP-B' # NVMe-TCP-B VLAN (if needed)
+#nvme_tcpB_vlan_id: 2199
+#------------------------------------------------------------------------------------
+#
+# lan_state should be set to 'present' to configure the objects
+# In future, this parameter will be used for deleting the configuration
+#
+lan_state : 'present'
+#
+# VLAN Lists - Comment out or remove any VLANs not being used.
+#
+# The ib_mgmt_vlan_list contains one entry, the IB-MGMT VLAN.
+#
+ib_mgmt_vlan_list:
+  - name: "{{ ib_vlan_name }}"
+    id: "{{ ib_vlan_id }}"
+    native: 'no'
+    state: "{{lan_state}}"
+#
+# The storage_vlan_list contains VLANs that are configured on the storage controllers.
+# These VLANs are also configured in the UCS and in the Nexus switches. This list has
+# two extra fields, storage_protocol, and fabric. Do not remove these extra fields.
+#
+storage_vlan_list:
+  - name: "{{ nfs_vlan_name }}"
+    id: "{{ nfs_vlan_id }}"
+    native: 'no'
+    storage_protocol: NFS
+    state: "{{lan_state}}"
+#
+# The following settings are moved into the tenant configuration file.
+#
+#    # ISCSI A and B VLANs should be deleted or commended out for Fiber-Channel-Only deployments
+#  - name: "{{ iscsiA_vlan_name }}"
+#    id: "{{ iscsiA_vlan_id }}"
+#    native: 'no'
+#    storage_protocol: iSCSI
+#    fabric: A
+#    state: "{{lan_state}}"
+#  - name: "{{ iscsiB_vlan_name }}"
+#    id: "{{ iscsiB_vlan_id }}"
+#    native: 'no'
+#    storage_protocol: iSCSI
+#    fabric: B
+#    state: "{{lan_state}}"
+#  - name: "{{ nvme_tcpA_vlan_name }}"
+#    id: "{{ nvme_tcpA_vlan_id }}"
+#    native: 'no'
+#    storage_protocol: NVMe
+#    fabric: A
+#    state: "{{lan_state}}"
+#  - name: "{{ nvme_tcpB_vlan_name }}"
+#    id: "{{ nvme_tcpB_vlan_id }}"
+#    native: 'no'
+#    storage_protocol: NVMe
+#    fabric: B
+#    state: "{{lan_state}}"
+
+# The remaining_vlan_list contains all vlans that are not configured on storage,
+# but are configured in Nexus and UCS.
+#
+remaining_vlan_list:
+  - name: "{{ native_vlan_name }}"
+    id: "{{ native_vlan_id }}"
+    native: 'yes'
+    state: "{{lan_state}}"
+  - name: "{{ oob_vlan_name }}"
+    id: "{{ oob_vlan_id }}"
+    native: 'no'
+    state: "{{lan_state}}"
+#
+# The following settings are moved into the tenant configuration file.
+#
+#  - name: "{{ vm_vlan_name }}"
+#    id: "{{ vm_vlan_id }}"
+#    native: 'no'
+#    state: "{{lan_state}}"
+#  - name: "{{ vmotion_vlan_name }}"
+#    id: "{{ vmotion_vlan_id }}"
+#    native: 'no'
+#    state: "{{lan_state}}"
+
+# VLANs definitions below will be used to setup trunk ports on Nexus Switches
+# all_vlans_list: for vpc_peer_link and UCS FI trunk ports
+# These VLANs must be same or a subset of the vlan_list abovea
+# Comment out or remove any VLANs that are not used (iSCSI and NVMe-TCP)
+# In future, these values will be auto-generated
+#
+all_vlans_list: "{{ oob_vlan_id }},{{ ib_vlan_id }}"
+# storage_vlans_list: for storage uplink trunk ports
+storage_vlans_list: "{{ ib_vlan_id }},{{ nfs_vlan_id }}"
+# mgmt_vlans_list: for uplink/management switch trunk port
+mgmt_vlans_list: "{{ oob_vlan_id }},{{ ib_vlan_id }}"
+#
+
+# L3 information for the different VLANs
+#
+# The SVI list defines IP and VRF information to enable routing function on the Nexus Switches.
+# The hsrpIP is defined in the nexus host configuration file in the hosts_var directory.
+#
+svi_list:
+# Admin Networks
+  - name:  "{{ oob_vlan_id }}"
+    vrf:  "default"
+    address: "10.104.0.{{ hsrpIP }}/24"
+    hsrp: "172.16.0.1"
+  - name:  "{{ ib_vlan_id }}"
+    vrf:  "default"
+    address: "10.104.1.{{ hsrpIP }}/24"
+    hsrp: "10.104.1.250"
+#
+#  - name:  "{{ iscsiA_vlan_id }}"
+#    vrf:  "admin"
+#    address: "172.16.11.{{ hsrpIP }}/24"
+#    hsrp: "172.16.11.1"
+#  - name:  "{{ iscsiB_vlan_id }}"
+#    vrf:  "admin"
+#    address: "172.16.12.{{ hsrpIP }}/24"
+#    hsrp: "172.16.12.1"
+#  - name:  "{{ nfs_vlan_id }}"
+#    vrf:  "default"
+#    address: "172.16.10.{{ hsrpIP }}/24"
+#    hsrp: "172.16.10.1"
+

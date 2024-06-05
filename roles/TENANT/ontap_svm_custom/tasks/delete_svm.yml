@@ -1,0 +1,238 @@
+---
+- name: Gather Volume List 
+  netapp.ontap.na_ontap_rest_info:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    gather_subset:
+      - storage/volumes
+    parameters:
+      is_svm_root: false
+      query: "*{{svm_specs.svm_name}}*"
+      query_fields: svm.name
+  register: svm_volume_list
+
+- name: Gather export policy Information
+  netapp.ontap.na_ontap_rest_info:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    gather_subset:
+      - protocols/nfs/export-policies
+    parameters:
+      query: "*{{svm_specs.svm_name}}*"
+      query_fields: svm.name
+  register: svm_exportpolicy_list
+
+- name: Gather NVMe Information
+  netapp.ontap.na_ontap_rest_info:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    gather_subset:
+      - protocols/nvme/subsystems
+    parameters:
+      query: "*{{svm_specs.svm_name}}*"
+      query_fields: svm.name
+  register: svm_nvme_info
+
+- name: Gather LUN MAPS Information
+  netapp.ontap.na_ontap_rest_info:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    fields:
+      - "*"
+    gather_subset:
+      - protocols/san/lun-maps
+    parameters:
+      query: "*{{svm_specs.svm_name}}*"
+      query_fields: svm.name
+  register: svm_lunmaps_info
+
+- name: Gather LUNs Information
+  netapp.ontap.na_ontap_rest_info:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    fields:
+      - "*"
+    gather_subset:
+      - storage/luns
+    parameters:
+      query: "*{{svm_specs.svm_name}}*"
+      query_fields: svm.name
+  register: svm_lun_info
+
+- name: Gather iGroups Information
+  netapp.ontap.na_ontap_rest_info:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    fields:
+      - lun_maps
+    gather_subset:
+      - protocols/san/igroups
+    parameters:
+      query: "*{{svm_specs.svm_name}}*"
+      query_fields: svm.name
+  register: svm_igroup_info
+
+- name: Gather iGroups Information
+  netapp.ontap.na_ontap_rest_info:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    fields:
+      - "*"
+    gather_subset:
+      - network/ip/interfaces
+    parameters:
+      query: "*{{svm_specs.svm_name}}*"
+      query_fields: svm.name
+  register: svm_interface_info
+
+- name: debug variables
+  ansible.builtin.debug:
+    msg:
+      #      - "{{ svm_nvme_info }}"
+      # - "{{ svm_lunmaps_info }}"
+      # - "{{ svm_lun_info }}"
+      - "{{ svm_igroup_info.ontap_info['protocols/san/igroups'].records }}"
+        #      - "{{ svm_interface_info.ontap_info['network/ip/interfaces'].records }}"
+        #      - "{{ svm_exportpolicy_list.ontap_info['protocols/nfs/export-policies'].records.0.name }}"
+        #      - "{{svm_volume_list.ontap_info['storage/volumes'].records | map(attribute='name')}}"
+
+
+##############
+#
+#    Run action!
+#
+##############
+
+- name: delete lun mappings 
+  netapp.ontap.na_ontap_lun_map:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    state: absent
+    path: "{{item.lun.name}}"
+    initiator_group_name: "{{ item.igroup.name }}"
+    vserver: "{{ svm_specs.svm_name }}"
+  with_items:
+    - "{{svm_lunmaps_info.ontap_info['protocols/san/lun-maps'].records }}"
+
+- name: delete luns
+  netapp.ontap.na_ontap_lun:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    state: absent
+    flexvol_name: "{{item.location.volume.name}}"
+    name: "{{item.location.logical_unit}}"
+    vserver: "{{ svm_specs.svm_name }}"
+  with_items:
+    - "{{svm_lun_info.ontap_info['storage/luns'].records }}"
+
+- name: "delete igroups "
+  netapp.ontap.na_ontap_igroup:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    state: absent
+    name: "{{item.name}}"
+    vserver: "{{ svm_specs.svm_name }}"
+  with_items:
+    - "{{svm_igroup_info.ontap_info['protocols/san/igroups'].records }}"
+
+- name: Set volume offline and unmount
+  netapp.ontap.na_ontap_volume:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    state: absent
+    is_online: False
+    name: "{{ item }}"
+    vserver: "{{ svm_specs.svm_name }}"
+    junction_path: ""
+  with_items:
+    - "{{svm_volume_list.ontap_info['storage/volumes'].records | map(attribute='name')}}"
+
+- name: Delete Volume
+  netapp.ontap.na_ontap_volume:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    state: absent
+    is_online: False
+    name: "{{item}}"
+    vserver: "{{ svm_specs.svm_name }}"
+    junction_path: ""
+  with_items:
+    - "{{svm_volume_list.ontap_info['storage/volumes'].records | map(attribute='name') }}"
+
+
+- name: Delete Network Interfaces
+  netapp.ontap.na_ontap_interface:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    state: absent
+    interface_name: "{{item}}"
+    vserver: "{{ svm_specs.svm_name }}"
+  with_items:
+    - "{{svm_interface_info.ontap_info['network/ip/interfaces'].records | map(attribute='name')}}"
+
+- name: delete SVM with
+  netapp.ontap.na_ontap_svm:
+    state: absent
+    name: "{{item.svm_name}}"
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+  with_items:
+    - "{{svm_specs}}"
+  tags:
+    - ontap_config_svm

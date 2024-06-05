@@ -1,0 +1,59 @@
+---
+  # This task sets Ethernet ports to L2 and enables interfaces
+
+  # This task adds ports to the uplink switch port-channels
+  - name: Add Ports to ProxMox1 switch Port-Channel
+    cisco.nxos.nxos_lag_interfaces:
+      config:
+        - name: "{{ proxmox1_PC[0].interface }}"
+          members:
+            - member: "{{ item.interface }}"
+              mode: active
+    with_list: "{{ proxmox01_interface_list }}"
+  - name: Add Ports to ProxMox2 switch Port-Channel
+    cisco.nxos.nxos_lag_interfaces:
+      config:
+        - name: "{{ proxmox2_PC[0].interface }}"
+          members:
+            - member: "{{ item.interface }}"
+              mode: active
+    with_list: "{{ proxmox02_interface_list }}"
+
+# This task sets up speed, duplex and mtu settings for the other interfaces
+  - name: Modify the mtu speed and duplex for ProxMox ports
+    cisco.nxos.nxos_interfaces:
+      config:
+        - name: "{{ item.interface }}"
+          mtu: "9216"
+          speed: "{{ item.speed }}"
+          duplex: "{{ item.duplex }}"
+    with_list: "{{ proxmox_port_channels }}"
+#
+#
+# Configure Infrastructure VLANs ProxMox Port-Channels
+#
+  - name: Enabling Infrastructure vlans on ProxMox Port-Channels
+    cisco.nxos.nxos_l2_interfaces:
+      config:
+        - name: "{{ item.interface }}"
+          trunk:
+            native_vlan: "{{ native_vlan_id }}"
+            allowed_vlans: "{{ vlans_list }}"
+    with_list: "{{ proxmox_port_channels }}"
+#
+#
+#
+# The tasks below are added to overcome issues in Ansible Scripts
+# 1) https://github.com/ansible/ansible/issues/64896
+# switchport mode trunk is not set correctly and have to be added manually
+# 2) Spanning-tree port type edge trunk" on FI and Storage Port-Channels can not be set using ansible function
+
+  # This task sets:
+  # "switchport mode trunk" on all Port-Channels
+  - name: Set - switchport mode trunk
+    cisco.nxos.nxos_config:
+      lines:
+        - switchport mode trunk
+      parents: interface {{ item.interface }}
+    with_list: "{{ proxmox_port_channels }}"
+  #

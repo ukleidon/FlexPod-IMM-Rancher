@@ -1,0 +1,39 @@
+---
+# 
+# This Playbook sets up a physical Tenant on FlexPod, configuring Nexus switches, NetApp storage and UCS profiles.
+#
+# Configure VLANs, VRF, and IP addresses for the tenant
+- hosts: nexus
+  connection: network_cli
+  gather_facts: no
+  roles:
+  - { role: DAY0/env_vars }
+  - { role: DAY0/nexus_config, tags: [ 'nexus_vlan' ] }
+  - { role: DAY0/nexus_config_ip, tags: [ 'gpusystem' ] }
+  tags:
+  - nexus_config
+
+# Configure VLANs, LIFs, SVM, and LUNs for the tenant
+- name: Configure ONTAP for FlexPod
+  hosts: ontap
+  gather_facts: False
+  connection: local
+  roles:
+  #- { role: DAY0/env_vars }
+  - { role: DAY0/ontap_network, tags: [ 'ontap_network' ] }
+  tags:
+  - ontap_config
+  - flexpod_config
+
+# Create various pools, policies, and a server profile template
+#
+- name: "Create Tenant in Intersight "
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - group_vars/ucs.yml
+  roles:
+  #- { role: DAY0/env_vars }
+  - { role: DAY0/ucs_create_pools }
+  tags:
+  - ucs_config

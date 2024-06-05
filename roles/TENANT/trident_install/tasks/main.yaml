@@ -1,0 +1,73 @@
+- name: current_working_directory
+  ansible.builtin.debug:
+    var: playbook_dir
+  register: current_working_directory
+- name: Print version
+  debug:
+    msg: "Ansible Version: {{ current_working_directory.playbook_dir }}"
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "{{  current_working_directory.playbook_dir }}/downloads"
+    state: directory
+
+# build trident backend
+#
+#
+#
+- name: Generate trident backend config
+  template:
+    src: 'trident_backend_config.yaml.j2'
+    dest: "{{ item }}"
+    mode: 0600
+  loop:
+    - "{{  current_working_directory.playbook_dir }}/config-files/{{ tenant_name }}_trident_backend.yaml"
+#
+#
+
+- name: "Download Trident {{ trident.version }}"
+  ansible.builtin.get_url:
+    url: "https://github.com/NetApp/trident/releases/download/v{{ trident.version }}/trident-installer-{{ trident.version }}.tar.gz"
+    dest: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}.tar.gz"
+
+
+- name: unarchive trident installer
+  ansible.builtin.unarchive:
+    src:  "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}.tar.gz"
+    dest:  "{{  current_working_directory.playbook_dir }}/downloads/"
+
+- name: move files to subfolder
+  command: "mv {{  current_working_directory.playbook_dir }}/downloads/trident-installer {{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}"
+
+
+- name: Apply Trident CRDs
+  kubernetes.core.k8s:
+    state: present
+    src: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}/deploy/crds/trident.netapp.io_tridentorchestrators_crd_post1.16.yaml"
+
+- name: Apply Trident Namespace
+  kubernetes.core.k8s:
+    state: present
+    src: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}/deploy/namespace.yaml"
+
+- name: Apply Trident Bundle
+  kubernetes.core.k8s:
+    state: present
+    src: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}/deploy/bundle_post_1_25.yaml"
+
+- name: Pause for 1 minutes to build app cache
+  ansible.builtin.pause:
+    minutes: 1
+
+- name: Apply Trident CR
+  kubernetes.core.k8s:
+    state: present
+#    src: "{{  current_working_directory.playbook_dir }}/custom-app-config/tridentorchestrator_cr_{{ trident.version }}.yaml"
+    src: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}/deploy/crds/tridentorchestrator_cr.yaml"
+
+
+- name: "Clean Up folder"
+  ansible.builtin.file:
+    path: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}"
+    state: absent
+

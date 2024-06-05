@@ -1,0 +1,18 @@
+---
+# 
+# This Playbook sets up a physical Tenant on FlexPod, configuring Nexus switches, NetApp storage and UCS profiles.
+#
+# Configure VLANs, VRF, and IP addresses for the tenant
+- name: "Create Tenant in Intersight "
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - group_vars/ucs.yml
+  roles:
+  - { role: TENANT/env_vars }
+  - { role: SUSE/harvester_ucs_policies }
+  tags:
+  - ucs_config
+  - flexpod_config
+  - hardware_tenant
+

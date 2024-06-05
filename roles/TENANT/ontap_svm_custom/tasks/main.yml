@@ -1,0 +1,10 @@
+---
+- include_tasks: create_svm.yml
+  when: state == "present"
+  tags: create_svm_custom
+
+- include_tasks: delete_svm.yml
+  when: state == "absent"
+  tags: 
+    - delete_svm_custom
+    - never

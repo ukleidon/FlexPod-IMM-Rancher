@@ -1,0 +1,16 @@
+---
+#Execute the below ONTAP Role after Nexus playbook
+- name: Configure ONTAP for FlexPod
+  hosts: ontap
+  gather_facts: False
+  vars_files:
+    - vars/ontap_main_XX.yml
+    - group_vars/all.yml
+  vars:
+    state: absent
+  connection: local
+  roles:
+  # - { role: TENANT/env_vars }
+  # - { role: TENANT/ontap_svm_custom, tags: [ 'ontap_svm', 'delete_svm_custom'] }
+  - { role: ONTAP/ontap_svm_custom, tags: [ 'ontap_svm', 'delete_svm_custom'] }
+    # - { role: ONTAP/ontap_lifs, tags: [ 'ontap_lifs' ] }

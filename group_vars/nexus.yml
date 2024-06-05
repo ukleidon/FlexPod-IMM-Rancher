@@ -1,0 +1,103 @@
+---
+ansible_connection: network_cli
+ansible_network_os: nxos
+#
+provider_ssh:
+  host: "{{ ansible_host }}"
+  username: "{{ ansible_username }}"
+  password: "{{ ansible_password }}"
+  transport: network_cli
+#
+enabled_features:
+  - lacp
+  - vpc
+  - interface-vlan
+  - nxapi
+  - udld
+  - lldp
+  - dhcp
+#
+global_settings:
+  #- spanning-tree port type network default
+  - spanning-tree port type edge bpduguard default
+  - spanning-tree port type edge bpdufilter default
+  - port-channel load-balance src-dst l4port
+  - system default switchport
+  #- system default switchport shutdown
+#
+global_NTP_servers:
+  - 172.16.4.11
+ntp_distribution_vlan: "{{ ib_vlan_id }}" # VLAN (IB-MGMT) where NTP distribution interfaces will be placed.
+ntp_distribution_nm_cidr: "/22"
+ntp_distribution_gw: '172.16.4.1' # Default gateway for IB-MGMT NTP distribution interfaces.
+#
+uplink_PC:
+  - interface: "port-channel52"
+    # id must be same as port-channel number
+    id: "52"
+    speed: "auto"
+    duplex: "auto"
+    description: "Fake-Uplink"
+#
+peerlink_PC:
+  - interface: "port-channel53"
+    # id must be same as port-channel number
+    id: "53"
+    speed: "auto"
+    duplex: "auto"
+    description: "vPC Peer Link"
+#
+FI_A_PC:
+  - interface: "port-channel49"
+    # id must be same as port-channel number
+    id: "49"
+    speed: "auto"
+    duplex: "auto"
+    description: "Uplink-FI-A"
+#
+FI_B_PC:
+  - interface: "port-channel50"
+    # id must be same as port-channel number
+    id: "50"
+    speed: "auto"
+    duplex: "auto"
+    description: "Uplink-FI-B"
+#
+storage_A_PC:
+  - interface: "port-channel25"
+    # id must be same as port-channel number
+    id: "25"
+    speed: "auto"
+    duplex: "auto"
+    description: "C250-02n1-a0a"
+#
+storage_B_PC:
+  - interface: "port-channel27"
+    # id must be same as port-channel number
+    id: "27"
+    speed: "auto"
+    duplex: "auto"
+    description: "C250-02n2-a0a"
+#
+storage_C_PC:
+  - interface: "port-channel29"
+    # id must be same as port-channel number
+    id: "29"
+    speed: "auto"
+    duplex: "auto"
+    description: "C250-01n1-a0a"
+#
+storage_D_PC:
+  - interface: "port-channel31"
+    # id must be same as port-channel number
+    id: "31"
+    speed: "auto"
+    duplex: "auto"
+    description: "C250-01n2-a0a"
+#
+all_port_channels: "{{ peerlink_PC + uplink_PC + FI_A_PC + FI_B_PC + storage_A_PC + storage_B_PC + storage_C_PC + storage_D_PC }}"
+#
+# VPC Parameters
+#
+vpc_domain_id: "101"
+#

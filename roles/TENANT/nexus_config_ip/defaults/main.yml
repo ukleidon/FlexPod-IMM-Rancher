@@ -1,0 +1,2 @@
+---
+# All variables are defined in group_vars/all.yml or in the respective hosts_vars/<hostname>.yml

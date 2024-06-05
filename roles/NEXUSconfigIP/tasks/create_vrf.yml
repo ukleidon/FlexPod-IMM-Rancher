@@ -1,0 +1,7 @@
+---
+  # This task Creates required VRF on Nexus switches
+  - name: Create VRF 
+    cisco.nxos.nxos_vrf:
+      name: "{{ item.vrf }}"
+      description: "VRF to keep FlexPod safe"
+    with_list: "{{ svi_list }}"

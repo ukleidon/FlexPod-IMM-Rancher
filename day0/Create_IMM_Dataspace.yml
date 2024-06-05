@@ -1,0 +1,20 @@
+---
+# Create various pools, policies, and a server profile template
+#
+- name: "Create Tenant in Intersight "
+  hosts: localhost
+  gather_facts: no
+  vars_files:   # Keep the flow as following: Tenant version of all.yml, ucs.yml , Tenant version of ucs.yml
+    - group_vars/dataspace.yml           # Tenant specific variables in addition to all.yml
+    - group_vars/ucs.yml                 # Global / Infrastructure related UCS variables
+    - group_vars/ucs_dataspace.yml       # Tenant specific UCS variables
+
+  roles:
+  # Create Various Pool
+    - role: UCS-IMM/create_pools
+
+  # Create Various Server Policies
+    - role: UCS-IMM/create_server_policies
+
+  # Create Server PoProfile Templates
+  #  - role: UCS-IMM/create_server_profile_template

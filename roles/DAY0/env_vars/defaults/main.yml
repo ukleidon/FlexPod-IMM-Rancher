@@ -1,0 +1,3 @@
+env_vars_env_name: "{{ tenant }}"  # to be set by playbook
+env_vars_ucs_file: "{{ playbook_dir }}/group_vars/ucs.yml"
+env_vars_all_file: "{{ playbook_dir }}/group_vars/all.yml"

@@ -1,0 +1,92 @@
+---
+# Create a new rule for the infrastructure NFS subnet in the default export policy
+- name: TENANT - Create the export policy rules
+  netapp.ontap.na_ontap_export_policy_rule:
+    state: present
+    vserver: "{{item.svm_name}}"
+    policy_name: default
+    client_match: "{{item.client_match}}"
+    protocol: "{{item.data_protocol}}"
+    ro_rule: sys
+    rw_rule: sys
+    rule_index: 1
+    super_user_security: sys
+    allow_suid: True
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+  with_items:
+    - "{{svm_specs}}"
+  when: 
+    - inventory_hostname == cluster_name
+  tags:
+    - ontap_export_policy_rule
+
+# Create FlexVols for datastores
+- name: TENANT - Create FlexVols for datastores
+  netapp.ontap.na_ontap_volume:
+    state: present
+    vserver: "{{svm_specs.svm_name}}"
+    policy: default
+    name: "{{item.name}}"
+    aggregate_name: "{{item.residing_aggr}}"
+    size: "{{item.size}}"
+    is_online: True
+    space_guarantee: none
+    percent_snapshot_space: 0
+    junction_path: /{{item.name}}
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+  with_items:
+    - "{{svm_specs.data_volumes_file}}"
+  when: 
+    - inventory_hostname == cluster_name
+  tags:
+    - ontap_flexvol_datastore
+
+# Disable the volume efficiency on swap volumes
+- name: TENANT - Disable the volume efficiency on swap volumes
+  netapp.ontap.na_ontap_volume_efficiency:
+    state: absent
+    vserver: "{{svm_specs.svm_name}}"
+    path: "/vol/{{item.name}}"
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+  with_items:
+    - "{{svm_specs.data_volumes_file}}"
+  when: 
+    - ('swap' in item.name)
+    - inventory_hostname == cluster_name
+  tags:
+    - ontap_disable_vol_efficiency
+
+# Create a FlexVol for the boot LUNs of servers
+- name: TENANT - Create a FlexVol for the block storage access
+  netapp.ontap.na_ontap_volume:
+    state: present
+    vserver: "{{svm_specs.svm_name}}"
+    policy: default
+    name: "{{item.name}}"
+    aggregate_name: "{{item.residing_aggr}}"
+    size: "{{item.size}}"
+    space_guarantee: none
+    percent_snapshot_space: 0
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+  with_items:
+    - "{{svm_specs.data_volumes_block}}"
+  when: 
+    - inventory_hostname == cluster_name
+  tags:
+    - ontap_flexvol_boot_luns

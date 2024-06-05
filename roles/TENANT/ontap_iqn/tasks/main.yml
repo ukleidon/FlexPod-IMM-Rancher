@@ -1,0 +1,21 @@
+---
+- name: Gather Volume List 
+  netapp.ontap.na_ontap_rest_info:
+    hostname: "{{inventory_hostname}}"
+    username: "{{username}}"
+    password: "{{password}}"
+    https: true
+    validate_certs: false
+    use_rest: always
+    gather_subset:
+      #      - protocols/san/iscsi/services
+      #- protocols/san/iscsi/credentials
+      - vserver_info
+    parameters:
+      name: gpusystem_svm
+#      is_svm_root: false
+#      query: "*{{svm_specs.svm_name}}*"
+#      query_fields: svm.name
+  when:
+    - inventory_hostname == cluster_name
+  register: svm_iqn

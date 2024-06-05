@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-tbc-ontap-secret
+type: Opaque
+stringData:
+  username: vsadmin
+  password: "DataSpace24!"
+---
+apiVersion: trident.netapp.io/v1
+kind: TridentBackendConfig
+metadata:
+  name: backend-tbc-ontap-nas
+spec:
+  version: 1
+  storageDriverName: ontap-nas
+  managementLIF: "172.16.4.101"
+  backendName: tbc-ontap-nas
+  exportPolicy: default
+  storagePrefix: "DataSpace_"
+  svm: "Infra-SVM"
+  autoExportPolicy: true
+  autoExportCIDRs: " ['172.16.10.0/24']"
+  credentials:
+    name: backend-tbc-ontap-secret

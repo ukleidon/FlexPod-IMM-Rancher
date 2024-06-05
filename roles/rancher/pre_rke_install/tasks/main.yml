@@ -1,0 +1,100 @@
+---
+#
+# Disable Firewalld
+# We recommend disabling firewalld. For Kubernetes 1.19+, firewalld must be turned off.
+- name: Disable FIREWALLD
+  ansible.builtin.systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+#
+# Disable swap and remove swap entry from /etc/fstab
+#
+- name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
+  shell: |
+    swapoff -a
+
+- name: Remove swap from fstab (2/2)
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+
+#
+# Add proxy to /etc/default/rke2-server if proxy is used
+#
+- name: Add a line to a file if the file does not exist, without passing regexp
+  ansible.builtin.lineinfile:
+    path: /etc/default/rke2-server
+    line: "{{ item }}"
+    create: yes
+  with_list: "{{ proxys }}"
+  when: proxys is defined
+
+#-------------------------------------------------------------------------------------
+#
+# Check if there are files in "{{ tarball_install }}"/airgap for airgapped installations.
+# Copy the files to all nodes for local installation.
+# If there are no files, the installation will download the required images from the internet.
+#
+- name: Determine the current repository filenames for airgapped installation in {{ tarball_install }}/airgap/
+  delegate_to: localhost
+  become: false
+  ansible.builtin.find:
+    path: "{{ tenant_dir }}/airgap/"
+    file_type: file
+  register: airgap_files
+
+- name: Create images directory if it does not exist
+  ansible.builtin.file:
+    path: /var/lib/rancher/rke2/agent/images
+    state: directory
+    mode: '0755'
+  when: ( airgap_files.matched != '0' )
+
+- name: Copy repository files for Air-Gapped installation into place
+  copy:
+    src: "{{ tenant_dir }}/airgap/"
+    dest: '/var/lib/rancher/rke2/agent/images/'
+  when: ( airgap_files.matched != '0' )
+
+#-------------------------------------------------------------------------------------
+#
+# Copy RKE2 images to /var/lib/rancher/rke2/server/manifests
+# All manifests in this directory are copied to RKE2 servers and be executed.
+# Here, this is used to 
+#
+- name: Create manifest directory if it does not exist
+  ansible.builtin.file:
+    path: /var/lib/rancher/rke2/server/manifests/
+    state: directory
+    mode: '0755'
+
+- name: Check for local manifests
+  delegate_to: localhost
+  become: false
+  ansible.builtin.find:
+    path: "{{ tenant_dir }}/manifests"
+    file_type: file
+  register: manifest_files
+
+- name: Copy local manifests into /var/lib/rancher/rke2/server/manifests/
+  copy:
+    src: "{{ tenant_dir }}/manifests/"
+    dest: '/var/lib/rancher/rke2/server/manifests/'
+  when: ( manifest_files.matched != '0' )
+
+- name: Check for rke2-server Proxy configuration
+  delegate_to: localhost
+  become: false
+  ansible.builtin.stat:
+    path: "{{ tenant_dir }}/rke2-server-proxy"
+  register: proxy_file
+
+- name: Copy RKE2-Proxy config to /etc/default
+  copy:
+    src: "{{ tenant_dir }}/rke2-server-proxy"
+    dest: '/etc/default/rke2-server'
+  when: proxy_file.stat.exists

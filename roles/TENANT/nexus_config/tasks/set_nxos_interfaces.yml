@@ -1,0 +1,48 @@
+---
+#
+# Configure Trunk VLANs for Peer-Link and UCS FI Port-Channels
+#
+  - name: Enabling all vlans on peer-link and UCS FI Port-Channels
+    cisco.nxos.nxos_l2_interfaces:
+      config:
+        - name: "{{ item.interface }}"
+          trunk:
+            native_vlan: "{{ native_vlan_id }}"
+            allowed_vlans: "{{ t_all_vlans_list }}"
+    with_list: "{{ peerlink_PC + FI_A_PC + FI_B_PC }}"
+#
+# Configure VLANs mgmt Port-Channels
+#
+  - name: Enabling management vlans on uplink Port-Channels
+    cisco.nxos.nxos_l2_interfaces:
+      config:
+        - name: "{{ item.interface }}"
+          trunk:
+            native_vlan: "{{ native_vlan_id }}"
+            allowed_vlans: "{{ t_mgmt_vlans_list }}"
+    with_list: "{{ uplink_PC }}"
+#
+# Configure VLANs for storage Port-Channels
+#
+  - name: Enabling storage vlans on Storage Port-Channels
+    cisco.nxos.nxos_l2_interfaces:
+      config:
+        - name: "{{ item.interface }}"
+          trunk:
+            native_vlan: "{{ native_vlan_id }}"
+            allowed_vlans: "{{ t_storage_vlans_list }}"
+    with_list: "{{ storage_A_PC + storage_B_PC }}"
+#
+#
+# Configure VLANs for second storage Port-Channels
+#
+  - name: Enabling storage vlans on second Storage Port-Channels
+    cisco.nxos.nxos_l2_interfaces:
+      config:
+        - name: "{{ item.interface }}"
+          trunk:
+            native_vlan: "{{ native_vlan_id }}"
+            allowed_vlans: "{{ t_storage_vlans_list }}"
+    with_list: "{{ storage_C_PC + storage_D_PC }}"
+    when: storage_C_PC is defined
+#

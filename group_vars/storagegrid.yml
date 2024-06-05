@@ -1,0 +1,64 @@
+---
+#
+
+storage_grid_01_PC:
+  - interface: "port-channel35"
+    # id must be same as port-channel number
+    id: "35"
+    speed: "auto"
+    duplex: "auto"
+    description: "sg5712-01"
+storage_grid_02_PC:
+  - interface: "port-channel36"
+    # id must be same as port-channel number
+    id: "36"
+    speed: "auto"
+    duplex: "auto"
+    description: "sg5712-02"
+storage_grid_03_PC:
+  - interface: "port-channel37"
+    # id must be same as port-channel number
+    id: "37"
+    speed: "auto"
+    duplex: "auto"
+    description: "sg5712-03"
+
+all_sg_pc: "{{ storage_grid_01_PC + storage_grid_02_PC + storage_grid_03_PC }}"
+all_sg_ports: "{{ sg01_interface_list + sg02_interface_list + sg03_interface_list }}"
+
+
+
+# This is the list of all the VLANs that will be defined on Nexus, Storage, UCS, and VMware
+# VLAN Names are adjustable and can be modified in here
+# Comment out any VLANs that are not used here and below (iSCSI and NVMe-TCP)
+#
+sg_grid_vlan_id: 107
+sg_grid_vlan_name: 'StorageGrid_Grid' # StorageGRID GRID VLAN Name
+sg_client_vlan_id: 106
+sg_client_vlan_name: 'StorageGrid_Client' # StorageGRID Client VLAN Name
+#
+lan_state : 'present'
+#
+# VLAN Lists - Comment out or remove any VLANs not being used.
+#
+sg_vlan_list:
+  - name: "{{ sg_grid_vlan_name }}"
+    id: "{{ sg_grid_vlan_id }}"
+    native: 'no'
+    storage_protocol: GRID
+    state: "{{lan_state}}"
+    # StorageGRID Client access LAN (optional)
+  - name: "{{ sg_client_vlan_name }}"
+    id: "{{ sg_client_vlan_id }}"
+    native: 'no'
+    state: "{{lan_state}}"
+
+# VLANs definitions below will be used to setup trunk ports on Nexus Switches
+# all_vlans_list: for vpc_peer_link and UCS FI trunk ports
+# These VLANs must be same or a subset of the vlan_list abovea
+# Comment out or remove any VLANs that are not used (iSCSI and NVMe-TCP)
+# In future, these values will be auto-generated
+#
+# storage_vlans_list: for storage uplink trunk ports
+sg_vlans_list: "{{ sg_grid_vlan_id }},{{ sg_client_vlan_id }}"
+#

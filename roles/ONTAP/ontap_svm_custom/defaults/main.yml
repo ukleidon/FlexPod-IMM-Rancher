@@ -1,0 +1,7 @@
+input: &input            
+  hostname: "{{inventory_hostname}}"
+  username: "{{username}}"
+  password: "{{password}}"
+  https:                      true
+  validate_certs:             false
+  use_rest:                   "always"

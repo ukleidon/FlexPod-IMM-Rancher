@@ -1,0 +1,77 @@
+---
+vpc_source: "{{ hostvars['nx1'].ansible_host }}"
+vpc_destination: 172.16.0.35 # "{{ hostvars['nx2'].ansible_host }}"
+vpc_role_priority: "10"
+# NTP Distribution IP for N9K-A in the IB-MGMT VLAN
+IB_MGMT_ntp_dist_IP: "{{ ib_mgmt_ntp_servers[0].ip_address }}{{ ntp_distribution_nm_cidr }}"
+# Interface Lists; more interfaces can be added for additional BW
+#
+uplink_interface_list:
+  - interface: "Ethernet1/52"
+    description: "Fake-Uplink"
+
+peerlink_interface_list:
+  - interface:  "Ethernet1/53"
+    description: "KL-IDTA-nx2:Eth1/53"
+  - interface:  "Ethernet1/54"
+    description: "KL-IDTA-nx2:Eth1/54"
+#
+FI_A_interface_list:
+  - interface:  "Ethernet1/49"
+    description: "KL-IDTA-FI-A:Eth1/53"
+#
+FI_B_interface_list:
+  - interface:  "Ethernet1/50"
+    description: "KL-IDTA-FI-B:Eth1/53"
+#
+storage_A_interface_list:
+  - interface:  "Ethernet1/25"
+    description: "C250-02n1:e2a"
+  - interface:  "Ethernet1/26"
+    description: "C250-02n1:e2b"
+#
+storage_B_interface_list:
+  - interface:  "Ethernet1/27"
+    description: "C250-02n2:e2a"
+  - interface:  "Ethernet1/28"
+    description: "C250-02n2:e2b"
+#
+storage_C_interface_list:
+  - interface:  "Ethernet1/29"
+    description: "C250-01n1:e2a"
+  - interface:  "Ethernet1/30"
+    description: "C250-01n1:e2b"
+#
+storage_D_interface_list:
+  - interface:  "Ethernet1/31"
+    description: "C250-01n2:e2a"
+  - interface:  "Ethernet1/32"
+    description: "C250-01n2:e2b"
+#
+sg01_interface_list:
+  - interface:  "Ethernet1/35"
+    description: "sg5712-01-eth1"
+sg02_interface_list:
+  - interface:  "Ethernet1/36"
+    description: "sg5712-02-eth1"
+sg03_interface_list:
+  - interface:  "Ethernet1/37"
+    description: "sg5712-03-eth1"
+#
+proxmox01_interface_list:
+  - interface:  "Ethernet1/47"
+    description: "Uplink Proxmox"
+proxmox02_interface_list:
+  - interface:  "Ethernet1/48"
+    description: "Uplink Proxmox"
+#
+#
+all_interfaces: "{{ uplink_interface_list + peerlink_interface_list + FI_A_interface_list + FI_B_interface_list + storage_A_interface_list + storage_B_interface_list + storage_C_interface_list + storage_D_interface_list + sg01_interface_list + sg02_interface_list + sg03_interface_list + proxmox01_interface_list + proxmox02_interface_list}}"
+
+#
+# The baseIP is used as the last digit of the SVI IP address to support HSRP configuration configured in the all.yml or
+# tenant.yml files. The number must be between 2 and 254 and must be different as for nexus A.
+baseIP: 248
+
+
+
