@@ -92,3 +92,44 @@ vm165g_transmit_ring_size      : 16384
 vm165g_completion_queue_count  : 17
 vm165g_completion_ring_size    : 1
 
+# Ethernet Network Group Policy - VLAN details of iscsi-a vNIC Interface
+description_of_network_group_policy_for_iscsi_a         : "VLAN details of iscsi-a vNIC Interface; iSCSI-A VLAN set as Native VLAN"
+
+# Ethernet Network Group Policy - VLAN details of iscsi-b vNIC Interface
+description_of_network_group_policy_for_iscsi_b         : "VLAN details of iscsi-b vNIC Interface; iSCSI-B VLAN set as Native VLAN"
+
+# iSCSI Adapter Policy
+description_of_iscsi_adapter_policy: "iSCSI Adapter policy"
+
+# iSCSI Target Policies
+description_of_iscsi_a_primary_target_policy    : "iSCSI-A Primary Target Policy"
+description_of_iscsi_a_secondary_target_policy  : "iSCSI-A Secondary Target Policy"
+description_of_iscsi_b_primary_target_policy    : "iSCSI-B Primary Target Policy"
+description_of_iscsi_b_secondary_target_policy  : "iSCSI-B Secondary Target Policy"
+
+# iSCSI Boot Policies
+description_of_iscsi_a_boot_policy              : "iSCSI-A Boot Policy"
+description_of_iscsi_b_boot_policy              : "iSCSI-B Boot Policy"
+
+# LAN Connectivity Policies
+description_of_iscsi_lan_connectivity_policy    : "LAN Connectivity Policy for iSCSI boot from SAN - {{ vic_type }} VIC"
+description_of_fc_lan_connectivity_policy       : "LAN Connectivity Policy for FC boot from SAN - {{ vic_type }} VIC"
+
+# Fibre Channel Network Policy: SAN-A
+description_of_fc_network_policy_san_a  : "SAN-A Fibre Channel Network Policy using VSAN {{ vsan_A_id }}"
+
+# Fibre Channel Network Policy: SAN-B
+description_of_fc_network_policy_san_b  : "SAN-B Fibre Channel Network Policy using VSAN {{ vsan_B_id }}"
+
+# Fibre Channel QoS Policy
+description_of_fc_qos_policy  : "Fibre Channel QoS policy with default values"
+
+# Fibre Channel Adapter Policy
+description_of_fc_adapter_policy    : "Fibre Channel Adapter policy with VMware platform defined default values"
+
+# FC-NVMe Initiator Adapter Policy
+description_of_fc_nvme_initiator_adapter_policy    : "FC-NVMe Initiator Adapter policy with platform defined default values"
+
+# SAN connectivity Policy
+description_of_san_connectivity_policy  : "SAN Connectivity Policy to add FC HBAs - {{ vic_type }} VIC"
+

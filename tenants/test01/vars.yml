@@ -345,7 +345,7 @@ svm_specs:
     #    - {name: "{{tenant_name}}_nvme_01", size: 500, residing_vol: "{{tenant_name}}_nvme"}
   #host names will be used for NetApp Boot LUNs and igroup names. These vars are placed under group_vars/all.yml file
   boot_luns_iscsi: {size: 400, residing_vol: "{{tenant_name}}_boot"}
-  svm_mgmt_lif: {home_node: "{{ cluster_name }}n2", address: "{{ t_ib_network_prefix }}.101", netmask: 255.255.255.0, 
+  svm_mgmt_lif: {home_node: "{{ cluster_name }}n2", address: "{{ t_ib_network_prefix }}.101", netmask: "{{ t_ib_network_mask }}", 
                   gateway: "{{ t_ib_network_prefix }}.1", lif_name: "{{ tenant_name }}-svm-mgmt"}
   vsadmin_password: "{{ t_password_for_local_user }}"
   os_type: linux
@@ -503,10 +503,15 @@ wwpn_pool_size_on_san_b         : 128
 #------------------------- Server Policies ------------------------------
 #
 # BIOS policies
-name_of_bios_policy           : "{{ prefix }}-{{ server_cpu_type }}-M6-Linux-BIOS"
-description_of_bios_policy    : "BIOS Policy for Performance Optimized {{ server_cpu_type }}-based M6 Linux Servers"
-name_of_m5_bios_policy        : "{{ prefix }}-Intel-M5-Linux-BIOS"
-description_of_m5_bios_policy : "BIOS Policy for Performance Optimized Intel-based M5 ESXi Servers"
+name_of_bios_policy        : "{{ name_of_m7_bios_policy }}"
+description_of_bios_policy : "{{ description_of_m7_bios_policy }}"
+#
+name_of_m7_bios_policy        : "{{ prefix }}-{{ server_cpu_type }}-M7-Linux-BIOS"
+description_of_m7_bios_policy : "BIOS Policy for Performance Optimized {{ server_cpu_type }}-based M7 Linux Servers"
+name_of_m6_bios_policy        : "{{ prefix }}-{{ server_cpu_type }}-Intel-M6-Linux-BIOS"
+description_of_m6_bios_policy : "BIOS Policy for Performance Optimized Intel-based M6 Linux Servers"
+name_of_m5_bios_policy        : "{{ prefix }}-{{ server_cpu_type }}-Intel-M5-Linux-BIOS"
+description_of_m5_bios_policy : "BIOS Policy for Performance Optimized Intel-based M5 Linux Servers"
 #
 # Virtual Media Policy - enables mounting ISO files using KVM 
 name_of_vmedia_policy                 : "{{ prefix }}-KVM-Mount-vMedia"

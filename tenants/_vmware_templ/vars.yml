@@ -57,13 +57,13 @@ proxys:
 
 #
 # Local User and password are used in Intersight and for the SVM admin
-t_name_of_local_user                  : "gpuadmin"
-t_password_for_local_user             : "DataSpace24!"
+t_name_of_local_user                  : "esxadmin"
+t_password_for_local_user             : "Respect2024!"
 
 # Vmedia file location used for UCS to define vmedia policy for first boot
 # CCD is for the boot ISO image.
 # HDD is for an disk image to store autoinstall file or additional packages
-vmedia_file_location_cdd          : "http://172.16.4.105/SLE15SP5.iso"
+vmedia_file_location_cdd          : "http://172.16.4.105/ESX-801.iso"
 vmedia_name_cdd                   : 'SLES15SP5'
 vmedia_file_location_hdd          : "http://172.16.4.105/autoinstall.img"
 vmedia_name_hdd                   : 'AUTOINSTALL'
@@ -149,7 +149,7 @@ vcenter_hostname: "10.102.1.100"
 # e.g. vcenter_hostname: 10.50.160.100
 vcenter_username: "administrator@vsphere.local"
 # e.g. vcenter_username: administrator@vsphere.local
-vcenter_password: "<password>"
+vcenter_password: "Respect2024!"
 # e.g. vcenter_password: "cisco!23"
 #
 # DVS Parameters; use version 7.0.3 for VMware 7.0U3 or above
@@ -179,22 +179,22 @@ t_iscsi_hosts:
 #
 # Storage NVMe-TCP Target Interfaces
 #
-nvme_lif_01a: "{{ t_nvme_tcpA_network_prefix }}.103"
-nvme_lif_01b: "{{ t_nvme_tcpB_network_prefix }}.103"
-nvme_lif_02a: "{{ t_nvme_tcpA_network_prefix }}.104"
-nvme_lif_02b: "{{ t_nvme_tcpB_network_prefix }}.104"
+nvme_lif_01a: "{{ t_nvme_tcpA_network_prefix }}.11"
+nvme_lif_01b: "{{ t_nvme_tcpB_network_prefix }}.11"
+nvme_lif_02a: "{{ t_nvme_tcpA_network_prefix }}.12"
+nvme_lif_02b: "{{ t_nvme_tcpB_network_prefix }}.12"
 #
 # Storage iSCSI Target Interfaces
 #
-iscsi_lif_01a: "{{ t_iscsiA_network_prefix }}.103"
-iscsi_lif_01b: "{{ t_iscsiB_network_prefix }}.103"
-iscsi_lif_02a: "{{ t_iscsiA_network_prefix }}.104"
-iscsi_lif_02b: "{{ t_iscsiB_network_prefix }}.104"
+iscsi_lif_01a: "{{ t_iscsiA_network_prefix }}.11"
+iscsi_lif_01b: "{{ t_iscsiB_network_prefix }}.11"
+iscsi_lif_02a: "{{ t_iscsiA_network_prefix }}.12"
+iscsi_lif_02b: "{{ t_iscsiB_network_prefix }}.12"
 #
 # Storage NFS Target Interfaces
 #
-nfs_lif_01: "{{ t_nfs_network_prefix }}.103"
-nfs_lif_02: "{{ t_nfs_network_prefix }}.104"
+nfs_lif_01: "{{ t_nfs_network_prefix }}.11"
+nfs_lif_02: "{{ t_nfs_network_prefix }}.12"
 #
 #---------------------------------------------------------------------------------------------------------------------
 #
@@ -222,12 +222,12 @@ svm_specs:
   data_volumes_block:
     - {name: "{{tenant_name}}_boot", size: 1024, residing_aggr: "{{ aggr_prefix }}n1_aggr1"}
       #    - {name: "{{tenant_name}}_nvme", size: 1024, residing_aggr: c250_02n2_aggr1}
-  nvme_subsystem: nvme_infra_hosts
-    #  nvme_namespaces:  #Mention the namespaces that you want to create and map to the subsystem
-    #    - {name: "{{tenant_name}}_nvme_01", size: 500, residing_vol: "{{tenant_name}}_nvme"}
+  nvme_subsystem: "{tenant_name}}_nvme_hosts"
+  nvme_namespaces:  #Mention the namespaces that you want to create and map to the subsystem
+    - {name: "{{tenant_name}}_nvme_01", size: 500, residing_vol: "{{tenant_name}}_nvme"}
   #host names will be used for NetApp Boot LUNs and igroup names. These vars are placed under group_vars/all.yml file
   boot_luns_iscsi: {size: 128, residing_vol: "{{tenant_name}}_boot"}
-  svm_mgmt_lif: {home_node: "{{ cluster }}n2", address: "{{ t_ib_network_prefix }}.101", netmask: 255.255.255.0, gateway: "{{ t_ib_network_prefix }}.1", lif_name: "{{ tenant_name }}-svm-mgmt"}
+  svm_mgmt_lif: {home_node: "{{ cluster }}n2", address: "{{ t_ib_network_prefix }}.101", netmask: "{{ t_ib_network_mask }}"}, gateway: "{{ t_ib_network_prefix }}.1", lif_name: "{{ tenant_name }}-svm-mgmt"}
   vsadmin_password: "{{ t_password_for_local_user }}"
   os_type: "{{ os_type }}"
   dns_server_svm:
@@ -240,7 +240,7 @@ svm_specs:
 
 svm_node_specs:
   - node_name: "{{ cluster_name }}n1"
-    nfs_lifs:  {name: "{{ tenant_name }}-nfs-lif-01a", address: "{{ nfs_lif_01 }}", netmask: 255.255.255.0}
+    nfs_lifs:  {name: "{{ tenant_name }}-nfs-lif-01a", address: "{{ nfs_lif_01 }}", netmask: "{{ t_nfs_network_netmask }}"}
     fcp_lifs:    #Fill out this value only if fcp will be mentioned under allowed_protocols in svm_specs
       - {name: "{{ tenant_name }}-fcp-lif-01a", home_port: 5a, fabric: A}  #Do not change the fabric ID
       - {name: "{{ tenant_name }}-fcp-lif-01b", home_port: 5b, fabric: B}  #Do not change the fabric ID
@@ -249,14 +249,14 @@ svm_node_specs:
       - {name: "{{ tenant_name }}-fc-nvme-lif-01b", home_port: 2b, fabric: B}  #Do not change the fabric ID
     iscsi_lifs:  #Fill out this value only if iscsi will be mentioned under allowed_protocols in svm_specs. 
                                                                                         #Do not change the fabric ID
-      - {name: "{{ tenant_name }}-iscsi-lif-01a", address: "{{ iscsi_lif_01a }}", netmask: 255.255.255.0, fabric: A}
-      - {name: "{{ tenant_name }}-iscsi-lif-01b", address: "{{ iscsi_lif_01b }}", netmask: 255.255.255.0, fabric: B}
+      - {name: "{{ tenant_name }}-iscsi-lif-01a", address: "{{ iscsi_lif_01a }}", netmask: "{{ t_iscsiA_network_netmask }}", fabric: A}
+      - {name: "{{ tenant_name }}-iscsi-lif-01b", address: "{{ iscsi_lif_01b }}", netmask: "{{ t_iscsiB_network_netmask }}", fabric: B}
     nvme_tcp_lifs:  #Fill out this value only if iscsi and nvme will be mentioned under allowed_protocols 
                                                                                           #Do not change the fabric ID
-      - {name: "{{ tenant_name }}-nvme-tcp-lif-01a", address: "{{ nvme_lif_01a }}", netmask: 255.255.255.0, fabric: A}
-      - {name: "{{ tenant_name }}-nvme-tcp-lif-01b", address: "{{ nvme_lif_01b }}", netmask: 255.255.255.0, fabric: B}
+      - {name: "{{ tenant_name }}-nvme-tcp-lif-01a", address: "{{ nvme_lif_01a }}", netmask: "{{ t_nvme_tcpA_network_netmask }}", fabric: A}
+      - {name: "{{ tenant_name }}-nvme-tcp-lif-01b", address: "{{ nvme_lif_01b }}", netmask: "{{ t_nvme_tcpB_network_netmask }}", fabric: B}
   - node_name: "{{ cluster_name }}n2"
-    nfs_lifs:  {name: "{{ tenant_name }}-nfs-lif-02b", address: "{{ nfs_lif_02 }}", netmask: 255.255.255.0}
+    nfs_lifs:  {name: "{{ tenant_name }}-nfs-lif-02b", address: "{{ nfs_lif_02 }}", netmask: "{{ t_nfs_network_netmask }}"}
     fcp_lifs:    #Fill out this value only if fcp will be mentioned under allowed_protocols in svm_specs
       - {name: "{{ tenant_name }}-fcp-lif-02a", home_port: 5a, fabric: A}  #Do not change the fabric ID
       - {name: "{{ tenant_name }}-fcp-lif-02b", home_port: 5b, fabric: B}  #Do not change the fabric ID
@@ -265,12 +265,12 @@ svm_node_specs:
       - {name: "{{ tenant_name }}-fc-nvme-lif-02b", home_port: 2b, fabric: B}  #Do not change the fabric ID
     iscsi_lifs:  #Fill out this value only if iscsi will be mentioned under allowed_protocols in svm_specs. 
                                                                                           #Do not change the fabric ID
-      - {name: "{{ tenant_name }}-iscsi-lif-02a", address: "{{ iscsi_lif_02a }}", netmask: 255.255.255.0, fabric: A}
-      - {name: "{{ tenant_name }}-iscsi-lif-02b", address: "{{ iscsi_lif_02b }}", netmask: 255.255.255.0, fabric: B}
+      - {name: "{{ tenant_name }}-iscsi-lif-02a", address: "{{ iscsi_lif_02a }}", netmask: "{{ t_iscsiA_network_netmask }}", fabric: A}
+      - {name: "{{ tenant_name }}-iscsi-lif-02b", address: "{{ iscsi_lif_02b }}", netmask: "{{ t_iscsiB_network_netmask }}", fabric: B}
     nvme_tcp_lifs:  #Fill out this value only if iscsi and nvme will be mentioned under allowed_protocols 
                                                                                           #Do not change the fabric ID
-      - {name: "{{ tenant_name }}-nvme-tcp-lif-02a", address: "{{ nvme_lif_02a }}", netmask: 255.255.255.0, fabric: A}
-      - {name: "{{ tenant_name }}-nvme-tcp-lif-02b", address: "{{ nvme_lif_02b }}", netmask: 255.255.255.0, fabric: B}
+      - {name: "{{ tenant_name }}-nvme-tcp-lif-02a", address: "{{ nvme_lif_02a }}", netmask: "{{ t_nvme_tcpA_network_netmask }}", fabric: A}
+      - {name: "{{ tenant_name }}-nvme-tcp-lif-02b", address: "{{ nvme_lif_02b }}", netmask: "{{ t_nvme_tcpB_network_netmask }}", fabric: B}
 
 
 ######################################################################################################################

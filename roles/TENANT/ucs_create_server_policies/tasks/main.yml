@@ -98,14 +98,14 @@
   when: (configure_iscsi == 'true') and (os_type == 'linux')
 - include_tasks: create_windows_iscsi_lan_connectivity_policy.yml
   when: (configure_iscsi == 'true') and (os_type == 'windows')
-- include_tasks: create_vmware_iscsi_lan_connectivity_policy.yml
+- include_tasks: create_iscsi_lan_connectivity_policy.yml
   when: (configure_iscsi == 'true') and (os_type == 'vmware') and (iscsi_lan_connectivity_policy_details.api_response.Moid is not defined)
   
 # Configure FC LAN Connectivity Policy if FC is being configured
 - include_tasks: create_linux_fc_lan_connectivity_policy.yml
   when: (configure_fc == 'true') and (os_type == 'linux')
-- include_tasks: create_linux_fc_lan_connectivity_policy.yml
-  when: (configure_fc == 'true') and (os_type == 'linux')
+- include_tasks: create_windows_fc_lan_connectivity_policy.yml
+  when: (configure_fc == 'true') and (os_type == 'windows')
 - include_tasks: create_fc_lan_connectivity_policy.yml
   when: (configure_fc == 'true') and (os_type == 'vmware') and (fc_lan_connectivity_policy_details.api_response.Moid is not defined)
   
@@ -124,5 +124,9 @@
   when: configure_fc_nvme == 'true'
 
 # SAN connectivity Policy
+- include_tasks: create_linux_san_connectivity_policy.yml
+  when: (configure_fc == 'true') and (os_type == 'linux')
+- include_tasks: create_windows_san_connectivity_policy.yml
+  when: (configure_fc == 'true') and (os_type == 'windows')
 - include_tasks: create_san_connectivity_policy.yml
-  when: (configure_fc == 'true') and (san_connectivity_policy_details.api_response.Moid is not defined)
+  when: (configure_fc == 'true') and (os_type == 'vmware') and (san_connectivity_policy_details.api_response.Moid is not defined)
