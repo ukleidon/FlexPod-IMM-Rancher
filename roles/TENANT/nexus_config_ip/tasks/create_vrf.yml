@@ -4,13 +4,12 @@
     cisco.nxos.nxos_vrf:
       name: "{{ tenant_name }}"
       description: "VRF to keep FlexPod safe"
-    when: SMT != true
+    when: configure_smt != true
 
   - name: Create VRFs
     cisco.nxos.nxos_vrf:
       name: "{{ item.vrf }}"
       description: "keep the network safe"
     with_list: "{{ t_svi_list }}"
-    when: SMT == true
-
+    when: configure_smt == true
 

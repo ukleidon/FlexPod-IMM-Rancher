@@ -31,13 +31,26 @@ tid               : '01'
 # How many server profiles to create?
 # num_profiles defines the number of server profiles created based on the server_profile_template
 # defined for this tenant.
+# The name of the server profile template is defined as: {{ prefix }}-{{ server_cpu_type }}-{{ vic_type }}-VIC-iSCSI-Boot
+# The name of the server profile is defined as: {{ name_of_iscsi_SPT }}_DERIVED-{{ num }}
+# Example:  test01-Intel-5G-VIC-iSCSI-Boot_DERIVED-1
 num_profiles:  3
+
+# Are there virtual tenants on top of this physical tenant?
+# This parameter is used to collect the required information for vtenants for deployment
+# A virtual tenant is running on top of an hypervisor like vmware ESXi or Kubevirt and use resources from
+# this physical tenant. In case configure_smt is true, each virtual tenant will be configured in an own VRF
+# The virtual tenant VLAN IDs must be added to the vNIC configuration of this physical tenant, therefore
+# is it important to define all networks at a single place (this file).
+# vtenants:  true or false
+vtenants:      true
 
 # With UCS the default network option used vNIC failover on the VIC card. There is no need to configure
 # a bond device on the OS level.
 # If you like or if the solution requires the use of bonding on the OS layer, set os_bond to true.
 # This will disable vNIC failover and creates two vNICs for the same VLANs, one on fabric A and one
-# on fabric B
+# on fabric B. The native VLAN ID on the vNICs is set to native_vlan_id. It is required to createa
+# VLAN interfaces on the OS to access the network.
 # Default is false
 os_bond           : 'false'
 
@@ -71,7 +84,7 @@ t_password_for_local_user             : "DataSpace24!"
 vmedia_file_location_cdd          : "http://172.16.4.105/SLE15SP5.iso"
 vmedia_name_cdd                   : 'SLES15SP5'
 vmedia_file_location_hdd          : "http://172.16.4.105/autoinstall.img"
-vmedia_name_hdd                   : 'AUTOINSTALL'
+vmedia_name_hdd                   : 'OEMDRIVE'
 #
 #
 #---------------------------------------------------------------------------------------------------------------------

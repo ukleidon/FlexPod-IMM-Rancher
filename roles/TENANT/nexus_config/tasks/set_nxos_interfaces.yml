@@ -44,5 +44,5 @@
             native_vlan: "{{ native_vlan_id }}"
             allowed_vlans: "{{ t_storage_vlans_list }}"
     with_list: "{{ storage_C_PC + storage_D_PC }}"
-    when: storage_C_PC is defined
+    when: storage_D_PC is defined
 #

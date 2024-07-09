@@ -66,17 +66,34 @@ tenants_dir: "{{ playbook_dir }}/tenants"
 #
 #
 # Multi-Tenancy is the new default. This means that multiple tenants (applications) can be deployed on the same 
-# FlexPod site-by-site. The deployment of tenant X should/will not impact any other tenant of the same FlexPod.
+# FlexPod. The deployment of tenant X should/will not impact any other tenant of the same FlexPod.
 # The default Multi-Tenancy uses tenant specific VLANs, IP ranges, rules, names and so on, but all run in the same
 # UCS Organization and Network VRF. Resource sharing and network communication between the different tenants is 
 # allowed and possible. All SVI on the Nexus switches are deployed in the default VRF.
-# To use default Multi-Tenant option set SMT to false.
-# SMT:  false
-# Secure-Mutlti-Tenancy is an deployment option to restrice the sharing of resources and communication between tenants.
+# To use default Multi-Tenant option set configure_smt to false.
+#
+# Secure-Mutlti-Tenancy is an deployment option to restrict the sharing of resources and communication between tenants.
 # Each tenant will have his own Organization in Intersight and use an dedicated VRF on the network.
 # Network communication between tenants must be realized with dedicated external routers and/or firewalls.
-# To enalbe secure-multi-tenancy set SMT to true.
-SMT: true
+# To enalbe secure-multi-tenancy set configure_smt to true.
+configure_smt: true
+#
+# In case SMT is set false, what VRF name to use to configure the IP interfaces on Nexus devices.
+# The default value is default.
+# default_vrf: 'default'
+default_vrf: admin
+
+# The Nexus switches can be configured as default gateway for all components inside the solution. To provide
+# high available default gateway this solution automation can configure HSRP on the switches.
+# Set configure_hsrp to true to enable HSRP configuration. All other settings will not configure HRSP
+configure_hsrp: true
+
+# Tenand ID (tid) is used as digit in various pools like UUID, MAC, WWN,...
+# The tid must be a number between 00 and 99. For the initial Infrastructure setup the tid should be '00'
+# like for mac_pool_a - 00:25:B5:A0:{{ tid }}:[pool]
+#tid:           '00'
+# Da Infrastruktur und Dataspace Tenant sich ueberschneiden sollte die tid identisch auf 01 stehen.
+tid:           '01'
 
 # This is the top-level variable file that will be used for the FlexPod setup. It is setup in this case to have iSCSI
 # SAN boot with NVMe-TCP and NFS storage protocols. Notice that the configure_fc variable is set to false, meaning iSCSI
@@ -95,10 +112,6 @@ configure_fc_nvme: 'false'   # Only set this to 'true' if configure_fc is set to
 
 configure_nfs: 'true'       # In FlexPod, nfs is always used unless you have an All SAN Array (ASA)
 #
-# Specify the primery OS type for this deployment.
-# the os_type can be: 'linux', 'vmware', or 'windows'
-#os_type: 'vmware'
-
 # Update the the following lines to setup NTP Server(s)
 # By default we are setting up NTP Distribution on the Nexus switches and the first two NTP servers 
 # are Nexus Switch mgmt0 IP addresses.
@@ -135,15 +148,34 @@ time_zone: 'Americas/New_York'
 # VLAN Names are adjustable and can be modified in here
 # Comment out any VLANs that are not used here and below (iSCSI and NVMe-TCP)
 #
-native_vlan_name: 'Native-Vlan' # Native VLAN
-native_vlan_id: 1
-oob_vlan_name: 'OOB-MGMT' # Out of Band Mgmt VLAN
-oob_vlan_id: 1110
-ib_vlan_name: 'ib-mgmt' # IN BAND Management VLAN
-ib_vlan_id: 1111
-nfs_vlan_name: 'nfs-vlan' # NFS Traffic between ESXi and Storage
-nfs_vlan_id: 1113
-#
+native_vlan_name:        'Native-Vlan'                     # Native VLAN
+native_vlan_id:          1
+oob_vlan_name:           'OOB-MGMT'                        # Out of Band Mgmt VLAN
+oob_vlan_id:             1110
+oob_network_prefix:      '10.104.0'                        # !!! EDIT !!! first three digits of the network adress
+oob_network_mask:        24                                # Network CIDR for this network
+oob_network_netmask:     255.255.255.0                     # Netmask for this network
+
+ib_vlan_name:            'ib-mgmt'                         # IN BAND Management VLAN
+ib_vlan_id:              1111
+ib_network_prefix:       '10.104.1'                        # !!! EDIT !!! first three digits of the network adress
+ib_network_mask:         22                                # Network CIDR for this network
+ib_network_netmask:      255.255.252.0                     # Netmask for this network
+
+
+nfs_vlan_name:           'nfs-vlan'                        # NFS Traffic between ESXi and Storage
+nfs_vlan_id:             1113
+nfs_network_prefix:      '10.104.3'                        # !!! EDIT !!! first three digits of the network adress
+nfs_network_mask:        24                                # Network CIDR for this network
+nfs_network_netmask:     255.255.255.0                     # Netmask for this network
+
+
+transfer_vlan_name:      'Transfer-2-FW'                   # Transfer network to Firewall for SMT
+transfer_vlan_id:         1199
+transfer_network_prefix:  '10.104.99'                       # !!! EDIT !!! first three digits of the network adress
+transfer_network_mask:    24                                # Network CIDR for this network
+transfer_network_netmask: 255.255.255.0                     # Netmask for this network
+
 #------------------------------------------------------------------------------------
 # The following variables are optional. 
 # We keep them in this file to be backward compatiple with other FlexPod playbooks.
@@ -180,6 +212,8 @@ ib_mgmt_vlan_list:
 # The storage_vlan_list contains VLANs that are configured on the storage controllers.
 # These VLANs are also configured in the UCS and in the Nexus switches. This list has
 # two extra fields, storage_protocol, and fabric. Do not remove these extra fields.
+# These storage VLANs are for global use, like an central NFS share for all Tenants
+# Tenant specific storage networks are defined in the tenant configuration file.
 #
 storage_vlan_list:
   - name: "{{ nfs_vlan_name }}"
@@ -228,6 +262,10 @@ remaining_vlan_list:
     id: "{{ oob_vlan_id }}"
     native: 'no'
     state: "{{lan_state}}"
+  - name: "{{ transfer_vlan_name }}"
+    id: "{{ transfer_vlan_id }}"
+    native: 'no'
+    state: "{{lan_state}}"
 #
 # The following settings are moved into the tenant configuration file.
 #
@@ -246,11 +284,11 @@ remaining_vlan_list:
 # Comment out or remove any VLANs that are not used (iSCSI and NVMe-TCP)
 # In future, these values will be auto-generated
 #
-all_vlans_list: "{{ oob_vlan_id }},{{ ib_vlan_id }}"
+all_vlans_list: "{{ oob_vlan_id }},{{ ib_vlan_id }},{{ transfer_vlan_id |default(omit) }}"
 # storage_vlans_list: for storage uplink trunk ports
 storage_vlans_list: "{{ ib_vlan_id }},{{ nfs_vlan_id }}"
 # mgmt_vlans_list: for uplink/management switch trunk port
-mgmt_vlans_list: "{{ oob_vlan_id }},{{ ib_vlan_id }}"
+mgmt_vlans_list: "{{ oob_vlan_id }},{{ ib_vlan_id }},{{ transfer_vlan_id |default(omit) }}"
 #
 
 # L3 information for the different VLANs
@@ -261,24 +299,10 @@ mgmt_vlans_list: "{{ oob_vlan_id }},{{ ib_vlan_id }}"
 svi_list:
 # Admin Networks
   - name:  "{{ oob_vlan_id }}"
-    vrf:  "default"
-    address: "10.104.0.{{ hsrpIP }}/24"
-    hsrp: "172.16.0.1"
+    vrf:  "{{ default_vrf | default('default') }}"
+    address: "{{oob_network_prefix}}.{{ hsrpIP }}/{{oob_network_mask}}"
+    hsrp: "{{oob_network_prefix}}.1"
   - name:  "{{ ib_vlan_id }}"
-    vrf:  "default"
-    address: "10.104.1.{{ hsrpIP }}/24"
-    hsrp: "10.104.1.250"
-#
-#  - name:  "{{ iscsiA_vlan_id }}"
-#    vrf:  "admin"
-#    address: "172.16.11.{{ hsrpIP }}/24"
-#    hsrp: "172.16.11.1"
-#  - name:  "{{ iscsiB_vlan_id }}"
-#    vrf:  "admin"
-#    address: "172.16.12.{{ hsrpIP }}/24"
-#    hsrp: "172.16.12.1"
-#  - name:  "{{ nfs_vlan_id }}"
-#    vrf:  "default"
-#    address: "172.16.10.{{ hsrpIP }}/24"
-#    hsrp: "172.16.10.1"
-
+    vrf:  "{{ default_vrf | default('default') }}"
+    address: "{{ib_network_prefix}}.{{ hsrpIP }}/{{ib_network_mask}}"
+    hsrp: "{{ib_network_prefix}}.1"
