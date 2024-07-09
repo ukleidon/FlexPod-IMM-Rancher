@@ -1,0 +1,17 @@
+---
+# This Playbook sets up both Nexus switches for Ethernet switching in FlexPod
+# After executing this playbook, LAN connectivity should be configured
+#
+- hosts: nexus
+  connection: network_cli
+  gather_facts: no
+  vars_files:
+    - group_vars/all.yml
+    - group_vars/storagegrid.yml
+    - group_vars/proxmox.yml
+
+  roles:
+    ### Configure Nexus Switching
+    #
+    - NEXUSconfigProxMox
+    #
