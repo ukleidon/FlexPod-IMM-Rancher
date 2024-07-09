@@ -36,3 +36,11 @@
         portchannel: "{{ item.id }}"
         vpc: "{{ item.id }}"
       with_list: "{{ uplink_PC + FI_A_PC + FI_B_PC + storage_A_PC + storage_B_PC }}"
+      when: storage_D_PC is not defined
+#
+    - name: Enabling vPC on all port-channels except peer-link
+      cisco.nxos.nxos_vpc_interface:
+        portchannel: "{{ item.id }}"
+        vpc: "{{ item.id }}"
+      with_list: "{{ uplink_PC + FI_A_PC + FI_B_PC + storage_A_PC + storage_B_PC + storage_C_PC + storage_D_PC }}"
+      when: storage_D_PC is defined

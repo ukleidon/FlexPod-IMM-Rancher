@@ -2,6 +2,14 @@
   # This task Creates required VRF on Nexus switches
   - name: Create VRF 
     cisco.nxos.nxos_vrf:
-      name: "{{ item.vrf }}"
+      name: "{{ tenant_name }}"
       description: "VRF to keep FlexPod safe"
+    when: SMT != true
+
+  - name: Create VRFs 
+    cisco.nxos.nxos_vrf:
+      name: "{{ item.vrf }}"
+      description: "keep the network safe"
     with_list: "{{ svi_list }}"
+    when:  SMT == true 
+    
