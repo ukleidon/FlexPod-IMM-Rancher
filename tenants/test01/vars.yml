@@ -28,6 +28,11 @@ tenant_name       : 'RTP4-AC01'
 # like for mac_pool_a - 00:25:B5:A0:{{ tid }}:[pool]
 tid               : '01'
 
+# How many server profiles to create?
+# num_profiles defines the number of server profiles created based on the server_profile_template
+# defined for this tenant.
+num_profiles:  3
+
 # With UCS the default network option used vNIC failover on the VIC card. There is no need to configure
 # a bond device on the OS level.
 # If you like or if the solution requires the use of bonding on the OS layer, set os_bond to true.
@@ -599,6 +604,7 @@ name_of_vnic_3                                : "{{ prefix | lower}}-storage-{{ 
 # Forth vNIC is used for ????
 name_of_vnic_4                                : "{{ prefix | lower}}-wan-{{ vic_type }}"
 
+
 # First vNIC is used for management (and partially for storage) traffic
 name_of_iscsi_vnic_1                          : "{{ prefix | lower}}-iscsi-mgmt-{{ vic_type }}-A"
 # Second vNIC is used for user and application traffic
@@ -626,7 +632,6 @@ name_of_iscsi_b_vnic                         : "{{ prefix | lower}}-iSCSI-{{ vic
 
 #---------------------------------------------------------------------------------------------------------------------
 #------------------------- FC Configurations ------------------------------
-#
 #
 # Boot Order Policy for Fibre Channel Boot
 fc_boot_order_policy_name                    : "{{ prefix }}-FC-{{ vic_type }}-VIC-Boot-Order-Policy"

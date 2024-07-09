@@ -1,3 +1,6 @@
+[all:vars]
+tenant=ac01
+
 [ac01:children]
 hosts
 rke2_servers

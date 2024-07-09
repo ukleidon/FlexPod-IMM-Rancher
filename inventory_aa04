@@ -1,3 +1,6 @@
+[all:vars]
+tenant=aa04
+
 [k8s]
 master
 # ONTAP Cluster Management IP. List only one ONTAP cluster IP.
