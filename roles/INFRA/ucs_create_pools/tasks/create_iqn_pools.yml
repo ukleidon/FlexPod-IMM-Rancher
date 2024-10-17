@@ -33,3 +33,4 @@
        }
   # when: configure_iscsi == 'true'
   register: iqn_pool
+  when: (name_of_iqn_pool is defined)

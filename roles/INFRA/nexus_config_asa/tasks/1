@@ -1,0 +1,56 @@
+---
+# 
+# This Playbook sets up a physical Tenant on FlexPod, configuring Nexus switches, NetApp storage and UCS profiles.
+#
+# Configure VLANs, VRF, and IP addresses for the tenant
+- name: Configure Nexus for FlexPod
+  hosts: nexus
+#  vars_files:
+#    - group_vars/nexus.yml
+  connection: network_cli
+  gather_facts: no
+  roles:
+  - { role: INFRA/env_vars }
+  - { role: INFRA/nexus_config }
+  - { role: INFRA/nexus_config_sg }
+  - { role: INFRA/nexus_config_ip }
+  - { role: INFRA/nexus_config_proxmox }
+  tags:
+  - nexus_config
+
+# Configure VLANs, LIFs, SVM, and LUNs for the tenant
+- name: Configure ONTAP for FlexPod
+  hosts: ontap
+  gather_facts: False
+  connection: local
+  roles:
+  - { role: INFRA/env_vars }
+  - { role: INFRA/ontap_network, tags: [ 'ontap_network' ] }
+  - { role: INFRA/ontap_svm, tags: [ 'ontap_svm' ] }
+  - { role: INFRA/ontap_volumes, tags: [ 'ontap_volumes' ] }
+  - { role: INFRA/ontap_lifs, tags: [ 'ontap_lifs' ] }
+  tags:
+  - ontap_config
+
+# Create various pools, policies, and a server profile template
+#
+- name: "Create Tenant in Intersight "
+  hosts: localhost
+  gather_facts: no
+  roles:
+  - { role: INFRA/env_vars }
+  - { role: INFRA/ucs_create_pools }
+  tags:
+  - ucs_config
+
+# Create various pools, policies, and a server profile template
+#
+- name: "Create Tenant in Intersight "
+  hosts: nexus
+  gather_facts: no
+  roles:
+  - { role: INFRA/env_vars }
+  - { role: INFRA/nexus_config_asa }
+  tags:
+  - asa_config
+

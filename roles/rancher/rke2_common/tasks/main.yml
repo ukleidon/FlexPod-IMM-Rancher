@@ -72,5 +72,5 @@
 #
 - name: Run CIS-Hardening Tasks
   ansible.builtin.include_role:
-    name: RANCHER/rke2_common
+    name: rancher/rke2_common
     tasks_from: cis-hardening

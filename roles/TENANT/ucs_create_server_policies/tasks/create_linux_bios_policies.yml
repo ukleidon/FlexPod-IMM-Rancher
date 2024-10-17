@@ -1,11 +1,11 @@
 ---
-  - name: "Configure Intel M7 Linux BIOS Policy"
+  - name: "Configure Intel M7 Virtualization BIOS Policy"
     cisco.intersight.intersight_bios_policy:
       api_private_key: "{{ api_private_key }}"
       api_key_id: "{{ api_key_id }}"
       organization: "{{ org_name }}"
-      name: "{{ name_of_m7_bios_policy }}"
-      description: "{{ description_of_m7_bios_policy }}"
+      name: "{{ name_of_bios_policy }}"
+      description: "{{ description_of_bios_policy }}"
       tags:
         - Key: "configmode"
           Value: "ansible"
@@ -17,7 +17,7 @@
     register: bios_policy
     when: server_cpu_type == "Intel"
 
-  - name: "Configure Intel M6 Linux BIOS Policy"
+  - name: "Configure Intel M6 Virtualization BIOS Policy"
     cisco.intersight.intersight_bios_policy:
       api_private_key: "{{ api_private_key }}"
       api_key_id: "{{ api_key_id }}"
@@ -39,7 +39,7 @@
     register: m6_bios_policy
     when: server_cpu_type == "Intel"
 
-  - name: "Configure Intel M5 Linux BIOS Policy"
+  - name: "Configure Intel M5 Virtualization BIOS Policy"
     cisco.intersight.intersight_bios_policy:
       api_private_key: "{{ api_private_key }}"
       api_key_id: "{{ api_key_id }}"
@@ -62,7 +62,7 @@
     register: m5_bios_policy
     when: server_cpu_type == "Intel"  
 
-  - name: "Configure AMD M6 Linux BIOS Policy"
+  - name: "Configure AMD M6 Virtualization BIOS Policy"
     cisco.intersight.intersight_bios_policy:
       api_private_key: "{{ api_private_key }}"
       api_key_id: "{{ api_key_id }}"
@@ -92,7 +92,7 @@
     register: m6_bios_policy
     when: server_cpu_type == "AMD"
 
-  - name: "Configure AMD M5 Linux BIOS Policy for C125"
+  - name: "Configure AMD M5 Virtualization BIOS Policy for C125"
     cisco.intersight.intersight_bios_policy:
       api_private_key: "{{ api_private_key }}"
       api_key_id: "{{ api_key_id }}"

@@ -1,0 +1,52 @@
+---
+# Create  server policies specific to Converged Infrastrucure stack
+- name: "Create IMM Server Policies"
+  vars:
+    api_info: &api_info_org_moid
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+  intersight_rest_api:
+    <<: *api_info_org_moid
+    resource_path: /organization/Organizations
+    query_params:
+      $filter: "Name eq '{{ org_name }}'"
+  register: intersight_org
+  delegate_to: localhost
+  tags: always
+  run_once: true
+
+# Collect information on existence of Boot Order Policy, LAN Connectivity Policy, and
+# SAN Connectivity Policy
+#- include_tasks: gather_policy_info.yml
+
+# Collect information about various pools
+#- include_tasks: gather_pool_info.yml
+
+# Create Bios Policy
+- include_tasks: create_bios_policies.yml
+  when: ( os_type is defined and os_type == 'vmware' )
+- include_tasks: create_linux_bios_policies.yml
+  when: ( os_type is defined and os_type == 'linux' )
+- include_tasks: create_windows_bios_policies.yml
+  when: ( os_type is defined and os_type == 'windows' )
+
+# Create IMC Access Policy
+- include_tasks: create_imc_policy.yml
+  when: ( management_ip_pool_details is defined )
+
+# Create KVM Policy
+- include_tasks: create_kvm_policy.yml
+
+# Create vMedia Policy
+- include_tasks: create_vmedia_policy.yml
+  when: ( name_of_vmedia_policy is defined )
+
+# Create IPMI over LAN Policy to enable IPMI over LAN
+- include_tasks: create_ipmi_policy.yml
+
+# Create Local User Policy to allow KVM Access
+- include_tasks: create_local_user_policy.yml
+  when: ( description_of_LocalUser_policy is defined )

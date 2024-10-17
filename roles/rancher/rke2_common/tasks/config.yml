@@ -241,6 +241,7 @@
   ansible.builtin.set_fact:
     tmp_sha1: "{{ tmp_config.stat.checksum }}"
   changed_when: false
+  when: not ansible_check_mode
 
 - name: Drop in final /etc/rancher/rke2/config.yaml
   ansible.builtin.copy:

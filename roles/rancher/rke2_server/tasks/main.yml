@@ -4,7 +4,7 @@
   vars:
     rke2_common_caller_role_name: server
   ansible.builtin.include_role:
-    name: RANCHER/rke2_common
+    name: rancher/rke2_common
     tasks_from: main
 
 - name: Setup initial server

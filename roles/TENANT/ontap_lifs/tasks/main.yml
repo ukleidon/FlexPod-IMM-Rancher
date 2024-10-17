@@ -141,7 +141,7 @@
     - "{{ svm_node_specs | flatten }}"
     - nvme_tcp_lifs
   when:
-    - "('iscsi' in svm_specs.allowed_protocols)"
+    #- "('iscsi' in svm_specs.allowed_protocols)"
     - "('nvme' in svm_specs.allowed_protocols)"
     - inventory_hostname == cluster_name
   tags:
@@ -211,7 +211,7 @@
     https: true
     validate_certs: false
   with_items:
-    - "{{ ib_mgmt_vlan_list }}"
+    - "{{ t_ib_mgmt_vlan_list }}"
   when:
     - inventory_hostname == cluster_name
   tags:

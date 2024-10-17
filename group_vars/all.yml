@@ -107,7 +107,7 @@ tid:           '01'
 configure_iscsi: 'true'
 configure_nvme_tcp: 'false'  # Only set this to 'true' if configure_iscsi is set to 'true'
 
-configure_fc: 'true'
+configure_fc: 'false'
 configure_fc_nvme: 'false'   # Only set this to 'true' if configure_fc is set to 'true'  
 
 configure_nfs: 'true'       # In FlexPod, nfs is always used unless you have an All SAN Array (ASA)
@@ -151,27 +151,27 @@ time_zone: 'Americas/New_York'
 native_vlan_name:        'Native-Vlan'                     # Native VLAN
 native_vlan_id:          1
 oob_vlan_name:           'OOB-MGMT'                        # Out of Band Mgmt VLAN
-oob_vlan_id:             1110
+oob_vlan_id:             1040
 oob_network_prefix:      '10.104.0'                        # !!! EDIT !!! first three digits of the network adress
 oob_network_mask:        24                                # Network CIDR for this network
 oob_network_netmask:     255.255.255.0                     # Netmask for this network
 
 ib_vlan_name:            'ib-mgmt'                         # IN BAND Management VLAN
-ib_vlan_id:              1111
+ib_vlan_id:              1041
 ib_network_prefix:       '10.104.1'                        # !!! EDIT !!! first three digits of the network adress
 ib_network_mask:         22                                # Network CIDR for this network
 ib_network_netmask:      255.255.252.0                     # Netmask for this network
 
 
 nfs_vlan_name:           'nfs-vlan'                        # NFS Traffic between ESXi and Storage
-nfs_vlan_id:             1113
+nfs_vlan_id:             1043
 nfs_network_prefix:      '10.104.3'                        # !!! EDIT !!! first three digits of the network adress
 nfs_network_mask:        24                                # Network CIDR for this network
 nfs_network_netmask:     255.255.255.0                     # Netmask for this network
 
 
 transfer_vlan_name:      'Transfer-2-FW'                   # Transfer network to Firewall for SMT
-transfer_vlan_id:         1199
+transfer_vlan_id:         1049
 transfer_network_prefix:  '10.104.99'                       # !!! EDIT !!! first three digits of the network adress
 transfer_network_mask:    24                                # Network CIDR for this network
 transfer_network_netmask: 255.255.255.0                     # Netmask for this network

@@ -35,6 +35,7 @@
       Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}]
      }
   register: oob_management_ip_pool
+  when: (oob_ip_pool_start_for_management_access is defined)
 
 - name: "Create IP Address Pool for Tenant internal Management Access"
   vars:

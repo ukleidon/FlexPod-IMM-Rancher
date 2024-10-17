@@ -32,3 +32,4 @@
         ]
        }
   register: uuid_pool
+  when: name_of_uuid_pool is defined

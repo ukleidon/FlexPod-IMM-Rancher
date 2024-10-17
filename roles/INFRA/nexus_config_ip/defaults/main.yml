@@ -1,4 +1,2 @@
 ---
-backup_dir: "~/"
-
-# All variables are defined in group_vars/all.yml or in the respective hot_vars/<hostname>.yml
+# All variables are defined in group_vars/all.yml or in the respective hosts_vars/<hostname>.yml

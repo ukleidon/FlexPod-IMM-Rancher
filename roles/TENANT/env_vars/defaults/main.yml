@@ -1,8 +1,7 @@
 env_vars_env_name: "{{ tenant }}"  # to be set by playbook
-#env_vars_directory: "{{ playbook_dir }}/tenant_vars"  # custom configs
-#env_vars_common_file: "{{ env_vars_directory }}/default.yml"
-#env_vars_tenant_file: "{{ env_vars_directory }}/{{ env_vars_env_name }}.yml"
 env_vars_ucs_file: "{{ playbook_dir }}/group_vars/ucs.yml"
 env_vars_all_file: "{{ playbook_dir }}/group_vars/all.yml"
+env_vars_sg_file: "{{ playbook_dir }}/group_vars/storagegrid.yml"
+env_vars_proxmox_file: "{{ playbook_dir }}/group_vars/proxmox.yml"
 tenant_dir: "{{ tenants_dir }}/{{ tenant|lower }}"
 env_vars_tenant_file: "{{ tenant_dir }}/vars.yml"

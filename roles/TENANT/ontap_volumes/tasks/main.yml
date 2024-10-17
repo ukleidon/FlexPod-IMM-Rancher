@@ -88,5 +88,6 @@
     - "{{svm_specs.data_volumes_block}}"
   when: 
     - inventory_hostname == cluster_name
+    - tenant_type != 'virtual'
   tags:
     - ontap_flexvol_boot_luns

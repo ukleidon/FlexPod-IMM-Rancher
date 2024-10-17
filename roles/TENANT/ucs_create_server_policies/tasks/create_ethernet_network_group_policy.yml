@@ -112,7 +112,7 @@
       Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}],
       "VlanSettings": {
          "NativeVlan": "{{ iscsiA_vlan_id }}",
-         "AllowedVlans": "{{ iscsiA_vlan_id }},{{ nvme_tcpA_vlan_id }}"
+         "AllowedVlans": "{{ iscsiA_vlan_id }},{{ nvme_tcpA_vlan_id | default(omit) }}"
          }
       }
   register: iscsi_nvme_a_network_group_policy
@@ -172,7 +172,7 @@
       Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}],
       "VlanSettings": {
          "NativeVlan": "{{ iscsiB_vlan_id }}",
-         "AllowedVlans": "{{ iscsiB_vlan_id }},{{ nvme_tcpB_vlan_id }}"
+         "AllowedVlans": "{{ iscsiB_vlan_id }},{{ nvme_tcpB_vlan_id | default(omit) }}"
          }
       }
   register: iscsi_nvme_b_network_group_policy

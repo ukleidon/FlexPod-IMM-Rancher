@@ -95,7 +95,9 @@
 
 # Configure iSCSI LAN Connectivity Policy if iSCSI is being configured
 - include_tasks: create_linux_iscsi_lan_connectivity_policy.yml
-  when: (configure_iscsi == 'true') and (os_type == 'linux')
+  when: (configure_iscsi == 'true') and (os_type == 'linux') and (os_bond == 'false')
+- include_tasks: create_linux_iscsi_bond_lan_connectivity_policy.yml
+  when: (configure_iscsi == 'true') and (os_type == 'linux') and (os_bond == 'true')
 - include_tasks: create_windows_iscsi_lan_connectivity_policy.yml
   when: (configure_iscsi == 'true') and (os_type == 'windows')
 - include_tasks: create_iscsi_lan_connectivity_policy.yml

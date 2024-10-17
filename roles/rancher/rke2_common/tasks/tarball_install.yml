@@ -19,14 +19,14 @@
   become: false
 #
 
-- name: TARBALL | Make temp dir  -- This task will skip with -C and follow on tasks will fail.
+- name: TARBALL | Make temp dir  -- This task will skip with in check_mode.
   ansible.builtin.tempfile:
     state: directory
     suffix: rke2-install.XXXXXXXXXX
     path: "{{ tarball_tmp_dir | default(omit) }}"
   register: temp_dir
 
-- name: Send provided tarball if available  -- This task will fail with -C
+- name: Send provided tarball if available.
   ansible.builtin.copy:
     src: "{{ tenant_dir }}/rke2.linux-amd64.tar.gz"
     dest: "{{ temp_dir.path }}/rke2.linux-amd64.tar.gz"
@@ -34,6 +34,7 @@
   when:
     - tarball_check.stat.exists
     - rke2_tarball_url == ""
+    - not ansible_check_mode
 
 - name: Determine if current version differs what what is being installed
   ansible.builtin.set_fact:
@@ -60,6 +61,7 @@
 - name: Get version of provided tarball
   when:
     - rke2_binary_tarball_check.stat.exists
+    - not ansible_check_mode
   block:
     - name: Unarchive tarball into temp location
       ansible.builtin.unarchive:

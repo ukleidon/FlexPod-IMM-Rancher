@@ -31,7 +31,7 @@
   with_items:
     - "{{storage_vlan_list}}"
   when:
-    - "('iscsi' in svm_specs.allowed_protocols)"
+    #    - "('iscsi' in svm_specs.allowed_protocols)"
     - item.storage_protocol == "iSCSI"
   tags:
     - ontap_iscsi_broadcast_domains
@@ -51,7 +51,7 @@
   with_items:
     - "{{storage_vlan_list}}"
   when:
-    - "('nfs' in svm_specs.allowed_protocols)"
+#    - "('nfs' in svm_specs.allowed_protocols)"
     - item.storage_protocol == "NFS"
   tags:
     - ontap_nfs_broadcast_domain
@@ -71,8 +71,8 @@
   with_items:
     - "{{storage_vlan_list}}"
   when:
-    - "('iscsi' in svm_specs.allowed_protocols)"
-    - "('nvme' in svm_specs.allowed_protocols)"
+    #    - "('iscsi' in svm_specs.allowed_protocols)"
+    #    - "('nvme' in svm_specs.allowed_protocols)"
     - item.storage_protocol == "NVMe"
   tags:
     - ontap_nvme_tcp_broadcast_domains
@@ -150,7 +150,7 @@
     - "{{storage_vlan_list}}"
     - "{{ifgrp_name}}"
   when:
-    - "('iscsi' in svm_specs.allowed_protocols)"
+    #    - "('iscsi' in svm_specs.allowed_protocols)"
     - item.1.storage_protocol == "iSCSI"
     - item.1.state == "present"
   tags:
@@ -173,7 +173,7 @@
     - "{{storage_vlan_list}}"
     - "{{ifgrp_name}}"
   when:
-    - "('nfs' in svm_specs.allowed_protocols)"
+    #    - "('nfs' in svm_specs.allowed_protocols)"
     - item.1.storage_protocol == "NFS"
     - item.1.state == "present"
   tags:
@@ -196,8 +196,8 @@
     - "{{storage_vlan_list}}"
     - "{{ifgrp_name}}"
   when:
-    - "('iscsi' in svm_specs.allowed_protocols)"
-    - "('nvme' in svm_specs.allowed_protocols)"
+    #    - "('iscsi' in svm_specs.allowed_protocols)"
+    #    - "('nvme' in svm_specs.allowed_protocols)"
     - item.1.storage_protocol == "NVMe"
     - item.1.state == "present"
   tags:
@@ -241,7 +241,7 @@
     - "{{storage_vlan_list}}"
     - "{{ifgrp_name}}"
   when:
-    - "('iscsi' in svm_specs.allowed_protocols)"
+    #    - "('iscsi' in svm_specs.allowed_protocols)"
     - item.1.storage_protocol == "iSCSI"
   tags:
     - ontap_vlan_interface
@@ -264,7 +264,7 @@
     - "{{storage_vlan_list}}"
     - "{{ifgrp_name}}"
   when:
-    - "('nfs' in svm_specs.allowed_protocols)"
+    #    - "('nfs' in svm_specs.allowed_protocols)"
     - item.1.storage_protocol == "NFS"
   tags:
     - ontap_vlan_interface
@@ -287,8 +287,8 @@
     - "{{storage_vlan_list}}"
     - "{{ifgrp_name}}"
   when:
-    - "('iscsi' in svm_specs.allowed_protocols)"
-    - "('nvme' in svm_specs.allowed_protocols)"
+    #    - "('iscsi' in svm_specs.allowed_protocols)"
+    #    - "('nvme' in svm_specs.allowed_protocols)"
     - item.1.storage_protocol == "NVMe"
   tags:
     - ontap_vlan_interface

@@ -1,0 +1,8 @@
+---
+- name: Determine the current repository filenames for airgapped installation in {{ tarball_install }}/airgap/
+  delegate_to: localhost
+  become: false
+  ansible.builtin.find:
+    path: "{{ tenant_dir }}/airgap/"
+    file_type: file
+  register: airgap_files

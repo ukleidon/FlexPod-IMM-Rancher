@@ -42,6 +42,7 @@
           Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}]
          }
      register: iscsi_a_ip_pool
+     when: name_of_ip_pool_for_iscsi_a is defined
      
   -  name: "IP Pool for iSCSI-B"
      cisco.intersight.intersight_rest_api:
@@ -66,3 +67,4 @@
           Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}]
          }
      register: iscsi_b_ip_pool
+     when: name_of_ip_pool_for_iscsi_b is defined

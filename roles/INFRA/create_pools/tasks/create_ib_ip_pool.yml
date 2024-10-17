@@ -1,0 +1,38 @@
+---
+- name: "Create IP Address Pool for IB Management Access"
+  vars:
+    api_info: &api_info
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+
+    ib_ip_block: {
+      "From": "{{ ib_ip_pool_start_for_management_access }}",
+      "Size": "{{ ib_size_of_ip_pool_for_management_access }}"
+     }
+
+  cisco.intersight.intersight_rest_api:
+    <<: *api_info
+    resource_path: /ippool/Pools
+    query_params:
+       $filter: "Name eq '{{ ib_name_of_ip_pool_for_management_access }}'"
+    api_body: {
+      "Name": "{{ ib_name_of_ip_pool_for_management_access }}",
+      "Description": "{{ description_of_ip_pool_for_mgmt_access }}",
+      "IpV4Config": {
+        "Netmask": "{{ ib_netmask_mgmt }}",
+        "Gateway": "{{ ib_gateway_mgmt }}",
+        "PrimaryDns": "{{ ib_primary_dns_mgmt }}",
+        "SecondaryDns": "{{ ib_secondary_dns_mgmt }}"
+        },
+      "IpV4Blocks": [ "{{ ib_ip_block }}" ],
+      "AssignmentOrder": default,
+      "Organization": {
+         "Moid": "{{ intersight_org.api_response.Moid }}"
+       },
+      Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}]
+     }
+  register: management_ip_pool
+

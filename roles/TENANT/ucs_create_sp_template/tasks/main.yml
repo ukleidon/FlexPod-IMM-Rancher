@@ -26,6 +26,28 @@
 - include_tasks: create_fc_server_profile_template.yml
   when: configure_fc == 'true'  
 
+# Derive profiles from template (if profiles don't already exist)
+- name: "Derive Profiles from {{ name_of_fc_SPT }}"
+  include_tasks: derive_fc_profiles.yml
+  loop: "{{ range(1, num_profiles+1) | list }}"
+  when: configure_fc == 'true'  
+
 # Create Server Profile Template for iSCSI
 - include_tasks: create_iscsi_server_profile_template.yml
   when: configure_iscsi == 'true'  
+
+# Derive profiles from template (if profiles don't already exist)
+- name: "Derive Profiles from {{ name_of_iscsi_SPT }}"
+  include_tasks: derive_iscsi_profiles.yml
+  loop: "{{ range(1, num_profiles+1) | list }}"
+  when: configure_iscsi == 'true'  
+
+# Create Server Profile Template for local
+- include_tasks: create_local_server_profile_template.yml
+  when: configure_local == 'true'  
+
+# Derive profiles from template (if profiles don't already exist)
+- name: "Derive Profiles from {{ name_of_local_SPT }}"
+  include_tasks: derive_iscsi_profiles.yml
+  loop: "{{ range(1, num_profiles+1) | list }}"
+  when: configure_local == 'true'  

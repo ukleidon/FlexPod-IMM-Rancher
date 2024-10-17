@@ -1,0 +1,9 @@
+---
+#
+# VPC configuration on all the port-channels
+#
+    - name: Enabling vPC on all StorageGRID port-channels
+      cisco.nxos.nxos_vpc_interface:
+        portchannel: "{{ item.id }}"
+        vpc: "{{ item.id }}"
+      with_list: "{{ all_sg_pc }}"

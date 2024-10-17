@@ -1,0 +1,27 @@
+---
+# Get MOID for the Organization from Intersight
+- name: "Get MOID for the Organization from Intersight"
+  vars:
+    api_info: &api_info_org_moid
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+  intersight_rest_api:
+    <<: *api_info_org_moid
+    resource_path: /organization/Organizations
+    query_params:
+      $filter: "Name eq '{{ org_name }}'"
+  register: intersight_org
+  delegate_to: localhost
+  tags: always
+  run_once: true
+
+#
+# Create Server Profiles from Server Profile Template
+- include_tasks: create_server_from_profile.yml
+#
+# Deploy Server Profiles
+- include_tasks: deploy_server.yml
+#

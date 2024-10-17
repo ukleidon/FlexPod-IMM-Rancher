@@ -38,7 +38,7 @@
     validate_certs: false
   with_items:
     - "{{svm_specs}}"
-  when: 
+  when:
     - inventory_hostname == cluster_name
   tags:
     - ontap_config_svm

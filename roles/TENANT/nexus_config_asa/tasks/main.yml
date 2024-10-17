@@ -1,0 +1,47 @@
+---
+  # This task sets Ethernet ports to L2 and enables interfaces
+
+# This task sets up speed, duplex and mtu settings for the other interfaces
+  - name: Modify the mtu speed and duplex for ASA ports
+    cisco.nxos.nxos_interfaces:
+      config:
+        - name: "{{ item.interface }}"
+          mtu: "1500"
+          speed: "{{ item.speed|default('auto') }}"
+          duplex: "{{ item.duplex|default('auto') }}"
+    with_list: "{{ asa_interface_list }}"
+#
+#
+# Configure Infrastructure VLANs ASA interfaces
+#
+  - name: Enabling Infrastructure vlans on ASA Trunk Interfaces
+    cisco.nxos.nxos_l2_interfaces:
+      config:
+        - name: "{{ asa_interface_list[0].interface }}"
+          access:
+            vlan: "{{ transfer_vlan_id }}"
+#
+#
+  - name: Enabling Infrastructure vlans on ASA Trunk Interfaces
+    cisco.nxos.nxos_l2_interfaces:
+      config:
+        - name: "{{ asa_interface_list[1].interface }}"
+          trunk:
+            native_vlan: "{{ native_vlan_id }}"
+            allowed_vlans: "{{ t_access_vlans_list }}"
+#
+#
+#
+# The tasks below are added to overcome issues in Ansible Scripts
+# 1) https://github.com/ansible/ansible/issues/64896
+# switchport mode trunk is not set correctly and have to be added manually
+# 2) Spanning-tree port type edge trunk" on FI and Storage Port-Channels can not be set using ansible function
+
+  # This task sets:
+  # "switchport mode trunk" on all Trunk Ports
+  - name: Set - switchport mode trunk
+    cisco.nxos.nxos_config:
+      lines:
+        - switchport mode trunk
+      parents: interface {{ asa_interface_list[1].interface }}
+  #

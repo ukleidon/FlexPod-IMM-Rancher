@@ -1,0 +1,23 @@
+---
+# Deploy Server Profile
+- name: "Deploy Server Profile"
+  vars:
+    api_info: &api_info_org_moid
+      api_private_key: "{{ api_private_key }}"
+      api_key_id: "{{ api_key_id }}"
+      api_uri: "{{ api_uri | default(omit) }}"
+      validate_certs: "{{ validate_certs | default(omit) }}"
+      state: "{{ state | default(omit) }}"
+    profile_name: "RKE-DT-autoinst"
+  cisco.intersight.intersight_rest_api:
+    <<: *api_info_org_moid
+    resource_path: /server/Profiles
+    query_params:
+      $filter: "Name eq '{{ profile_name }}'"
+    api_body: {
+      "Action": "{{ profile_action | default('Deploy') }}"
+    }
+  delegate_to: localhost
+  tags: always
+  run_once: true
+

@@ -65,6 +65,23 @@
 #    src: "{{  current_working_directory.playbook_dir }}/custom-app-config/tridentorchestrator_cr_{{ trident.version }}.yaml"
     src: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}/deploy/crds/tridentorchestrator_cr.yaml"
 
+- name: Pause for 1 minutes to build app cache
+  ansible.builtin.pause:
+    minutes: 1
+
+- name: Apply Trident Backend
+  kubernetes.core.k8s:
+    state: present
+    src: "{{  current_working_directory.playbook_dir }}/config-files/{{ tenant_name }}_trident_backend.yaml"
+
+- name: Apply Trident Backend
+  kubernetes.core.k8s:
+    state: present
+    src: "{{  current_working_directory.playbook_dir }}/config-files/trident_storageclass.yaml"
+
+- name: Pause for 1 minutes to build app cache
+  ansible.builtin.pause:
+    minutes: 1
 
 - name: "Clean Up folder"
   ansible.builtin.file:

@@ -8,6 +8,30 @@
       validate_certs: "{{ validate_certs | default(omit) }}"
       state: "{{ state | default(omit) }}"
   block:
+  - name: "Configure Intel M7 Virtualization BIOS Policy"
+    cisco.intersight.intersight_rest_api:
+      <<: *api_info
+      resource_path: /bios/Policies
+      query_params:
+        $filter: "Name eq '{{ name_of_m7_bios_policy }}'"
+      api_body: {
+          "Name": "{{ name_of_m7_bios_policy }}",
+          "Description": "{{ description_of_m7_bios_policy }}",
+          "Organization": {
+             "Moid": "{{ intersight_org.api_response.Moid }}"
+           },
+          Tags: [{Key: "Provisioned by:", Value: "Intersight-Ansible"},{Key: "Project:", Value: "FSV-{{ prefix }}"}],
+          "CdnEnable": "enabled",
+          "EnergyEfficientTurbo": "enabled",
+          "NvmdimmPerformConfig": "Balanced Profile",
+          "PackageCstateLimit": "C6 Non Retention",
+          "ProcessorC1e": "enabled",
+          "ProcessorC6report": "enabled",
+          "WorkLoadConfig": "Balanced",
+        }
+    register: bios_policy
+    when: server_cpu_type == "Intel"
+
   - name: "LINUX: Configure Intel M6 Linux BIOS Policy"
     cisco.intersight.intersight_rest_api:
       <<: *api_info

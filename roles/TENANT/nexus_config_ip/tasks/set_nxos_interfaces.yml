@@ -14,13 +14,13 @@
         enabled: true
     with_list: "{{ t_svi_list }}"
 
-  # This task adds ports to the configure_smt-Tenant VRF context
+  # This task adds ports to the SMT-Tenant VRF context
   - name: Add SVI Interfaces to VRF
     cisco.nxos.nxos_vrf_interface:
       vrf: "{{ item.vrf }}"
       interface: Vlan{{ item.name }}
     with_list: "{{ t_svi_list }}"
-    when: configure_smt == true
+    when: SMT == true
 
   # This task adds ports to the Tenant VRF context
   - name: Add SVI Interfaces to VRF
@@ -28,7 +28,7 @@
       vrf: "{{ tenant_name|lower }}"
       interface: Vlan{{ item.name }}
     with_list: "{{ t_svi_list }}"
-    when: configure_smt != true
+    when: SMT != true
 
   # This task configures IP address on SVI
   - name: Add IP address to SVI Interfaces for L3 support
@@ -46,7 +46,6 @@
       group: "{{ tid }}"
       vip: "{{ item.hsrp }}"
     with_list: "{{ t_svi_list }}"
-    when: configure_hsrp is true
 
   # This task enables the new SVI interface
   - name: Enable SVI Interface

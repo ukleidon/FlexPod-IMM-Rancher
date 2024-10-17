@@ -33,7 +33,7 @@
                 "RemoteFile": "",
                 "RemotePath": "",
                 "Username": "",
-                "VolumeName": "SLE15SP5"
+                "VolumeName": "{{ vmedia_name_cdd }}"
             }
         ],
         "Organization": {

@@ -1,0 +1,25 @@
+---
+backup_dir: "~/"
+#
+storage_C_PC:
+  - interface: "port-channel29"
+    # id must be same as port-channel number
+    id: "29"
+    speed: "auto"
+    duplex: "auto"
+    description: "C250-01n1-a0a"
+#
+storage_D_PC:
+  - interface: "port-channel31"
+    # id must be same as port-channel number
+    id: "31"
+    speed: "auto"
+    duplex: "auto"
+    description: "C250-01n2-a0a"
+#
+aff_port_channels: "{{ storage_C_PC + storage_D_PC }}"
+#
+# VPC Parameters
+#
+vpc_domain_id: "101"
+#

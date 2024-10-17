@@ -1,0 +1,12 @@
+[all:vars]
+tenant=harvester
+
+[k8s]
+master
+# ONTAP Cluster Management IP. List only one ONTAP cluster IP.
+[ontap]
+a400-01 ansible_host=10.107.0.25  # Production System for Dataspace
+
+[nexus]
+aa04-n9kA ansible_host=10.104.0.3 ansible_user=admin ansible_password=H1ghV0lt ansible_network_os=nxos
+aa04-n9kB ansible_host=10.104.0.4 ansible_user=admin ansible_password=H1ghV0lt ansible_network_os=nxos
