@@ -6,5 +6,5 @@
 - include_tasks: delete_svm.yml
   when: state == "absent"
   tags: 
-    - delete_svm_custom
-    - never
+     - delete_svm_custom
+       #     - never

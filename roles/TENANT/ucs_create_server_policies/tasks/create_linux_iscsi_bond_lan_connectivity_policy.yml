@@ -359,7 +359,7 @@
               "Source": "vnic"
            },
            "FailoverEnabled": false,
-           "FabricEthNetworkGroupPolicy": [ "{{ access_network_group_policy.api_response.Moid }}" ],
+           "FabricEthNetworkGroupPolicy": [ "{{ storage_network_group_policy.api_response.Moid }}" ],
            "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
            "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
            "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
@@ -367,6 +367,7 @@
            "LanConnectivityPolicy": "{{ iscsi_lan_connectivity_policy.api_response.Moid }}",
            "Order": 4
        }
+    when: ( name_of_iscsi_vnic_2 is defined )
 
   - name: "LINUX: Add {{ name_of_iscsi_vnic_2 }}_B to LAN Connectivity Policy"
     cisco.intersight.intersight_rest_api:
@@ -387,7 +388,7 @@
               "Source": "vnic"
            },
            "FailoverEnabled": false,
-           "FabricEthNetworkGroupPolicy": [ "{{ access_network_group_policy.api_response.Moid }}" ],
+           "FabricEthNetworkGroupPolicy": [ "{{ storage_network_group_policy.api_response.Moid }}" ],
            "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
            "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
            "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
@@ -395,6 +396,7 @@
            "LanConnectivityPolicy": "{{ iscsi_lan_connectivity_policy.api_response.Moid }}",
            "Order": 5
        }
+    when: ( name_of_iscsi_vnic_2 is defined )
        
   - name: "LINUX: Add {{ name_of_iscsi_vnic_3 }}_A to LAN Connectivity Policy"
     cisco.intersight.intersight_rest_api:
@@ -415,7 +417,7 @@
                 "Source": "vnic"
              },
              "FailoverEnabled": false,
-             "FabricEthNetworkGroupPolicy": [ "{{ storage_network_group_policy.api_response.Moid }}" ],
+             "FabricEthNetworkGroupPolicy": [ "{{ access_network_group_policy.api_response.Moid }}" ],
              "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
              "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
              "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
@@ -444,7 +446,7 @@
                 "Source": "vnic"
              },
              "FailoverEnabled": false,
-             "FabricEthNetworkGroupPolicy": [ "{{ storage_network_group_policy.api_response.Moid }}" ],
+             "FabricEthNetworkGroupPolicy": [ "{{ access_network_group_policy.api_response.Moid }}" ],
              "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
              "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
              "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",

@@ -164,8 +164,8 @@ ib_network_netmask:      255.255.252.0                     # Netmask for this ne
 
 
 nfs_vlan_name:           'nfs-vlan'                        # NFS Traffic between ESXi and Storage
-nfs_vlan_id:             1043
-nfs_network_prefix:      '10.104.3'                        # !!! EDIT !!! first three digits of the network adress
+nfs_vlan_id:             1047
+nfs_network_prefix:      '10.104.7'                        # !!! EDIT !!! first three digits of the network adress
 nfs_network_mask:        24                                # Network CIDR for this network
 nfs_network_netmask:     255.255.255.0                     # Netmask for this network
 

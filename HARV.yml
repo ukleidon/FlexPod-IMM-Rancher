@@ -15,23 +15,23 @@
 #  - hardware_tenant
 
 # Configure VLANs, LIFs, SVM, and LUNs for the tenant
-#- name: Configure ONTAP for FlexPod
-#  hosts: ontap
-#    #serial: 1
-#  gather_facts: False
-#  connection: local
-#  roles:
-#  - { role: TENANT/env_vars }
-#  - { role: TENANT/ontap_network, tags: [ 'ontap_network' ] }
-#  - { role: TENANT/ontap_svm, tags: [ 'ontap_svm' ] }
-#  - { role: TENANT/ontap_volumes, tags: [ 'ontap_volumes' ] }
-#  - { role: TENANT/ontap_lifs, tags: [ 'ontap_lifs' ] }
-#  - { role: TENANT/ontap_luns, tags: [ 'ontap_luns' ] }
-#  # - { role: TENANT/ontap_nvme, tags: [ 'ontap_nvme' ] }
-#  tags:
-#  - ontap_config
-#  - flexpod_config
-#  - hardware_tenant
+- name: Configure ONTAP for FlexPod
+  hosts: ontap
+    #serial: 1
+  gather_facts: False
+  connection: local
+  roles:
+  - { role: TENANT/env_vars }
+  - { role: TENANT/ontap_network, tags: [ 'ontap_network' ] }
+  - { role: TENANT/ontap_svm, tags: [ 'ontap_svm' ] }
+  - { role: TENANT/ontap_volumes, tags: [ 'ontap_volumes' ] }
+  - { role: TENANT/ontap_lifs, tags: [ 'ontap_lifs' ] }
+  - { role: TENANT/ontap_luns, tags: [ 'ontap_luns' ] }
+  # - { role: TENANT/ontap_nvme, tags: [ 'ontap_nvme' ] }
+  tags:
+  - ontap_config
+  - flexpod_config
+  - hardware_tenant
 
 # Get iSCSI IQN from SVM
 #- name: Gather iSCSI IQN from SVM

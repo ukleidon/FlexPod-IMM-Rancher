@@ -39,7 +39,7 @@ org_name      : "{{ organization }}"
 ##############################################################################
 
 # Server Generation - set to M7, M6, or M5
-server_generation: "M6"
+server_generation: "M7"
 
 
 # Server CPU Type - set to Intel or AMD

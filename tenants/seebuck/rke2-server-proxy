@@ -1,4 +1,0 @@
-HTTP_PROXY=http://172.16.4.12:81
-HTTPS_PROXY=http://172.16.4.12:81
-NO_PROXY=127.0.0.0/8,172.16.0.0/12,10.0.0.0/8,rke.dt.iese.de,digital-twin.host
-

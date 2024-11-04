@@ -331,7 +331,8 @@ nfs_lif_02: "{{ t_nfs_network_prefix }}.2"
 cluster_name     : 'AA07-A400'                   # NetApp cluster name, also used as ansible_host in inventory !!!
 aggr_prefix      : 'AA07-A400'                   # Should be same as cluster name
 svm_specs:
-  svm_name         : "{{ tenant_name }}_svm"
+  svm_name         : "AA04-rke2-SVM"
+    #  svm_name         : "{{ tenant_name }}_svm"
   svm_root_vol     : "{{ tenant_name }}_svm_root"
   allowed_protocols:
     #provide the values in lower case only, supported options for this solution are nfs, fcp, iscsi, nvme

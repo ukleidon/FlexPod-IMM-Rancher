@@ -10,7 +10,7 @@
     state: absent
   connection: local
   roles:
-  # - { role: TENANT/env_vars }
-  # - { role: TENANT/ontap_svm_custom, tags: [ 'ontap_svm', 'delete_svm_custom'] }
-  - { role: ONTAP/ontap_svm_custom, tags: [ 'ontap_svm', 'delete_svm_custom'] }
+  - { role: TENANT/env_vars }
+  - { role: TENANT/ontap_svm_custom, tags: [ 'ontap_svm', 'delete_svm_custom'] }
+    #- { role: ONTAP/ontap_svm_custom, tags: [ 'ontap_svm', 'delete_svm_custom'] }
     # - { role: ONTAP/ontap_lifs, tags: [ 'ontap_lifs' ] }

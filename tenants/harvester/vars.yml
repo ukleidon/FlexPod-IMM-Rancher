@@ -49,6 +49,11 @@ os_bond           : 'true'
 # Default is false
 configure_local   : 'false'
 
+# Some operating systems still have issues with UEFI Secure Boot enabled.
+# This variable has no impact to configure_iscsi or configure_fc.
+# Default is false
+enable_uefi_secureboot   : 'false'
+
 # The OS Type variable is used to defime BIOS policies, adapter policies, and LUNs.
 # IT can be linux (for all kinds of linux and K8s), windows, and vmware.
 os_type:       'linux'  
@@ -72,8 +77,8 @@ t_password_for_local_user             : "H1ghV0lt"
 # Vmedia file location used for UCS to define vmedia policy for first boot
 # CCD is for the boot ISO image.
 # HDD is for an disk image to store autoinstall file or additional packages
-vmedia_file_location_cdd          : "http://10.104.1.4:8080/harvester-v1.4.0-rc2-amd64.iso"
-vmedia_name_cdd                   : 'Harvester-1.4.0-rc2'
+vmedia_file_location_cdd          : "http://10.104.1.4:8080/harvester-v1.4.0-rc3-amd64.iso"
+vmedia_name_cdd                   : 'Harvester-1.4.0-rc3'
 #vmedia_file_location_hdd          : "http://10.104.1.4:8080/autoinstall.img"
 #vmedia_name_hdd                   : 'AUTOINSTALL'
 #
@@ -154,8 +159,8 @@ t_iscsiB_network_mask:    24                                 # Network CIDR for 
 t_iscsiB_network_netmask: 255.255.255.0                      # Netmask for this network
 #
 t_nfs_vlan_name:          "{{ tenant_name }}-NFS"            # NFS Traffic between ESXi and Storage
-t_nfs_vlan_id:            1043                               # Management VLAN +3
-t_nfs_network_prefix:     '10.104.3'                         # !!! EDIT !!! first three digits of the network adress
+t_nfs_vlan_id:            1047                               # Management VLAN +3
+t_nfs_network_prefix:     '10.104.7'                         # !!! EDIT !!! first three digits of the network adress
 t_nfs_network_mask:       24                                 # Network CIDR for this network
 t_nfs_network_netmask:    255.255.255.0                      # Netmask for this network
 #
@@ -334,6 +339,7 @@ cluster_name     : 'AA07-A400'                   # NetApp cluster name, also use
 aggr_prefix      : 'AA07-A400'                   # Should be same as cluster name
 svm_specs:
   svm_name         : "{{ tenant_name }}_svm"
+  svm_name         : "AA04-SVM"
   svm_root_vol     : "{{ tenant_name }}_svm_root"
   allowed_protocols:
     #provide the values in lower case only, supported options for this solution are nfs, fcp, iscsi, nvme
@@ -383,8 +389,8 @@ svm_node_specs:
       - {name: "{{ tenant_name }}-iscsi-lif-01b", address: "{{ iscsi_lif_01b }}", netmask: "{{ t_iscsiB_network_netmask }}", fabric: B}
     nvme_tcp_lifs:  #Fill out this value only if iscsi and nvme will be mentioned under allowed_protocols 
                                                                                           #Do not change the fabric ID
-      - {name: "{{ tenant_name }}-nvme-tcp-lif-01a", address: "{{ nvme_lif_01a }}", netmask: "{{ t_nvmeA_network_netmask }}", fabric: A}
-      - {name: "{{ tenant_name }}-nvme-tcp-lif-01b", address: "{{ nvme_lif_01b }}", netmask: "{{ t_nvmeB_network_netmask }}", fabric: B}
+      - {name: "{{ tenant_name }}-nvme-tcp-lif-01a", address: "{{ nvme_lif_01a }}", netmask: "{{ t_nvme_tcpA_network_netmask }}", fabric: A}
+      - {name: "{{ tenant_name }}-nvme-tcp-lif-01b", address: "{{ nvme_lif_01b }}", netmask: "{{ t_nvme_tcpB_network_netmask }}", fabric: B}
   - node_name: "{{ cluster_name }}n2"
     nfs_lifs:  {name: "{{ tenant_name }}-nfs-lif-02b", address: "{{ nfs_lif_02 }}", netmask: "{{ t_nfs_network_netmask }}"}
     fcp_lifs:    #Fill out this value only if fcp will be mentioned under allowed_protocols in svm_specs
@@ -399,8 +405,8 @@ svm_node_specs:
       - {name: "{{ tenant_name }}-iscsi-lif-02b", address: "{{ iscsi_lif_02b }}", netmask: "{{ t_iscsiB_network_netmask }}", fabric: B}
     nvme_tcp_lifs:  #Fill out this value only if iscsi and nvme will be mentioned under allowed_protocols 
                                                                                           #Do not change the fabric ID
-      - {name: "{{ tenant_name }}-nvme-tcp-lif-02a", address: "{{ nvme_lif_02a }}", netmask: "{{ t_nvmeA_network_netmask }}", fabric: A}
-      - {name: "{{ tenant_name }}-nvme-tcp-lif-02b", address: "{{ nvme_lif_02b }}", netmask: "{{ t_nvmeB_network_netmask }}", fabric: B}
+      - {name: "{{ tenant_name }}-nvme-tcp-lif-02a", address: "{{ nvme_lif_02a }}", netmask: "{{ t_nvme_tcpA_network_netmask }}", fabric: A}
+      - {name: "{{ tenant_name }}-nvme-tcp-lif-02b", address: "{{ nvme_lif_02b }}", netmask: "{{ t_nvme_tcpB_network_netmask }}", fabric: B}
 
 
 #
