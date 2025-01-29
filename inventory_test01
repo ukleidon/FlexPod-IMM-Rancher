@@ -13,14 +13,14 @@ master
 
 # Rancher RKE2 Control nodes
 [rke2_servers]
-test01-rke-1 node_labels='["extraLabel0=true"]' node_ip="172.16.5.19" ansible_user="rancher" ansible_sudo_pass="DataSpace24!"
-#test01-rke-2 node_labels='["extraLabel0=true"]' node_ip="172.18.0.11" ansible_user="rancher" ansible_sudo_pass="DataSpace24!"
-#test01-rke-3 node_labels='["extraLabel0=true"]' node_ip="172.18.0.12" ansible_user="rancher" ansible_sudo_pass="DataSpace24!"
+test01-rke-1 node_labels='["extraLabel0=true"]' node_ip="172.16.5.19" ansible_user="rancher" ansible_sudo_pass=""
+#test01-rke-2 node_labels='["extraLabel0=true"]' node_ip="172.18.0.11" ansible_user="rancher" ansible_sudo_pass=""
+#test01-rke-3 node_labels='["extraLabel0=true"]' node_ip="172.18.0.12" ansible_user="rancher" ansible_sudo_pass=""
 
 # Rancher RKE2 worker nodes
 [rke2_agents]
-#dataspace-rke-4 node_labels='["extraLabel0=true"]' node_ip="172.18.0.13" ansible_user="rancher" ansible_sudo_pass="DataSpace24!"
-#dataspace-rke-5 node_labels='["extraLabel0=true"]' node_ip="172.18.0.14" ansible_user="rancher" ansible_sudo_pass="DataSpace24!"
-#dataspace-rke-6 node_labels='["extraLabel0=true"]' node_ip="172.18.0.15" ansible_user="rancher" ansible_sudo_pass="DataSpace24!"
+#dataspace-rke-4 node_labels='["extraLabel0=true"]' node_ip="172.18.0.13" ansible_user="rancher" ansible_sudo_pass=""
+#dataspace-rke-5 node_labels='["extraLabel0=true"]' node_ip="172.18.0.14" ansible_user="rancher" ansible_sudo_pass=""
+#dataspace-rke-6 node_labels='["extraLabel0=true"]' node_ip="172.18.0.15" ansible_user="rancher" ansible_sudo_pass=""
 
 [dataspace_hosts]
