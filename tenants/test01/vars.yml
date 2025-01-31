@@ -604,28 +604,28 @@ description_of_fc_lan_connectivity_policy     : "LAN Connectivity Policy for FC 
 
 # First vNIC is used for management (and partially for storage) traffic
 name_of_vnic_1                                : "{{ prefix | lower}}-mgmt-{{ vic_type }}"
-# Second vNIC is used for user and application traffic
-name_of_vnic_2                                : "{{ prefix | lower}}-access-{{ vic_type }}"
-# Third vNIC is used for dedicated NFS storage traffic or for storage replication in HCI
-name_of_vnic_3                                : "{{ prefix | lower}}-storage-{{ vic_type }}"
+# Second vNIC is used for storage traffic - NFS, replication, ...
+name_of_vnic_2                                : "{{ prefix | lower}}-storage-{{ vic_type }}"
+# Third vNIC is used for application and user traffic
+name_of_vnic_3                                : "{{ prefix | lower}}-access-{{ vic_type }}"
 # Forth vNIC is used for ????
 name_of_vnic_4                                : "{{ prefix | lower}}-wan-{{ vic_type }}"
 
 # First vNIC is used for management (and partially for storage) traffic
 name_of_iscsi_vnic_1                          : "{{ prefix | lower}}-iscsi-mgmt-{{ vic_type }}-A"
-# Second vNIC is used for user and application traffic
-name_of_iscsi_vnic_2                          : "{{ prefix | lower}}-iscsi-access-{{ vic_type }}-B"
-# Third vNIC is used for dedicated NFS storage traffic or for storage replication in HCI
-name_of_iscsi_vnic_3                          : "{{ prefix | lower}}-iscsi-storage-{{ vic_type }}-A"
+# Second vNIC is used for storage traffic - NFS, replication, ...
+name_of_iscsi_vnic_2                          : "{{ prefix | lower}}-iscsi-storage-{{ vic_type }}-B"
+# Third vNIC is used for application and user traffic.
+name_of_iscsi_vnic_3                          : "{{ prefix | lower}}-iscsi-access-{{ vic_type }}-A"
 # Forth vNIC is used for ????
 name_of_iscsi_vnic_4                          : "{{ prefix | lower}}-iscsi-wan-{{ vic_type }}-B"
 
 # First vNIC is used for management (and partially for storage) traffic
 name_of_fc_vnic_1                             : "{{ prefix | lower}}-fc-mgmt-{{ vic_type }}-A"
-# Second vNIC is used for user and application traffic
-name_of_fc_vnic_2                             : "{{ prefix | lower}}-fc-access-{{ vic_type }}-B"
-# Third vNIC is used for dedicated NFS storage traffic or for storage replication in HCI
-name_of_fc_vnic_3                             : "{{ prefix | lower}}-fc-storage-{{ vic_type }}-B"
+# Second vNIC is used for storage traffic - NFS, replication, ...
+name_of_fc_vnic_2                             : "{{ prefix | lower}}-fc-storage-{{ vic_type }}-B"
+# Third vNIC is used for application and user traffic
+name_of_fc_vnic_3                             : "{{ prefix | lower}}-fc-access-{{ vic_type }}-B"
 # Forth vNIC is used for ????
 #name_of_fc_vnic_4                          : "{{ prefix | lower}}-fc-????-{{ vic_type }}-B"
 
