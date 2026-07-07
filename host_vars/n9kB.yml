@@ -12,17 +12,17 @@ uplink_interface_list:
 
 peerlink_interface_list:
   - interface:  "Ethernet1/53"
-    description: "KL-IDTA-nx1:Eth1/53"
+    description: "FlexPod-IMM-Rancher-nx1:Eth1/53"
   - interface:  "Ethernet1/54"
-    description: "KL-IDTA-nx1:Eth1/54"
+    description: "FlexPod-IMM-Rancher-nx1:Eth1/54"
 #
 FI_A_interface_list:
   - interface:  "Ethernet1/49"
-    description: "KL-IDTA-FI-A:Eth1/54"
+    description: "FlexPod-IMM-Rancher-FI-A:Eth1/54"
 #
 FI_B_interface_list:
   - interface:  "Ethernet1/50"
-    description: "KL-IDTA-FI-B:Eth1/54"
+    description: "FlexPod-IMM-Rancher-FI-B:Eth1/54"
 #
 storage_A_interface_list:
   - interface:  "Ethernet1/25"

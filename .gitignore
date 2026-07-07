@@ -1,0 +1,36 @@
+# Local credentials and keys
+Keys/
+keys/
+Secrets/
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*SecretKey.txt
+*.vault
+.vault_pass*
+
+# Local inventory or variable overlays
+inventory_local
+inventory_*.local
+*_local.yml
+*_local.yaml
+local_vars/
+private_vars/
+
+# Ansible runtime output
+*.retry
+artifacts/
+backups/
+device-backups/
+logs/
+*.log
+
+# Python/editor noise
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+*.swp
+*.swo

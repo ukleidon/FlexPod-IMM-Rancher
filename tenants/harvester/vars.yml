@@ -12,8 +12,8 @@
 # #3 Assign the new role to your User and switch to the new role
 # #4 Create a new API key with the created role and enter the information here.
 #
-api_key_id        : 5c8bbb507564612d307b0837/5c8bb9d67564612d307ae010/670e70e8756461310161ace2
-api_private_key   : Keys/rtp-suse.txt
+api_key_id        : CHANGE_ME_INTERSIGHT_API_KEY_ID  # Replace only in a private deployment overlay.
+api_private_key   : Keys/CHANGE_ME_INTERSIGHT_SECRET_KEY.txt  # Replace only in a private deployment overlay.
 
 #
 # TENANT NAME is used i.e. as name for the VRF, as prefix in Intersight and so on.
@@ -72,7 +72,7 @@ lan_state : 'present'
 #
 # Local User and password are used in Intersight and for the SVM admin
 t_name_of_local_user                  : "fpadmin"
-t_password_for_local_user             : "H1ghV0lt"
+t_password_for_local_user             : "CHANGE_ME_LOCAL_USER_PASSWORD"  # Replace only in a private deployment overlay.
 
 # Vmedia file location used for UCS to define vmedia policy for first boot
 # CCD is for the boot ISO image.
@@ -361,7 +361,7 @@ svm_specs:
     #    - {name: "{{tenant_name}}_nvme_01", size: 500, residing_vol: "{{tenant_name}}_nvme"}
   #host names will be used for NetApp Boot LUNs and igroup names. These vars are placed under group_vars/all.yml file
   boot_luns_iscsi: {size: 270, residing_vol: "{{tenant_name}}_boot"}
-  data_luns_iscsi: {name: dataspace_data, size: 4, residing_vol: "{{tenant_name}}_data"}
+  data_luns_iscsi: {name: harvester_data, size: 4, residing_vol: "{{tenant_name}}_data"}
   svm_mgmt_lif: {home_node: "{{ cluster_name }}n2", address: "{{ t_ib_network_prefix }}.101", netmask: 255.255.255.0, 
                   gateway: "{{ t_ib_network_prefix }}.254", lif_name: "{{ tenant_name }}-svm-mgmt"}
   vsadmin_password: "{{ t_password_for_local_user }}"

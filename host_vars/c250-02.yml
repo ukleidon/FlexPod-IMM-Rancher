@@ -56,9 +56,9 @@ snmp_community: "public"
 #SNMPv3 related variables
 user: snmpv3_user   #The name of the user to manage
 authentication_protocol: md5   #Authentication protocol for the snmp user (Choices: none, md5, sha, sha2-256)
-authentication_password: <enter password>   #Password for the authentication protocol
+authentication_password: CHANGE_ME_SNMP_AUTH_PASSWORD   #Password for the authentication protocol
 privacy_protocol: none   #Privacy protocol for the snmp user (Choices: none, des, aes128)
-privacy_password: <enter password>   #Password for the privacy protocol
+privacy_password: CHANGE_ME_SNMP_PRIVACY_PASSWORD   #Password for the privacy protocol
 
 #Cluster Login banner Text message
 cluster_login_banner: Access restricted to authorized users

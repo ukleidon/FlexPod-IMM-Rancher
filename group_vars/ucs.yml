@@ -13,8 +13,8 @@
 # 
 # Enter Intersight API Key ID and the location of the SecretKey file
 # 
-api_key_id        : 5c8bbb507564612d307b0837/5c8bb9d67564612d307ae010/663a31907564613101d41d73
-api_private_key   : Keys/AC01.txt
+api_key_id        : CHANGE_ME_INTERSIGHT_API_KEY_ID  # Replace only in a private deployment overlay.
+api_private_key   : Keys/CHANGE_ME_INTERSIGHT_SECRET_KEY.txt  # Replace only in a private deployment overlay.
 #
 # The api_url for EMEA instance must be specified manually!
 # This is not required for the US instance of Intersight.
@@ -97,7 +97,7 @@ description_of_ipmi_policy          : "Enable IPMI over LAN"
 # Local User Policy to enable KVM and IPMI Access
 name_of_LocalUser_policy            : "{{ prefix }}-LocalUser-Policy"
 name_of_local_user                  : "fpadmin"
-password_for_local_user             : "HighV0lt"
+password_for_local_user             : "CHANGE_ME_LOCAL_USER_PASSWORD"  # Replace only in a private deployment overlay.
 
 # Ethernet Network Control Policy to enable CDP and LLDP
 name_of_ethernet_network_control_policy         : "{{ prefix }}-Enable-CDP-LLDP-Policy"

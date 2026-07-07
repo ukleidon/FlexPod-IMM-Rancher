@@ -18,7 +18,7 @@ tenant_type:   'virtual'
 #
 # Local User and password are used in Intersight and for the SVM admin
 t_name_of_local_user                  : "winterlinde"
-t_password_for_local_user             : "Tenant17!"
+t_password_for_local_user             : "CHANGE_ME_LOCAL_USER_PASSWORD"  # Replace only in a private deployment overlay.
 
 #############################################################################################################################
 # 
@@ -80,8 +80,8 @@ t_access_network_netmask: "{{ t_ib_network_netmask }}"
 # #3 Assign the new role to your User and switch to the new role
 # #4 Create a new API key with the created role and enter the information here.
 #
-api_key_id        : 65c6476d7564613305833e66/65ef20a5756461310534e30c/6634c099756461310594bc8e
-api_private_key   : Keys/test03key.txt
+api_key_id        : CHANGE_ME_INTERSIGHT_API_KEY_ID  # Replace only in a private deployment overlay.
+api_private_key   : Keys/CHANGE_ME_INTERSIGHT_SECRET_KEY.txt  # Replace only in a private deployment overlay.
 
 #
 #

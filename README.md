@@ -1,66 +1,88 @@
-[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/ucs-compute-solutions/FlexPod-IMM-VMware)
+# FlexPod IMM Rancher Automation Framework
 
- FlexPod Converged Infrastructure setup using Ansible for FlexPod Datacenter with Cisco UCS M7 IMM, VMware vSphere 8.0, and NetApp ONTAP 9.12.1
+This repository automates a FlexPod-based lab and tenant environment. It uses Ansible to configure the shared Cisco Nexus, Cisco MDS, Cisco Intersight, NetApp ONTAP, and optional RKE2/Rancher layers that make up the infrastructure.
 
-Note that the scripts in this repository have now been successfully tested with NetApp ONTAP 9.13.1, NetApp ONTAP 9.14.1, and VMware vSphere 8.0 Update 2.
+The core design follows the FlexPod operating model: Cisco UCS/Intersight for compute, Cisco Nexus/MDS for Ethernet and SAN connectivity, and NetApp ONTAP for shared storage. For architecture background, start with the [Cisco FlexPod Design Guides](https://www.cisco.com/c/en/us/solutions/design-zone/data-center-design-guides/flexpod-design-guides.html) and [NetApp FlexPod Solutions](https://docs.netapp.com/us-en/flexpod/).
 
-This repository for FlexPod contains Ansible playbooks to configure Cisco Nexus, Cisco UCS Intersight, Cisco MDS, NetApp ONTAP, VMware ESXi, and VMware vCenter. This repository can be used for setting up Cisco devices, NetApp ONTAP Storage, and VMware ESXi and vCenter as covered in the following Cisco Validated Design (CVD): https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/UCS_CVDs/flexpod_imm_m7_iac.html.
+## Who This Is For
 
-The CVD lays out the complete process for configuring the FlexPod using Ansible. Since these playbooks are intended to save time in setting up a working FlexPod, a complete FlexPod as shown below is needed to execute the playbooks. Various simulators could be used to partially test individual playbooks.
+This documentation is written for infrastructure operators with some networking, server, and storage experience. You should be comfortable with VLANs, IP subnets, VRFs, server profiles, and storage SVM/LIF concepts, but you do not need to know every Ansible role by heart.
 
-![block-diagram](https://github.com/ucs-compute-solutions/FlexPod-IMM-VMware/blob/main/ReadmePics/Main-Topology.jpg)  
+## Validated Design Context
 
- Set up the execution environment
+FlexPod-IMM-Rancher follows the same operating model as the Cisco Validated Design [FlexPod Datacenter using IaC with Cisco IMM M7, VMware vSphere 8, and NetApp ONTAP 9.12.1](https://www.cisco.com/c/en/us/td/docs/unified_computing/ucs/UCS_CVDs/flexpod_imm_m7_iac.html). That CVD is the reference for the base FlexPod sequencing, product roles, redundancy model, and Ansible-based deployment flow.
 
-To execute various ansible playbooks, a linux based system will need to be setup as described in the CVD with the packages listed at the following pages:
+The difference is that FlexPod-IMM-Rancher adds a lean multi-tenant structure on top of the shared infrastructure. A complete FlexPod stack is required for end-to-end validation. Individual roles can still be syntax-checked or check-mode tested against a partial lab when the inventory and device reachability match the role being tested.
 
-- Cisco UCS Intersight: https://galaxy.ansible.com/ui/repo/published/cisco/intersight/
-- Cisco NxOS: https://galaxy.ansible.com/ui/repo/published/cisco/nxos/
-- NetApp ONTAP: https://galaxy.ansible.com/ui/repo/published/netapp/ontap/
-- VMware: https://galaxy.ansible.com/ui/repo/published/community/vmware/
+## Execution Environment
 
- How to execute these playbooks?
+Run the framework from an Ansible control host with network reachability to the Nexus, MDS, ONTAP, Intersight API, and any tenant hosts that will receive OS or RKE2 configuration. Use the control host's existing Python or virtual environment when one is already prepared.
 
-![block-diagram](https://github.com/ucs-compute-solutions/FlexPod-IMM-VMware/blob/main/ReadmePics/Ansible-Order.jpg)
+Install the collections used by the current roles before running playbooks:
 
-Because a number of manual tasks need to be executed between running the Ansible playbooks, the CVD document should be used as a guide for running the playbooks. Commentary is included in the variable files to guide filling in those values.
+```bash
+ansible-galaxy collection install cisco.intersight cisco.nxos netapp.ontap community.vmware
+```
 
-In this version of the FlexPod setup, FC boot with FC-NVMe and NFS is configured by default in the variable files, but iSCSI boot and NVMe-TCP with NFS can also be used.
-The steps for setting up a FlexPod with FC boot with FC-NVMe and NFS storage protocols are:
+Keep the Intersight API key references in `group_vars/ucs.yml` and `tenants/<tenant>/vars.yml` current before running live or check-mode tasks.
 
-1.  Create a directory and clone the repository from Github with "git clone https://github.com/ucs-compute-solutions/FlexPod-IMM-VMware.git".
-2.  Fill in the variable files according to the CVD.
-3.  Follow the manual steps in the CVD to set up the Nexus switches on the network and ssh into each switch.
-4.  Execute the Nexus playbook with "ansible-playbook ./Setup_Nexus.yml -i inventory" to setup the Nexus switches.
-5.  Follow the manual steps in the CVD to add timezone information to the Nexus switches.
-6.  Follow the manual steps in the CVD to get the NetApp storage cluster on the network.
-7.  Execute the NetApp storage playbook with "ansible-playbook -i inventory Setup_ONTAP.yml -t ontap_config_part_1".
-8.  Query the Infra-SVM iSCSI IQN and add to the "all.yml" file.
-9.  Follow the manual steps in the CVD to create an Intersight Account, and get the Cisco UCS Fabric Interconnects (FIs) on the network in Intersight Managed Mode.
-10.  Claim the FIs into Intersight and setup and deploy the Domain Profile.
-11.  Execute the IMM playbooks with "ansible-playbook ./Setup_IMM_Pools.yml", "ansible-playbook ./Setup_IMM_Server_Policies.yml", and 
-     "ansible-playbook ./Setup_IMM_Server_Profile_Templates.yml" to setup the Cisco UCS Server Profile Templates, Policies, and Pools.
-12.  Follow the manual steps in the CVD to create UCS IMM server profiles for three or more VMware ESXi management hosts.
-13.  Query the ESXi host IQNs or WWPNs from the server profiles and add to the "all.yml" file.
-14.  If configuring Fibre Channel, follow the manual steps in the CVD to set up the MDS switches on the network and ssh into each switch.
-15.  If configuring Fibre Channel, execute the MDS playbook with "ansible-playbook ./Setup_MDS.yml -i inventory".
-16.  If configuring Fibre Channel, follow the manual steps in the CVD to add timezone information to the MDS switches. 
-17.  Execute the NetApp storage playbook with "ansible-playbook -i inventory Setup_ONTAP.yml -t ontap_config_part_2" to create and map the ESXi boot LUNs.
-18.  Follow the manual steps in the CVD to install VMware ESXi and assign IPs on the three (or more) host servers using Cisco Intersight OS Install.
-19.  Execute the ESXi playbook with "ansible-playbook ./Setup_ESXi.yml -i inventory" to setup the ESXi hosts.
-20.  Bring a vCenter into the environment by either installing vCenter on the first ESXi host according to the CVD, copying it in, or establishing L3 routing to it.
-21.  Setup the vCenter and add the three or more ESXi hosts to it by executing "ansible-playbook ./Setup_vCenter.yml -i inventory".
-22.  Follow the manual steps in the CVD to complete setting up vCenter and the ESXi hosts.
-23.  Execute the NetApp storage playbook with "ansible-playbook -i inventory Setup_ONTAP.yml -t ontap_config_part_3" to setup NVMe-TCP and finalize ONTAP Storage.
-24.  Execute the manual steps in the CVD to complete the NVMe-TCP setup.
-25.  Follow the steps in the CVD to install the ONTAP Tools VM via Ansible.
-26.  Follow the steps in the CVD to install the SnapCenter VMware Plug-In via Ansible.
-27.  Follow the steps in the CVD to install Active IQ Unified Manager via Ansible.
-28.  Follow the manual steps in the CVD to finish setting up ONTAP tools, the SnapCenter Plug-in, and AIQUM.
-29.  Follow the manual steps in the CVD to setup Cisco Intersight Assist and Cisco Nexus Dashboard Fabric Controller (NDFC) SAN.
+## GitHub Publication Safety
 
-The Ansible playbooks and CVD are structured in a way that a Fibre Channel Boot, Fibre Channel Boot with FC-NVMe, iSCSI Boot or iSCSI Boot with NVMe-TCP FlexPod or combination configurations can be setup by adjusting the variables. Also, the playbooks can be used to setup the following topology utilizing Cisco Nexus switches that support SAN Switching (93180YC-FX, 93360YC-FX2, or 9336C-FX2-E) for both LAN and SAN switching and 100G FCoE Uplinks from the FIs to the switches.
+This repository is prepared for GitHub publication with placeholder credentials. Do not commit live Intersight API keys, private key files, ONTAP passwords, Trident backend passwords, local user passwords, or tenant-specific secret material.
 
-![block-diagram](https://github.com/ucs-compute-solutions/FlexPod-IMM-VMware/blob/main/ReadmePics/NexusSAN-Topology.jpg)
+Before staging changes, run:
 
+```bash
+./scripts/publication_check.py
+```
 
+Keep real deployment secrets in ignored local files, Ansible Vault, environment-backed vars, or a private overlay that is not committed.
+
+## Main Entry Points
+
+| File                                                           | Use it for                                                     | Expected result                                                                                                               |
+| -------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| [`INFRA.yml`](INFRA.yml)                                       | Build or validate shared FlexPod infrastructure.               | Shared Nexus, ONTAP, Intersight, StorageGRID, Proxmox, and ASA integration objects.                                           |
+| [`TENANT.yml`](TENANT.yml)                                     | Build or remove one selected tenant.                           | Tenant VLANs, VRFs, storage objects, Intersight policies/profiles, OS install prep, RKE2, and Trident depending on inventory. |
+| [`HARV.yml`](HARV.yml)                                         | Run the Harvester-focused tenant workflow.                     | Harvester tenant storage, Intersight, and platform configuration where matching inventory exists.                             |
+| [`AA04.yml`](AA04.yml)                                         | Run the AA04-specific Intersight tenant workflow.              | AA04-specific Intersight tenant objects.                                                                                      |
+| [`delete_ONTAP_SVM_Custom.yml`](delete_ONTAP_SVM_Custom.yml)   | Remove a custom ONTAP SVM workflow.                            | Selected ONTAP custom SVM objects are removed according to vars.                                                              |
+| [`scripts/create_tenant.py`](scripts/create_tenant.py)         | Create a new tenant directory from a known-good tenant.        | New `tenants/<name>/vars.yml` and optional virtual registry vars updates.                                                     |
+| [`scripts/publication_check.py`](scripts/publication_check.py) | Check for accidental literal keys/passwords before publishing. | The repo is safe to stage from a credential hygiene perspective.                                                              |
+
+## Recommended Operator Path
+
+1. Read [Architecture](docs/architecture.md) to understand how the framework maps to FlexPod.
+2. Read [Variables](docs/variables.md) before changing tenant or infrastructure data.
+3. Create or review the tenant with [New Tenant Guide](docs/tenants/new-tenant.md).
+4. Run syntax checks from [Validation](docs/validation.md).
+5. Run check mode with `-C`.
+6. Run live only after the expected device/controller changes are understood.
+
+## Quick Validation
+
+```bash
+ansible-playbook -i inventory INFRA.yml --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=ac01 --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=ac01 -C
+```
+
+## Documentation
+
+- [Documentation index](docs/README.md)
+- [Playbooks](docs/playbooks.md)
+- [Variables](docs/variables.md)
+- [Roles](docs/roles/README.md)
+- [Tenants](docs/tenants/README.md)
+- [Operations](docs/operations.md)
+- [Validation](docs/validation.md)
+- [GitHub publication checklist](docs/github-publication.md)
+- [Product references](docs/references.md)
+
+## Safety Rules
+
+- A tenant must be configurable and unconfigurable independent of every other tenant.
+- Tenant-specific VLANs, CIDRs, credentials, storage identities, and API key references stay in `tenants/<tenant>/vars.yml`.
+- Shared generated defaults stay in `group_vars/tenant_defaults.yml`.
+- Run `--syntax-check` and `-C` before live changes.
+- Do not run legacy or archived playbooks unless they have been deliberately brought forward and validated.

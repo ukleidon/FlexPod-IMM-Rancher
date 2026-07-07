@@ -40,7 +40,7 @@ organization      : "RTP4-AC01"
 # The user is configured in Intersight local user policy in addition to the users defined in the tenant config.
 # The SVM vsadmin password will be replaced with the definition in the tenant configuration!!
 name_of_local_user                  : "fpadmin"
-password_for_local_user             : "DataSpace24!"
+password_for_local_user             : "CHANGE_ME_LOCAL_USER_PASSWORD"  # Replace only in a private deployment overlay.
 
 # Backup Directory for some playbooks to store configuration before chaning
 backup_dir:  "/home/admin/backup"

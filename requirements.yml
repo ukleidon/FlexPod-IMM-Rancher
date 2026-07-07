@@ -1,0 +1,6 @@
+---
+collections:
+  - name: cisco.intersight
+  - name: cisco.nxos
+  - name: netapp.ontap
+  - name: community.vmware

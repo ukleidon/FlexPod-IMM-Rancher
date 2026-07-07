@@ -1,0 +1,235 @@
+---
+# Shared tenant defaults for TENANT.yml and rancher tenant loading.
+# Loaded after group_vars/all.yml, group_vars/ucs.yml, storagegrid/proxmox vars and before tenants/<tenant>/vars.yml.
+# Keep tenant identity, credentials, API key references, VLAN IDs, and CIDRs in the tenant vars file.
+# See docs/variables.md and docs/tenants/new-tenant.md.
+
+# -----------------------------------------------------------------------------
+# Tenant default ownership
+# -----------------------------------------------------------------------------
+# Shared defaults for TENANT.yml. Tenant vars override these values after this file is loaded.
+
+# -----------------------------------------------------------------------------
+# Boot, media, and OS defaults
+# -----------------------------------------------------------------------------
+# Reusable boot order, vMedia, and OS defaults used by server policies/templates.
+boot_order_dev_name: M2-RAID1
+boot_order_dev_slot: MSTOR-RAID
+boot_order_policy_description: Local Disk Boot Order Policy
+boot_order_policy_name: '{{ prefix }}-{{ vic_type }}-VIC-Boot-Order-Policy'
+description_of_iscsi_a_boot_policy: iSCSI-A Boot Policy
+description_of_iscsi_b_boot_policy: iSCSI-B Boot Policy
+description_of_vmedia_policy: vMedia Policy to enable KVM mounted DVDs
+fc_boot_order_policy_description: Fibre Channel Boot Order Policy
+fc_boot_order_policy_name: '{{ prefix }}-FC-{{ vic_type }}-VIC-Boot-Order-Policy'
+iscsi_boot_order_policy_description: iSCSI Boot Order Policy
+iscsi_boot_order_policy_name: '{{ prefix }}-iSCSI-{{ vic_type }}-VIC-Boot-Order-Policy'
+name_of_iscsi_a_boot_policy: '{{ prefix }}-iSCSI-A-Boot-Policy'
+name_of_iscsi_b_boot_policy: '{{ prefix }}-iSCSI-B-Boot-Policy'
+name_of_vmedia_policy: '{{ prefix }}-KVM-Mount-vMedia'
+os_type: linux
+san_boot_device_1a_name: fcp-lif-01a
+san_boot_device_1b_name: fcp-lif-01b
+san_boot_device_2a_name: fcp-lif-02a
+san_boot_device_2b_name: fcp-lif-02b
+san_boot_target_1a_wwpn: '{{ fcp_lif_01a }}'
+san_boot_target_1b_wwpn: '{{ fcp_lif_01b }}'
+san_boot_target_2a_wwpn: '{{ fcp_lif_02a }}'
+san_boot_target_2b_wwpn: '{{ fcp_lif_02b }}'
+vmedia_device_type_cdd: cdd
+vmedia_device_type_hdd: hdd
+vmedia_protocol: http
+
+# -----------------------------------------------------------------------------
+# Intersight policy names and descriptions
+# -----------------------------------------------------------------------------
+# Generated policy, pool, vNIC, vHBA, SAN, and network group names. Usually no tenant override is
+# needed.
+description_of_LocalUser_policy: Allow Local Users in this policy KVM Access to Servers
+description_of_fc_adapter_policy: Fibre Channel Adapter policy with VMware platform defined default values
+description_of_fc_lan_connectivity_policy: LAN Connectivity Policy for FC boot from SAN - {{ vic_type }} VIC
+description_of_fc_network_policy_san_a: SAN-A Fibre Channel Network Policy using VSAN {{ vsan_A_id }}
+description_of_fc_network_policy_san_b: SAN-B Fibre Channel Network Policy using VSAN {{ vsan_B_id }}
+description_of_fc_nvme_initiator_adapter_policy: FC-NVMe Initiator Adapter policy with platform defined default values
+description_of_fc_qos_policy: Fibre Channel QoS policy with default values
+description_of_iscsi_a_primary_target_policy: iSCSI-A Primary Target Policy
+description_of_iscsi_a_secondary_target_policy: iSCSI-A Secondary Target Policy
+description_of_iscsi_adapter_policy: iSCSI Adapter policy
+description_of_iscsi_b_primary_target_policy: iSCSI-B Primary Target Policy
+description_of_iscsi_b_secondary_target_policy: iSCSI-B Secondary Target Policy
+description_of_iscsi_lan_connectivity_policy: LAN Connectivity Policy for iSCSI boot from SAN - {{ vic_type }} VIC
+description_of_network_group_policy_for_management: VLAN details of access interfaces to allow management traffic
+description_of_network_group_policy_storage: VLAN details of storage interfaces to allow NFS and iSCSI
+description_of_network_group_policy_wan: VLAN details of WAN interfaces to allow SD-WAN / internet
+description_of_san_connectivity_policy: SAN Connectivity Policy to add FC HBAs - {{ vic_type }} VIC
+name_of_LocalUser_policy: '{{ prefix }}-LocalUser-Policy'
+name_of_ethernet_adapter_16rxq_policy: '{{ prefix }}-EthAdapter-16RXQs-{{ vic_type }}'
+name_of_ethernet_adapter_esx_hightrf_policy: '{{ prefix }}-EthAdapter-Linux-HighTrf'
+name_of_ethernet_adapter_esx_policy: '{{ prefix }}-EthAdapter-Linux-Policy'
+name_of_ethernet_adapter_hightrf_policy: '{{ name_of_ethernet_adapter_linuxroce_policy  }}'
+name_of_ethernet_adapter_linux_policy: '{{ prefix }}-EthAdapter-Linux-Policy'
+name_of_ethernet_adapter_linuxroce_policy: '{{ prefix }}-EthAdapter-Linux-RoCE-Policy'
+name_of_ethernet_adapter_policy: '{{ name_of_ethernet_adapter_linux_policy }}'
+name_of_ethernet_adapter_win_policy: '{{ prefix }}-EthAdapter-Linux-Policy'
+name_of_ethernet_adapter_winroce_policy: '{{ prefix }}-EthAdapter-Linux-RoCE-Policy'
+name_of_ethernet_qos_policy: '{{ prefix }}-EthernetQoS-Policy'
+name_of_fc_SPT: '{{ prefix }}-{{ server_cpu_type }}-{{ vic_type }}-VIC-FC-Boot-Template'
+name_of_fc_adapter_policy: '{{ prefix }}-FC-Adapter-Policy'
+name_of_fc_lan_connectivity_policy: '{{ prefix }}-FC-Boot-{{ vic_type }}-LANCon'
+name_of_fc_network_policy_san_a: '{{ prefix}}-FC-Network-SAN-A'
+name_of_fc_network_policy_san_b: '{{ prefix}}-FC-Network-SAN-B'
+name_of_fc_nvme_initiator_adapter_policy: '{{ prefix }}-FC-NVMe-Initiator-Adapter-Policy'
+name_of_fc_qos_policy: '{{ prefix }}-FC-QoS-Policy'
+name_of_fc_vnic_3: '{{ prefix | lower}}-fc-storage-{{ vic_type }}-B'
+name_of_ip_pool_for_iscsi_a: '{{ prefix }}-iSCSI-A-IP-Pool'
+name_of_ip_pool_for_iscsi_b: '{{ prefix }}-iSCSI-B-IP-Pool'
+name_of_iqn_pool: '{{ prefix }}-IQN-Pool'
+name_of_iscsi_SPT: '{{ prefix }}-{{ server_cpu_type }}-{{ vic_type }}-VIC-iSCSI-Boot-Template'
+name_of_iscsi_a_primary_target_policy: '{{ prefix }}-iSCSI-A-Primary-Target'
+name_of_iscsi_a_secondary_target_policy: '{{ prefix }}-iSCSI-A-Secondary-Target'
+name_of_iscsi_adapter_policy: '{{ prefix }}-iSCSI-Adapter-Policy'
+name_of_iscsi_b_primary_target_policy: '{{ prefix }}-iSCSI-B-Primary-Target'
+name_of_iscsi_b_secondary_target_policy: '{{ prefix }}-iSCSI-B-Secondary-Target'
+name_of_iscsi_lan_connectivity_policy: '{{ prefix }}-iSCSI-Boot-{{ vic_type }}-LANCon'
+name_of_iscsi_vnic_3: '{{ prefix | lower}}-iscsi-storage-{{ vic_type }}-A'
+name_of_iscsi_vnic_4: '{{ prefix | lower}}-iscsi-wan-{{ vic_type }}-B'
+name_of_local_SPT: '{{ prefix }}-{{ server_cpu_type }}-{{ vic_type }}-VIC-local-Boot-Template'
+name_of_mac_pool_on_fi_a: '{{ prefix }}-Mac-Pool-A'
+name_of_mac_pool_on_fi_b: '{{ prefix}}-Mac-Pool-B'
+name_of_network_group_policy_for_access: '{{ prefix }}-access-NetGrp-Policy'
+name_of_network_group_policy_for_iscsi_a: '{{ prefix }}-iSCSI-A-NetGrp-Policy'
+name_of_network_group_policy_for_iscsi_b: '{{ prefix }}-iSCSI-B-NetGrp-Policy'
+name_of_network_group_policy_for_management: '{{ prefix }}-management-NetGrp-Policy'
+name_of_network_group_policy_for_storage: '{{ prefix }}-storage-NetGrp-Policy'
+name_of_network_group_policy_for_wan: '{{ prefix }}-wan-NetGrp-Policy'
+name_of_nvme_vhba_a: FC-NVMe-{{ vic_type }}-Fabric-A
+name_of_nvme_vhba_b: FC-NVMe-{{ vic_type }}-Fabric-B
+name_of_san_connectivity_policy: '{{ prefix }}-{{ vic_type }}-VIC-SANCon'
+name_of_vhba_a: FCP-{{ vic_type }}-Fabric-A
+name_of_vhba_b: FCP-{{ vic_type }}-Fabric-B
+name_of_vnic_1: '{{ prefix | lower}}-mgmt-{{ vic_type }}'
+name_of_vnic_1a: '{{ name_of_vnic_1 }}_A'
+name_of_vnic_1b: '{{ name_of_vnic_1 }}_B'
+name_of_vnic_2: '{{ prefix | lower}}-access-{{ vic_type }}'
+name_of_vnic_2a: '{{ name_of_vnic_2 }}_A'
+name_of_vnic_2b: '{{ name_of_vnic_2 }}_B'
+name_of_vnic_3: '{{ prefix | lower}}-storage-{{ vic_type }}'
+name_of_vnic_3a: '{{ name_of_vnic_3 }}_A'
+name_of_vnic_3b: '{{ name_of_vnic_3 }}_B'
+name_of_vnic_4: '{{ prefix | lower}}-wan-{{ vic_type }}'
+name_of_vnic_4a: '{{ name_of_vnic_4 }}_A'
+name_of_vnic_4b: '{{ name_of_vnic_4 }}_B'
+name_of_vnic_5a: '{{ name_of_vnic_5 }}_A'
+name_of_vnic_5b: '{{ name_of_vnic_5 }}_B'
+name_of_vnic_6a: '{{ name_of_vnic_6 }}_A'
+name_of_vnic_6b: '{{ name_of_vnic_6 }}_B'
+name_of_vnic_7a: '{{ name_of_vnic_7 }}_A'
+name_of_vnic_7b: '{{ name_of_vnic_7 }}_B'
+name_of_vnic_8a: '{{ name_of_vnic_8 }}_A'
+name_of_vnic_8b: '{{ name_of_vnic_8 }}_B'
+name_of_wwnn_pool: '{{ prefix }}-WWNN-Pool'
+name_of_wwpn_pool_san_a: '{{ prefix }}-WWPN-Pool-A'
+name_of_wwpn_pool_san_b: '{{ prefix }}-WWPN-Pool-B'
+
+# -----------------------------------------------------------------------------
+# Pool sizes and allocation defaults
+# -----------------------------------------------------------------------------
+# Default pool sizes, starts, and protocol timers. Override in a tenant only when the tenant needs a
+# different allocation range.
+dhcp_timeout: 60
+ip_pool_start_iscsi_a: '{{ t_iscsiA_network_prefix }}.10'
+ip_pool_start_iscsi_b: '{{ t_iscsiB_network_prefix }}.10'
+iqn_start: 1
+lun_busy_retry_count: 15
+size_of_iqn_pool: 128
+size_of_mac_pool_on_fi_a: 128
+size_of_mac_pool_on_fi_b: 128
+tcp_connection_time_out: 15
+wwnn_pool_size: 128
+wwpn_pool_size_on_san_a: 128
+wwpn_pool_size_on_san_b: 128
+
+# -----------------------------------------------------------------------------
+# Storage target and ONTAP defaults
+# -----------------------------------------------------------------------------
+# Defaults for iSCSI, FCP, NVMe, and ONTAP target references.
+aggr_prefix: c250_01
+cluster_name: c250-01
+gateway_iscsi_a: 0.0.0.0
+gateway_iscsi_b: 0.0.0.0
+gateway_mgmt: '{{ t_ib_network_prefix }}.1'
+iscsi_StorageSystem_lunID: 0
+iscsi_StorageSystem_port: 3260
+iscsi_StorageSystem_target_iqn: '{{ storage_iscsi_IQN }}'
+netmask_iscsi_a: '{{ t_iscsiA_network_netmask }}'
+netmask_iscsi_b: '{{ t_iscsiB_network_netmask }}'
+netmask_mgmt: '{{ t_ib_network_netmask }}'
+target_ip_of_iscsi_a_primary: '{{ iscsi_lif_01a }}'
+target_ip_of_iscsi_a_secondary: '{{ iscsi_lif_02a }}'
+target_ip_of_iscsi_b_primary: '{{ iscsi_lif_01b }}'
+target_ip_of_iscsi_b_secondary: '{{ iscsi_lif_02b }}'
+vsan_A_fcoe_vlan: 101
+vsan_A_id: 101
+vsan_B_fcoe_vlan: 102
+vsan_B_id: 102
+
+# -----------------------------------------------------------------------------
+# Generated tenant VLAN and SVI lists
+# -----------------------------------------------------------------------------
+# Lists derived from tenant VLAN/CIDR values. Multi-tenant carrier tenants may override these lists.
+t_access_vlan_name: '{{ tenant_name }}-Access'
+t_access_vlans_list: '{{ t_access_vlan_id }}'
+t_all_vlans_list: '{{ t_ib_vlan_id }},{{ t_access_vlan_id }},{{ t_nfs_vlan_id }},{{ t_iscsiA_vlan_id }},{{ t_iscsiB_vlan_id
+  }}'
+t_ib_mgmt_vlan_list:
+- id: '{{ t_ib_vlan_id }}'
+  name: '{{ t_ib_vlan_name }}'
+  native: 'no'
+  state: '{{lan_state}}'
+t_ib_vlan_name: '{{ tenant_name }}-Management_LAN'
+t_iscsiA_vlan_name: '{{ tenant_name }}-iSCSI-A'
+t_iscsiB_vlan_name: '{{ tenant_name }}-iSCSI-B'
+t_mgmt_vlans_list: '{{ t_ib_vlan_id }},{{ t_access_vlan_id }}'
+t_nfs_network_mask: 24
+t_nfs_network_netmask: 255.255.255.0
+t_nfs_vlan_name: '{{ tenant_name }}-NFS'
+t_remaining_vlan_list:
+- id: '{{ t_access_vlan_id }}'
+  name: '{{ t_access_vlan_name }}'
+  native: 'no'
+  state: '{{lan_state}}'
+t_storage_vlan_list:
+- id: '{{ t_nfs_vlan_id }}'
+  name: '{{ t_nfs_vlan_name }}'
+  native: 'no'
+  state: '{{lan_state}}'
+  storage_protocol: NFS
+t_storage_vlans_list: '{{ t_ib_vlan_id }},{{ t_nfs_vlan_id }},{{ t_iscsiA_vlan_id }},{{ t_iscsiB_vlan_id }}'
+t_svi_list:
+- address: '{{ t_ib_network_prefix}}.{{ baseIP }}/{{ t_ib_network_mask }}'
+  hsrp: '{{ t_ib_network_prefix}}.1'
+  name: '{{ t_ib_vlan_id }}'
+  vrf: '{{ tenant_name }}'
+- address: '{{ t_iscsiA_network_prefix }}.{{ baseIP }}/{{ t_iscsiA_network_mask }}'
+  hsrp: '{{ t_iscsiA_network_prefix }}.1'
+  name: '{{ t_iscsiA_vlan_id }}'
+  vrf: '{{ tenant_name }}'
+- address: '{{ t_iscsiB_network_prefix }}.{{ baseIP }}/{{ t_iscsiB_network_mask }}'
+  hsrp: '{{ t_iscsiB_network_prefix }}.1'
+  name: '{{ t_iscsiB_vlan_id }}'
+  vrf: '{{ tenant_name }}'
+- address: '{{ t_nfs_network_prefix }}.{{ baseIP }}/{{ t_nfs_network_mask }}'
+  hsrp: '{{ t_nfs_network_prefix }}.1'
+  name: '{{ t_nfs_vlan_id }}'
+  vrf: '{{ tenant_name }}'
+- address: '{{ t_access_network_prefix }}.{{ baseIP }}/{{ t_access_network_mask }}'
+  hsrp: '{{ t_access_network_prefix }}.1'
+  name: '{{ t_access_vlan_id }}'
+  vrf: '{{ tenant_name }}'
+
+# -----------------------------------------------------------------------------
+# Other shared tenant defaults
+# -----------------------------------------------------------------------------
+# Fallback defaults that stay shared unless a tenant has a clear reason to override them.
+prefix_for_iqn: iqn.2010-11.com.flexpod
+suffix_for_iqn: '{{ prefix | lower }}-ucshost'

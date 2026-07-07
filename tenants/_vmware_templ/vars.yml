@@ -102,7 +102,7 @@ svm_specs:
   #host names will be used for NetApp Boot LUNs and igroup names. These vars are placed under group_vars/all.yml file
   boot_luns_iscsi: {size: 128, residing_vol: "{{tenant_name}}_boot"}
   svm_mgmt_lif: {home_node: "{{ cluster }}n2", address: "{{ t_ib_network_prefix }}.101", netmask: 255.255.255.0, gateway: "{{ t_ib_network_prefix }}.1", lif_name: "{{ tenant_name }}-svm-mgmt"}
-  vsadmin_password: GpuSystem24!
+  vsadmin_password: CHANGE_ME_SVM_ADMIN_PASSWORD  # Replace only in a private deployment overlay.
   os_type: linux
   dns_server_svm:
     - "{{ dns_servers[0].ip_address }}"
@@ -382,7 +382,7 @@ vcenter_hostname: "10.102.1.100"
 # e.g. vcenter_hostname: 10.50.160.100
 vcenter_username: "administrator@vsphere.local"
 # e.g. vcenter_username: administrator@vsphere.local
-vcenter_password: "<password>"
+vcenter_password: "CHANGE_ME_VCENTER_PASSWORD"  # Replace only in a private deployment overlay.
 # e.g. vcenter_password: "cisco!23"
 #
 # DVS Parameters; use version 7.0.3 for VMware 7.0U3 or above

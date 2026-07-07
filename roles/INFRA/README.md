@@ -1,0 +1,31 @@
+# Role Family: `INFRA`
+
+[Framework README](../../README.md) | [Role index](../../docs/roles/README.md)
+
+This directory groups related automation roles. Each role README explains the purpose, task functions called, and expected configuration.
+
+| Role                                                                         | Called by                                          | Expected configuration                                                                                |
+| ---------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [`VMware/ESXIhosts`](VMware/ESXIhosts/README.md)                             | -                                                  | Configures VMware or ESXi integration around FlexPod storage and network assumptions.                 |
+| [`VMware/ESXIiscsi`](VMware/ESXIiscsi/README.md)                             | -                                                  | Configures VMware or ESXi integration around FlexPod storage and network assumptions.                 |
+| [`VMware/ESXIpostvC`](VMware/ESXIpostvC/README.md)                           | -                                                  | Configures VMware or ESXi integration around FlexPod storage and network assumptions.                 |
+| [`VMware/ESXIpostvCiscsi`](VMware/ESXIpostvCiscsi/README.md)                 | -                                                  | Configures VMware or ESXi integration around FlexPod storage and network assumptions.                 |
+| [`VMware/VMWAREvcenter`](VMware/VMWAREvcenter/README.md)                     | -                                                  | Configures VMware or ESXi integration around FlexPod storage and network assumptions.                 |
+| [`VMware/VMWAREvcenterpostESXI`](VMware/VMWAREvcenterpostESXI/README.md)     | -                                                  | Configures VMware or ESXi integration around FlexPod storage and network assumptions.                 |
+| [`create_pools`](create_pools/README.md)                                     | -                                                  | Builds Intersight pools such as IP, MAC, UUID, IQN, iSCSI, and Fibre Channel WWN pools.               |
+| [`create_server_policies`](create_server_policies/README.md)                 | -                                                  | Builds Intersight server, BIOS, adapter, boot, LAN, SAN, QoS, and connectivity policies.              |
+| [`create_server_profile_template`](create_server_profile_template/README.md) | -                                                  | Builds Intersight server profile templates and derives tenant server profiles.                        |
+| [`env_vars`](env_vars/README.md)                                             | `INFRA.yml`, `INFRA.yml`, `INFRA.yml`, `INFRA.yml` | Loads the ordered YAML variable stack used by the playbook.                                           |
+| [`mds_config`](mds_config/README.md)                                         | -                                                  | Builds Fibre Channel SAN features, interfaces, VSANs, device-alias entries, zones, and zonesets.      |
+| [`nexus_config`](nexus_config/README.md)                                     | `INFRA.yml`                                        | Builds Layer 2 Nexus features, VLANs, trunk allowed VLAN lists, port-channels, and peer-link updates. |
+| [`nexus_config_aff`](nexus_config_aff/README.md)                             | -                                                  | Builds Layer 2 Nexus features, VLANs, trunk allowed VLAN lists, port-channels, and peer-link updates. |
+| [`nexus_config_asa`](nexus_config_asa/README.md)                             | `INFRA.yml`                                        | Builds or removes ASA-facing access and trunk VLAN configuration on Nexus switches.                   |
+| [`nexus_config_ip`](nexus_config_ip/README.md)                               | `INFRA.yml`                                        | Builds or removes VRFs, SVIs, HSRP addresses, and default gateway routing on Nexus switches.          |
+| [`nexus_config_proxmox`](nexus_config_proxmox/README.md)                     | `INFRA.yml`                                        | Builds Layer 2 Nexus features, VLANs, trunk allowed VLAN lists, port-channels, and peer-link updates. |
+| [`nexus_config_sg`](nexus_config_sg/README.md)                               | `INFRA.yml`                                        | Builds StorageGRID VLANs, port-channels, vPC, and peer-link VLAN membership on Nexus switches.        |
+| [`nexus_san_config`](nexus_san_config/README.md)                             | -                                                  | Builds Fibre Channel SAN features, interfaces, VSANs, device-alias entries, zones, and zonesets.      |
+| [`ontap_lifs`](ontap_lifs/README.md)                                         | `INFRA.yml`                                        | Builds ONTAP NFS, iSCSI, FC, FC-NVMe, or NVMe/TCP data LIFs.                                          |
+| [`ontap_network`](ontap_network/README.md)                                   | `INFRA.yml`                                        | Builds ONTAP broadcast domains, VLAN ports, and network foundations for tenant storage.               |
+| [`ontap_svm`](ontap_svm/README.md)                                           | `INFRA.yml`                                        | Builds or removes ONTAP SVMs and protocol services.                                                   |
+| [`ontap_volumes`](ontap_volumes/README.md)                                   | `INFRA.yml`                                        | Builds NFS/export-backed FlexVols and tenant data volumes.                                            |
+| [`ucs_create_pools`](ucs_create_pools/README.md)                             | `INFRA.yml`                                        | Builds Intersight pools such as IP, MAC, UUID, IQN, iSCSI, and Fibre Channel WWN pools.               |

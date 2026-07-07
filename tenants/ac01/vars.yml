@@ -12,8 +12,8 @@
 # #3 Assign the new role to your User and switch to the new role
 # #4 Create a new API key with the created role and enter the information here.
 #
-api_key_id        : 5c8bbb507564612d307b0837/5c8bb9d67564612d307ae010/663a31907564613101d41d73
-api_private_key   : Keys/AC01.txt
+api_key_id        : CHANGE_ME_INTERSIGHT_API_KEY_ID  # Replace only in a private deployment overlay.
+api_private_key   : Keys/CHANGE_ME_INTERSIGHT_SECRET_KEY.txt  # Replace only in a private deployment overlay.
 
 #
 # TENANT NAME is used i.e. as name for the VRF, as prefix in Intersight and so on.
@@ -72,7 +72,7 @@ lan_state         : 'present'
 #
 # Local User and password are used in Intersight and for the SVM admin
 t_name_of_local_user                  : "ac01admin"
-t_password_for_local_user             : "H1ghV0lt"
+t_password_for_local_user             : "CHANGE_ME_LOCAL_USER_PASSWORD"  # Replace only in a private deployment overlay.
 
 # Vmedia file location used for UCS to define vmedia policy for first boot
 # CCD is for the boot ISO image.

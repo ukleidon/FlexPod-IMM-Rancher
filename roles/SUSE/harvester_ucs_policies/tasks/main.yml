@@ -1,0 +1,15 @@
+---
+# Publication-safe placeholder for the site-specific AA04 Harvester UCS policy role.
+# Replace this role with the customer implementation before running AA04.yml live.
+- name: Stop because the public AA04 Harvester UCS policy role is a placeholder
+  ansible.builtin.fail:
+    msg: >
+      AA04.yml references SUSE/harvester_ucs_policies, but the public repository
+      contains only this placeholder. Add the site-specific Harvester UCS policy
+      tasks or replace AA04.yml before running this workflow live.
+  when: not (suse_harvester_ucs_policies_allow_placeholder | default(false) | bool)
+
+- name: Placeholder acknowledged
+  ansible.builtin.debug:
+    msg: "SUSE/harvester_ucs_policies placeholder was explicitly allowed."
+  when: suse_harvester_ucs_policies_allow_placeholder | default(false) | bool

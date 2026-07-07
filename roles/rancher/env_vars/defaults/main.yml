@@ -1,5 +1,6 @@
 env_vars_env_name: "{{ tenant }}"  # to be set by playbook
 env_vars_ucs_file: "{{ playbook_dir }}/group_vars/ucs.yml"
 env_vars_all_file: "{{ playbook_dir }}/group_vars/all.yml"
+env_vars_tenant_defaults_file: "{{ playbook_dir }}/group_vars/tenant_defaults.yml"
 tenant_dir: "{{ tenants_dir }}/{{ tenant|lower }}"
 env_vars_tenant_file: "{{ tenant_dir }}/vars.yml"
