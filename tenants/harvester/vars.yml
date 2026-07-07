@@ -506,7 +506,7 @@ v14_access_network_netmask: 255.255.255.0
 v14_access_network_prefix: 172.16.50
 v14_access_vlan_id: 320
 v14_access_vlan_name: '{{ v14_name }}-Access'
-v14_name: elsbere
+v14_name: elsbeere
 v14_nfs_network_mask: 24
 v14_nfs_network_netmask: 255.255.255.0
 v14_nfs_network_prefix: 172.16.51

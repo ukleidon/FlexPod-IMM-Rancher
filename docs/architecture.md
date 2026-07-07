@@ -1,8 +1,8 @@
 # Architecture
 
-[Documentation index](README.md) | [Variables](variables.md) | [Roles](roles/README.md) | [Product references](references.md)
+[Documentation index](README.md) | [Overview diagrams](architecture-overview.md) | [Variables](variables.md) | [Roles](roles/README.md) | [Product references](references.md)
 
-The framework automates a FlexPod-style core infrastructure. FlexPod combines Cisco compute and networking with NetApp storage into a prevalidated architecture. The current framework maps that model into Ansible roles and tenant-specific YAML files.
+The framework automates a FlexPod-style core infrastructure. FlexPod combines Cisco compute and networking with NetApp storage into a prevalidated architecture. The current framework maps that model into Ansible roles and tenant-specific YAML files. For a visual audience-facing view of the configured devices, tenant VRFs, SVMs, and server profile flow, open [Architecture overview diagrams](architecture-overview.md).
 
 ## Logical Building Blocks
 

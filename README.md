@@ -69,6 +69,7 @@ ansible-playbook -i inventory TENANT.yml -e tenant=eibe -C
 ## Documentation
 
 - [Documentation index](docs/README.md)
+- [Architecture overview diagrams](docs/architecture-overview.md)
 - [Playbooks](docs/playbooks.md)
 - [Variables](docs/variables.md)
 - [Roles](docs/roles/README.md)

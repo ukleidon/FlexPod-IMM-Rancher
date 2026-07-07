@@ -5,14 +5,15 @@ This documentation is optimized for browser preview. It explains the automation 
 ## Start Here
 
 1. [Architecture](architecture.md)
-2. [Variables](variables.md)
-3. [Playbooks](playbooks.md)
-4. [Roles](roles/README.md)
-5. [Tenants](tenants/README.md)
-6. [Operations](operations.md)
-7. [Validation](validation.md)
-8. [GitHub publication checklist](github-publication.md)
-9. [Product references](references.md)
+2. [Architecture overview diagrams](architecture-overview.md)
+3. [Variables](variables.md)
+4. [Playbooks](playbooks.md)
+5. [Roles](roles/README.md)
+6. [Tenants](tenants/README.md)
+7. [Operations](operations.md)
+8. [Validation](validation.md)
+9. [GitHub publication checklist](github-publication.md)
+10. [Product references](references.md)
 
 ## Reading Model
 

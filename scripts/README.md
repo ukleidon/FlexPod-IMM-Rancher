@@ -49,3 +49,11 @@ Run before staging:
 ```bash
 ./scripts/publication_check.py
 ```
+
+## Architecture Documentation Generator
+
+`generate_architecture_overview.py` reads the current inventory, `group_vars`, `host_vars`, tenant vars, and playbooks, then renders `docs/architecture-overview.md`. Run it after changing tenant VLANs, VRFs, SVM settings, Nexus interface maps, or playbook role flow.
+
+```bash
+./scripts/generate_architecture_overview.py .
+```
