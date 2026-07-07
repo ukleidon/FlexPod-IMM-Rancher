@@ -52,6 +52,7 @@ flowchart TB
   ethernet -->|"edge transfer/access VLANs"| firewall
   ethernet -->|"optional object-storage VLANs"| objectstore
   ethernet -->|"optional hypervisor VLANs"| hypervisor
+  ucs -->|"iSCSI boot LUNs<br/>via tenant iSCSI A/B VLANs"| storage
   ucs -->|"OS/RKE2 workloads"| k8s
   k8s -->|"CSI persistent volumes"| storage
 ```
@@ -76,6 +77,7 @@ flowchart LR
   subgraph storageTenant["Tenant storage boundary"]
     svm["ONTAP SVM<br/>tenant SVM name"]
     lifs["Data and management LIFs<br/>NFS, iSCSI, optional FC/NVMe"]
+    bootluns["Boot LUNs<br/>mapped to host initiators"]
     vols["Volumes, LUNs, igroups<br/>tenant-local names"]
   end
 
@@ -83,6 +85,7 @@ flowchart LR
     org["Intersight organization<br/>tenant-scoped when SMT is enabled"]
     pools["UUID, MAC, WWPN, IQN, IP pools<br/>tenant allocation block"]
     policies["LAN/SAN/boot/vMedia/BIOS policies"]
+    bootpolicy["iSCSI boot policy<br/>primary and secondary targets"]
     profiles["Server profile template<br/>server profiles"]
   end
 
@@ -97,7 +100,9 @@ flowchart LR
   nfs --> svi
   iscsi --> svi
   playbook --> svm --> lifs --> vols
-  playbook --> org --> pools --> policies --> profiles
+  lifs --> bootluns
+  playbook --> org --> pools --> policies --> bootpolicy --> profiles
+  profiles -->|"boot from ONTAP LUNs"| bootluns
   profiles -->|"host consumes storage networks"| lifs
 ```
 
@@ -129,8 +134,8 @@ flowchart TB
 | Connection | Public label | Purpose |
 | --- | --- | --- |
 | External network | Nexus peer uplink port-channel | Data center, campus, or firewall handoff |
-| Cisco UCS Fabric Interconnect A | Nexus vPC member port-channel | Carries management, access, and storage VLANs to UCS fabric A |
-| Cisco UCS Fabric Interconnect B | Nexus vPC member port-channel | Carries management, access, and storage VLANs to UCS fabric B |
+| Cisco UCS Fabric Interconnect A | Nexus vPC member port-channel | Carries management, access, and storage VLANs to UCS fabric A, including iSCSI boot networks |
+| Cisco UCS Fabric Interconnect B | Nexus vPC member port-channel | Carries management, access, and storage VLANs to UCS fabric B, including iSCSI boot networks |
 | NetApp storage controller A | Nexus storage port-channel pair | Carries tenant storage VLANs and storage LIF traffic |
 | NetApp storage controller B | Nexus storage port-channel pair | Carries tenant storage VLANs and storage LIF traffic |
 | Firewall or routed edge | Tenant access and transfer VLAN trunks | Provides north-south routing or security policy outside the tenant VRF |
@@ -146,6 +151,7 @@ The physical view treats both ONTAP controllers as connected controllers in the 
 | ONTAP controller A | Storage controller A | Node management, data aggregates, broadcast domains, VLAN ports, LIFs |
 | ONTAP controller B | Storage controller B | Partner node management, data aggregates, broadcast domains, VLAN ports, LIFs |
 | Tenant SVM | tenant##_svm | Root volume, management LIF, data LIFs, protocol services, export or block access |
+| iSCSI boot LUNs | Tenant boot volume and host LUN mappings | UCS server profiles boot from ONTAP LUNs through tenant iSCSI A/B target LIFs |
 | SAN fabric A | SAN-A | VSAN, device aliases, zones, and zoneset for fabric A |
 | SAN fabric B | SAN-B | VSAN, device aliases, zones, and zoneset for fabric B |
 
@@ -155,7 +161,7 @@ The table below is illustrative. Real tenant names, VLAN IDs, CIDRs, and SVM nam
 
 | Tenant | Type | VRF | Example VLANs | Example CIDRs | Storage | Profiles |
 | --- | --- | --- | --- | --- | --- | --- |
-| tenant01 | physical | tenant01 | mgmt 301<br>access 302<br>NFS 303<br>iSCSI A/B 304/305 | mgmt 192.0.2.0/24<br>access 198.51.100.0/24<br>NFS 203.0.113.0/24 | tenant01_svm<br>NFS and optional iSCSI | 3 |
+| tenant01 | physical | tenant01 | mgmt 301<br>access 302<br>NFS 303<br>iSCSI A/B 304/305 | mgmt 192.0.2.0/24<br>access 198.51.100.0/24<br>NFS 203.0.113.0/24 | tenant01_svm<br>NFS plus iSCSI boot LUNs | 3 |
 | tenant02 | virtual | tenant02 | access 312<br>NFS 313 | access 198.51.100.0/24<br>NFS 203.0.113.0/24 | tenant02_svm<br>NFS | 3 |
 | tenant-hub | carrier / registry | shared or upstream VRF | registry publishes vNN access/NFS VLANs | documentation networks only | shared SVM or delegated tenant SVMs | deployment-specific |
 
@@ -182,10 +188,11 @@ Carrier or hub tenants can publish `vNN_*` registry entries for virtual tenants.
 The easiest story is to present the framework in three layers:
 
 1. The FlexPod base layer provides redundant Nexus switching, ONTAP storage, and Intersight-controlled UCS compute.
-2. The tenant layer adds one isolated VRF, a small set of tenant VLANs and CIDRs, a tenant SVM, and tenant-scoped Intersight objects.
-3. The platform layer consumes that tenant boundary for RKE2, Harvester, Trident, or other workloads.
+2. The tenant layer adds one isolated VRF, a small set of tenant VLANs and CIDRs, a tenant SVM, tenant iSCSI boot LUNs, and tenant-scoped Intersight objects.
+3. UCS server profiles boot from ONTAP-backed iSCSI LUNs through the tenant iSCSI A/B networks.
+4. The platform layer consumes that tenant boundary for RKE2, Harvester, Trident, or other workloads.
 
-That framing makes the separation model visible: shared hardware and shared automation patterns below, tenant-local network/storage/compute identities above.
+That framing makes the separation model visible: shared hardware and shared automation patterns below, tenant-local network, boot-storage, data-storage, and compute identities above.
 
 ## Related Design References
 

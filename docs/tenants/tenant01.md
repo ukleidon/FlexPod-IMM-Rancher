@@ -18,7 +18,7 @@ This public page describes the tenant pattern without exposing internal tenant n
 
 Running `TENANT.yml -e tenant=<tenant-name>` configures or validates this tenant's Nexus network objects, ONTAP storage objects, Intersight policy/profile objects, and optional RKE2/Trident assets according to inventory and tags.
 
-Dedicated VRF, tenant SVM, NFS/iSCSI storage, Intersight policies, templates, and server profiles.
+Dedicated VRF, tenant SVM, NFS/iSCSI storage, iSCSI boot LUNs, Intersight policies, templates, and server profiles.
 
 ## Operator Checks
 
