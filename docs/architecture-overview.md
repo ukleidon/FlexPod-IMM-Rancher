@@ -12,7 +12,7 @@ This page gives a Technical Marketing style overview of the components managed b
 | Tenant directories | 37 total: 6 physical, 31 virtual |
 | Virtual tenant registry entries | 50 entries across tenant vars with `v##_name` definitions |
 | Core Ethernet fabric | Nexus pair `nx1` and `nx2`, vPC domain `101` |
-| Storage systems | ONTAP clusters from `host_vars/c250-*.yml` |
+| Storage system | One NetApp C250 storage system represented by C250-01 and C250-02 controller inventory entries |
 | Compute automation | Cisco Intersight API creates UCS pools, policies, templates, and server profiles |
 | Enabled shared protocols | iSCSI `true`, NFS `true`, FC `false`, NVMe/TCP `false`, FC-NVMe `false` |
 
@@ -33,8 +33,11 @@ flowchart TB
   asa["ASA / firewall handoff<br/>transfer VLAN 3299<br/>tenant access trunk"]
   fi["Cisco UCS Fabric Interconnects<br/>FI-A port-channel49<br/>FI-B port-channel50"]
   ucs["UCS servers<br/>server profiles from templates"]
-  ontap1["NetApp ONTAP C250-01<br/>production tenant SVMs"]
-  ontap2["NetApp ONTAP C250-02<br/>performance/test storage"]
+  subgraph c250["NetApp C250 storage system"]
+    ontap1["ONTAP controller C250-01<br/>tenant SVMs and data services"]
+    ontap2["ONTAP controller C250-02<br/>partner controller and data services"]
+    ontap1 <-->|"HA / cluster interconnect<br/>single C250 storage system"| ontap2
+  end
   sg["StorageGRID nodes<br/>client/grid VLANs"]
   proxmox["Proxmox uplinks"]
   k8s["RKE2 / Kubernetes<br/>NetApp Trident backend"]
@@ -143,9 +146,11 @@ flowchart TB
 | Proxmox 01 | - | Ethernet1/47 (Uplink Proxmox) | Ethernet1/47 (Uplink Proxmox) | Proxmox uplink |
 | Proxmox 02 | - | Ethernet1/48 (Uplink Proxmox) | Ethernet1/48 (Uplink Proxmox) | Proxmox uplink |
 
-## ONTAP And SAN Objects
+## ONTAP Controller And SAN Objects
 
-| ONTAP cluster | Nodes | Infrastructure SVM | Protocols and aggregates |
+The physical view treats C250-01 and C250-02 as connected controllers in the same NetApp C250 storage system. The table below keeps the inventory entries visible because the playbooks target them through `host_vars/c250-*.yml`.
+
+| Storage inventory entry | Node details from vars | Infrastructure SVM | Protocols and aggregates |
 | --- | --- | --- | --- |
 | C250-01 | c250-01n1 (172.16.4.21), c250-01n2 (172.16.4.23) | Infra-SVM | nfs, iscsi; aggregates: c250_01n1_aggr1, c250_01n2_aggr1 |
 | C250-02 | c250-02n1 (172.16.4.26), c250-02n2 (172.16.4.28) | - | -; aggregates: c250_02n1_aggr1, c250_02n2_aggr1 |

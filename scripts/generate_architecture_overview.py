@@ -358,7 +358,7 @@ This page gives a Technical Marketing style overview of the components managed b
 | Tenant directories | {len(records)} total: {physical_count} physical, {virtual_count} virtual |
 | Virtual tenant registry entries | {virtual_registry_count} entries across tenant vars with `v##_name` definitions |
 | Core Ethernet fabric | Nexus pair `nx1` and `nx2`, vPC domain `{md_escape(nexus.get('vpc_domain_id'))}` |
-| Storage systems | ONTAP clusters from `host_vars/c250-*.yml` |
+| Storage system | One NetApp C250 storage system represented by C250-01 and C250-02 controller inventory entries |
 | Compute automation | Cisco Intersight API creates UCS pools, policies, templates, and server profiles |
 | Enabled shared protocols | iSCSI `{md_escape(all_vars.get('configure_iscsi'))}`, NFS `{md_escape(all_vars.get('configure_nfs'))}`, FC `{md_escape(all_vars.get('configure_fc'))}`, NVMe/TCP `{md_escape(all_vars.get('configure_nvme_tcp'))}`, FC-NVMe `{md_escape(all_vars.get('configure_fc_nvme'))}` |
 
@@ -379,8 +379,11 @@ flowchart TB
   asa["ASA / firewall handoff<br/>transfer VLAN 3299<br/>tenant access trunk"]
   fi["Cisco UCS Fabric Interconnects<br/>FI-A port-channel49<br/>FI-B port-channel50"]
   ucs["UCS servers<br/>server profiles from templates"]
-  ontap1["NetApp ONTAP C250-01<br/>production tenant SVMs"]
-  ontap2["NetApp ONTAP C250-02<br/>performance/test storage"]
+  subgraph c250["NetApp C250 storage system"]
+    ontap1["ONTAP controller C250-01<br/>tenant SVMs and data services"]
+    ontap2["ONTAP controller C250-02<br/>partner controller and data services"]
+    ontap1 <-->|"HA / cluster interconnect<br/>single C250 storage system"| ontap2
+  end
   sg["StorageGRID nodes<br/>client/grid VLANs"]
   proxmox["Proxmox uplinks"]
   k8s["RKE2 / Kubernetes<br/>NetApp Trident backend"]
@@ -474,9 +477,11 @@ flowchart TB
 
 {table(["Connection", "Port-channel", "nx1 interfaces", "nx2 interfaces", "Purpose"], connection_rows(nx1, nx2, nexus))}
 
-## ONTAP And SAN Objects
+## ONTAP Controller And SAN Objects
 
-{table(["ONTAP cluster", "Nodes", "Infrastructure SVM", "Protocols and aggregates"], ontap_rows())}
+The physical view treats C250-01 and C250-02 as connected controllers in the same NetApp C250 storage system. The table below keeps the inventory entries visible because the playbooks target them through `host_vars/c250-*.yml`.
+
+{table(["Storage inventory entry", "Node details from vars", "Infrastructure SVM", "Protocols and aggregates"], ontap_rows())}
 
 {table(["SAN device", "VSAN name", "VSAN ID", "Zoning / port-channel intent"], san_rows())}
 
