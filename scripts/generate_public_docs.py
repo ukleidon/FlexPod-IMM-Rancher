@@ -104,12 +104,12 @@ def generate_architecture(root: Path) -> None:
         ),
         (
             "tenant-hub",
-            "carrier / registry",
+            "platform / registry",
             "shared or upstream VRF",
             "registry publishes vNN access/NFS VLANs",
             "documentation networks only",
-            "shared SVM or delegated tenant SVMs",
-            "deployment-specific",
+            "platform SVM plus delegated virtual tenant SVMs",
+            "Rancher and Harvester nodes",
         ),
     ]
 
@@ -139,6 +139,7 @@ This page gives a Technical Marketing style overview of the components managed b
 | Core Ethernet fabric | Redundant Cisco Nexus pair with vPC, peer-link, VLAN trunks, SVIs, and HSRP |
 | Storage system | One NetApp C-Series storage system represented as two connected ONTAP controllers |
 | Compute automation | Cisco Intersight API creates UCS pools, policies, templates, and server profiles |
+| Tenant execution model | One physical platform tenant runs bare-metal Rancher and Harvester HCI; virtual tenants run on Harvester; selected physical tenants run bare-metal workloads directly |
 | Enabled shared protocols | NFS and iSCSI are the primary public examples; FC, NVMe/TCP, and FC-NVMe are role-supported patterns |
 
 ## Physical Component View
@@ -158,6 +159,10 @@ flowchart TB
   firewall["Firewall / edge handoff<br/>transfer and access VLAN trunks"]
   fi["Cisco UCS Fabric Interconnect pair<br/>FI-A and FI-B"]
   ucs["UCS servers<br/>server profiles from templates"]
+  platform["Physical platform tenant<br/>bare-metal Rancher + Harvester HCI"]
+  harvester["Harvester HCI<br/>virtual tenant runtime"]
+  vtenants["Virtual tenants<br/>VM workloads on Harvester"]
+  physicaltenants["Physical workload tenants<br/>bare-metal workloads"]
   subgraph storage["NetApp C-Series storage system"]
     storagea["ONTAP controller A<br/>tenant SVMs and data services"]
     storageb["ONTAP controller B<br/>partner controller and data services"]
@@ -179,7 +184,12 @@ flowchart TB
   ethernet -->|"optional object-storage VLANs"| objectstore
   ethernet -->|"optional hypervisor VLANs"| hypervisor
   ucs -->|"iSCSI boot LUNs<br/>via tenant iSCSI A/B VLANs"| storage
-  ucs -->|"OS/RKE2 workloads"| k8s
+  ucs -->|"platform server profiles"| platform
+  ucs -->|"direct bare-metal profiles"| physicaltenants
+  platform -->|"Rancher bare-metal OS"| k8s
+  platform -->|"Harvester HCI hypervisor"| harvester
+  harvester -->|"hosts VMs for virtual tenants"| vtenants
+  physicaltenants -->|"tenant access, NFS, iSCSI networks"| ethernet
   k8s -->|"CSI persistent volumes"| storage
 ```
 
@@ -215,6 +225,13 @@ flowchart LR
     profiles["Server profile template<br/>server profiles"]
   end
 
+  subgraph placement["Tenant execution placement"]
+    platformtenant["Physical platform tenant<br/>Rancher bare metal and Harvester HCI"]
+    harvesterhci["Harvester HCI<br/>runtime for virtual tenants"]
+    virtualtenants["Virtual tenants<br/>VMs and guest workloads"]
+    physicaltenantset["Physical workload tenants<br/>bare-metal workloads"]
+  end
+
   shared --> tenantvars --> playbook
   playbook --> tenantvrf
   tenantvrf --> mgmt
@@ -230,6 +247,11 @@ flowchart LR
   playbook --> org --> pools --> policies --> bootpolicy --> profiles
   profiles -->|"boot from ONTAP LUNs"| bootluns
   profiles -->|"host consumes storage networks"| lifs
+  profiles --> platformtenant
+  platformtenant --> harvesterhci --> virtualtenants
+  profiles --> physicaltenantset
+  virtualtenants -->|"registry VLAN/CIDR entries"| tenantvrf
+  physicaltenantset -->|"direct VRF, boot LUNs, profiles"| tenantvrf
 ```
 
 ## Playbook And Role Flow
@@ -276,11 +298,13 @@ The physical view treats both ONTAP controllers as connected controllers in the 
 
 The table below is illustrative. Real tenant names, VLAN IDs, CIDRs, and SVM names are intentionally kept out of the public documentation.
 
+The public model uses a physical platform tenant for bare-metal Rancher and Harvester HCI. Virtual tenants are described as tenant network and storage boundaries that run on top of Harvester, while selected physical workload tenants keep direct bare-metal UCS server profile, iSCSI boot, and ONTAP storage paths.
+
 {table(["Tenant", "Type", "VRF", "Example VLANs", "Example CIDRs", "Storage", "Profiles"], tenant_rows)}
 
 ## Virtual Tenant Registry Example
 
-Carrier or hub tenants can publish `vNN_*` registry entries for virtual tenants. The public view shows the pattern without exposing the internal registry names.
+Platform or hub tenants can publish `vNN_*` registry entries for virtual tenants. The public view shows the pattern without exposing the internal registry names.
 
 {table(["Registry owner", "Virtual tenant", "Access network", "NFS network"], virtual_rows)}
 
@@ -299,9 +323,10 @@ Carrier or hub tenants can publish `vNN_*` registry entries for virtual tenants.
 The easiest story is to present the framework in three layers:
 
 1. The FlexPod base layer provides redundant Nexus switching, ONTAP storage, and Intersight-controlled UCS compute.
-2. The tenant layer adds one isolated VRF, a small set of tenant VLANs and CIDRs, a tenant SVM, tenant iSCSI boot LUNs, and tenant-scoped Intersight objects.
-3. UCS server profiles boot from ONTAP-backed iSCSI LUNs through the tenant iSCSI A/B networks.
-4. The platform layer consumes that tenant boundary for RKE2, Harvester, Trident, or other workloads.
+2. The physical platform tenant boots bare-metal UCS profiles from ONTAP iSCSI LUNs, runs Rancher on bare metal, and runs Harvester HCI as the hypervisor.
+3. Virtual tenants are isolated tenant network and storage definitions that run on top of Harvester through platform registry entries.
+4. Physical workload tenants keep direct bare-metal UCS profiles, tenant VRFs, iSCSI boot LUNs, and ONTAP storage.
+5. The platform layer then consumes those tenant boundaries for RKE2, Harvester, Trident, or other workloads.
 
 That framing makes the separation model visible: shared hardware and shared automation patterns below, tenant-local network, boot-storage, data-storage, and compute identities above.
 
@@ -334,7 +359,7 @@ Tenant files are the source of truth for tenant-local IDs, VLANs, CIDRs, storage
 | --- | --- | --- |
 | [tenant01](tenant01.md) | Physical tenant | Dedicated VRF, access/NFS/iSCSI VLANs, tenant SVM, and UCS server profiles. |
 | [tenant02](tenant02.md) | Virtual tenant | Compact access and NFS network pair for a tenant running on a shared platform. |
-| [tenant-hub](tenant-hub.md) | Registry or carrier tenant | `vNN_*` virtual tenant registry ownership and shared platform integration. |
+| [tenant-hub](tenant-hub.md) | Platform or registry tenant | Bare-metal Rancher and Harvester HCI plus `vNN_*` virtual tenant registry ownership. |
 
 Use these examples to understand the expected structure. Use the `tenant_template` source alias as the neutral starting point for new public examples, and use private tenant directories only in deployment-specific branches or overlays.
 """)
@@ -356,10 +381,10 @@ Use these examples to understand the expected structure. Use the `tenant_templat
         ),
         "tenant-hub.md": (
             "tenant-hub",
-            "carrier / registry",
+            "platform / registry",
             "registry defined",
             "registry defined",
-            "Parent tenant that owns `vNN_*` entries and publishes virtual tenant VLAN/CIDR mappings.",
+            "Physical platform tenant that runs bare-metal Rancher and Harvester HCI, owns `vNN_*` entries, and publishes virtual tenant VLAN/CIDR mappings.",
         ),
     }
 

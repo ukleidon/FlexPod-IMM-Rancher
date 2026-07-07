@@ -9,7 +9,7 @@ This public page describes the tenant pattern without exposing internal tenant n
 | Field | Public example |
 | --- | --- |
 | Tenant name | `tenant-hub` |
-| Tenant type | `carrier / registry` |
+| Tenant type | `platform / registry` |
 | Lifecycle state | `present` |
 | Access VLAN/CIDR | `registry defined` |
 | NFS VLAN/CIDR | `registry defined` |
@@ -18,7 +18,7 @@ This public page describes the tenant pattern without exposing internal tenant n
 
 Running `TENANT.yml -e tenant=<tenant-name>` configures or validates this tenant's Nexus network objects, ONTAP storage objects, Intersight policy/profile objects, and optional RKE2/Trident assets according to inventory and tags.
 
-Parent tenant that owns `vNN_*` entries and publishes virtual tenant VLAN/CIDR mappings.
+Physical platform tenant that runs bare-metal Rancher and Harvester HCI, owns `vNN_*` entries, and publishes virtual tenant VLAN/CIDR mappings.
 
 ## Operator Checks
 
