@@ -1,0 +1,45 @@
+- name: current_working_directory
+  ansible.builtin.debug:
+    var: playbook_dir
+  register: current_working_directory
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "{{  current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests"
+    state: directory
+
+#
+- name: Create Tenant namespace
+  kubernetes.core.k8s:
+    name: "{{ tenant_name }}"
+    context: "{{ harvester_context }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+#
+- name: Generate tenant access network config
+  template:
+    src: 'tenant_access.j2'
+    dest: "{{ current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests/tenant_access.yml"
+    mode: 0644
+#
+- name: Generate tenant storage network config
+  template:
+    src: 'tenant_storage.j2'
+    dest: "{{ current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests/tenant_storage.yml"
+    mode: 0644
+#
+#
+
+- name: Apply tenant access network on the Harvester cluster
+  kubernetes.core.k8s:
+    state: present
+    context: "{{ harvester_context }}"
+    src: "{{ current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests/tenant_access.yml"
+
+- name: Apply tenant storage network on the Harvester cluster
+  kubernetes.core.k8s:
+    state: present
+    context: "{{ harvester_context }}"
+    src: "{{ current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests/tenant_storage.yml"
+

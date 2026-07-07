@@ -22,7 +22,7 @@ Public files use placeholders such as `CHANGE_ME_INTERSIGHT_API_KEY_ID`, `CHANGE
 ```bash
 ./scripts/publication_check.py
 ansible-playbook -i inventory INFRA.yml --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe --syntax-check
 git status --short
 git diff --check
 ```

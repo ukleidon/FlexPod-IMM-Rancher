@@ -1,0 +1,15 @@
+---
+# 
+# This Playbook sets up a physical Tenant on FlexPod, configuring Nexus switches, NetApp storage and UCS profiles.
+#
+# Configure virtual Tenant
+- name: Configure virtual Tenant
+  hosts: k8s
+    #serial: 1
+  gather_facts: False
+  connection: local
+  roles:
+  - { role: TENANT/env_vars }
+  - { role: TENANT/harvester_tenant_config, tags: [ 'tenant' ] }
+  tags:
+  - tenant_config

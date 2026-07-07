@@ -4,13 +4,8 @@ FlexPod-IMM-Rancher repository structure
 This short text file is kept for operators who open `README` in a terminal.
 Use `README.md` for the browser-optimized GitHub landing page.
 
-Important directories:
-
-- `group_vars/`: shared infrastructure defaults and reusable tenant defaults.
-- `host_vars/`: device-specific Nexus, MDS, ONTAP, and host topology values.
-- `tenants/`: tenant-local variable files and optional tenant assets.
-- `roles/`: Ansible role implementations for infrastructure, tenants, ONTAP, VMware, and RKE2.
-- `docs/`: browser-friendly technical documentation.
-- `scripts/`: helper tools such as tenant creation and publication checks.
+FlexPod-IMM-Rancher is the public version of KL-IDTA. It mirrors the KL-IDTA
+playbooks, roles, variables, tenant template, and helper scripts, with live
+keys and passwords replaced by placeholders.
 
 Before publishing or pushing, run `./scripts/publication_check.py`.

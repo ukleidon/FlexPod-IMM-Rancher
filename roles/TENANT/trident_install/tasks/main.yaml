@@ -53,7 +53,7 @@
 - name: Apply Trident Bundle
   kubernetes.core.k8s:
     state: present
-    src: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}/deploy/bundle_post_1_25.yaml"
+    src: "{{  current_working_directory.playbook_dir }}/downloads/trident-installer-{{ trident.version }}/deploy/bundle.yaml"
 
 - name: Pause for 1 minutes to build app cache
   ansible.builtin.pause:

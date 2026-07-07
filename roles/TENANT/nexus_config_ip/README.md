@@ -19,6 +19,7 @@ The role calls these task files from `tasks/main.yml` or nested includes:
 - `initiate_nxos_config_backup.yml`
 - `create_vrf.yml`
 - `set_nxos_interfaces.yml`
+- `delete_vrf.yml`
 - `save_nxos_config.yml`
 
 ## Automation Functions Called

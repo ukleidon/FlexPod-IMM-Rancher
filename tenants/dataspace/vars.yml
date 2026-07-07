@@ -1,0 +1,1349 @@
+---
+# Tenant-specific overrides for DataSpace.
+# Shared generated defaults are in group_vars/tenant_defaults.yml.
+# Keep tenant identity, VLAN IDs, CIDRs, credentials, and API key references here for independent configure/unconfigure.
+# See docs/tenants/README.md and docs/tenants/new-tenant.md.
+
+# -----------------------------------------------------------------------------
+# Tenant identity and lifecycle
+# -----------------------------------------------------------------------------
+# Selects the tenant and controls configure/unconfigure behavior. Keep these values tenant-local.
+configure_local: 'false'
+harvester_context: harvester0
+lan_state: present
+tenant_name: DataSpace
+tid: '01'
+vrf_name: admin
+vtenants: true
+
+# -----------------------------------------------------------------------------
+# Intersight access and organization
+# -----------------------------------------------------------------------------
+# Tenant API material and Intersight organization overrides. Do not move secrets into shared defaults.
+api_key_id: CHANGE_ME_INTERSIGHT_API_KEY_ID  # Replace only in a private deployment overlay.
+api_private_key: Keys/CHANGE_ME_INTERSIGHT_SECRET_KEY.txt  # Replace only in a private deployment overlay.
+num_profiles: 0
+org_name: DataSpace
+prefix: RKE-DT
+server_name_to_profile_mapping:
+  KL-DT-1-1: Dataspace-RKE-1
+  KL-DT-1-2: Dataspace-RKE-2
+  KL-DT-1-3: Dataspace-RKE-3
+
+# -----------------------------------------------------------------------------
+# Tenant VLANs and network CIDRs
+# -----------------------------------------------------------------------------
+# Layer-2 IDs and Layer-3 prefixes unique to this tenant. These must not collide with other tenants.
+t_access_network_mask: 23
+t_access_network_netmask: 255.255.254.0
+t_access_network_prefix: 172.16.8
+t_access_vlan_id: 102
+t_access_vlan_name: VM-Traffic
+t_access_vlans_list: '{{ t_access_vlan_id }},{{ v10_access_vlan_id }},{{ v11_access_vlan_id }},{{ v12_access_vlan_id }},{{
+  v13_access_vlan_id }},{{ v14_access_vlan_id }},{{ v15_access_vlan_id }},{{ v16_access_vlan_id }},{{ v17_access_vlan_id }},{{
+  v18_access_vlan_id }},{{ v19_access_vlan_id }},{{ v20_access_vlan_id }},{{ v21_access_vlan_id }},{{ v22_access_vlan_id }},{{
+  v23_access_vlan_id }},{{ v24_access_vlan_id }},{{ v25_access_vlan_id }},{{ v26_access_vlan_id }},{{ v27_access_vlan_id }},{{
+  v28_access_vlan_id }},{{ v29_access_vlan_id }},{{ v30_access_vlan_id }},{{ v31_access_vlan_id }},{{ v32_access_vlan_id }},{{
+  v33_access_vlan_id }},{{ v34_access_vlan_id }},{{ v35_access_vlan_id }},{{ v36_access_vlan_id }},{{ v37_access_vlan_id }},{{
+  v38_access_vlan_id }},{{ v39_access_vlan_id }},{{ v40_access_vlan_id }},{{ v98_access_vlan_id }},{{ t_sg_clinet_vlan_id
+  }}'
+t_all_vlans_list: '{{ all_vlans_list }},{{ t_mgmt_vlans_list }},{{ t_access_vlans_list }},{{ t_storage_vlans_list }}'
+t_ib_network_mask: 22
+t_ib_network_netmask: 255.255.252.0
+t_ib_network_prefix: 172.16.4
+t_ib_vlan_id: 101
+t_ib_vlan_name: IB_Management_LAN
+t_iscsiA_network_mask: 24
+t_iscsiA_network_netmask: 255.255.255.0
+t_iscsiA_network_prefix: 172.16.11
+t_iscsiA_vlan_id: 104
+t_iscsiA_vlan_name: Infra-iSCSI-A
+t_iscsiB_network_mask: 24
+t_iscsiB_network_netmask: 255.255.255.0
+t_iscsiB_network_prefix: 172.16.12
+t_iscsiB_vlan_id: 105
+t_iscsiB_vlan_name: Infra-iSCSI-B
+t_mgmt_vlans_list: '{{ oob_vlan_id }},{{ t_ib_vlan_id }},{{ t_access_vlan_id }}'
+t_nfs_network_prefix: 172.16.10
+t_nfs_vlan_id: 103
+t_nfs_vlan_name: NFS
+t_nvme_tcpA_network_mask: 24
+t_nvme_tcpA_network_netmask: 255.255.255.0
+t_nvme_tcpA_network_prefix: 172.18.15
+t_nvme_tcpA_vlan_id: 198
+t_nvme_tcpA_vlan_name: Infra-NVMe-TCP-A
+t_nvme_tcpB_network_mask: 24
+t_nvme_tcpB_network_netmask: 255.255.255.0
+t_nvme_tcpB_network_prefix: 172.18.16
+t_nvme_tcpB_vlan_id: 199
+t_nvme_tcpB_vlan_name: Infra-NVMe-TCP-B
+t_remaining_vlan_list:
+- name: '{{ t_access_vlan_name }}'
+  id: '{{ t_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ t_sg_clinet_vlan_name }}'
+  id: '{{ t_sg_clinet_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v10_access_vlan_name }}'
+  id: '{{ v10_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v11_access_vlan_name }}'
+  id: '{{ v11_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v12_access_vlan_name }}'
+  id: '{{ v12_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v13_access_vlan_name }}'
+  id: '{{ v13_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v14_access_vlan_name }}'
+  id: '{{ v14_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v15_access_vlan_name }}'
+  id: '{{ v15_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v16_access_vlan_name }}'
+  id: '{{ v16_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v17_access_vlan_name }}'
+  id: '{{ v17_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v18_access_vlan_name }}'
+  id: '{{ v18_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v19_access_vlan_name }}'
+  id: '{{ v19_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v20_access_vlan_name }}'
+  id: '{{ v20_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v21_access_vlan_name }}'
+  id: '{{ v21_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v22_access_vlan_name }}'
+  id: '{{ v22_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v23_access_vlan_name }}'
+  id: '{{ v23_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v24_access_vlan_name }}'
+  id: '{{ v24_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v25_access_vlan_name }}'
+  id: '{{ v25_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v26_access_vlan_name }}'
+  id: '{{ v26_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v27_access_vlan_name }}'
+  id: '{{ v27_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v28_access_vlan_name }}'
+  id: '{{ v28_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v29_access_vlan_name }}'
+  id: '{{ v29_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v30_access_vlan_name }}'
+  id: '{{ v30_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v31_access_vlan_name }}'
+  id: '{{ v31_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v32_access_vlan_name }}'
+  id: '{{ v32_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v33_access_vlan_name }}'
+  id: '{{ v33_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v34_access_vlan_name }}'
+  id: '{{ v34_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v35_access_vlan_name }}'
+  id: '{{ v35_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v36_access_vlan_name }}'
+  id: '{{ v36_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v37_access_vlan_name }}'
+  id: '{{ v37_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v38_access_vlan_name }}'
+  id: '{{ v38_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v39_access_vlan_name }}'
+  id: '{{ v39_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v40_access_vlan_name }}'
+  id: '{{ v40_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+- name: '{{ v98_access_vlan_name }}'
+  id: '{{ v98_access_vlan_id }}'
+  native: 'no'
+  state: '{{lan_state}}'
+t_sg_clinet_network_mask: 24
+t_sg_clinet_network_netmask: 255.255.255.0
+t_sg_clinet_network_prefix: 172.16.13
+t_sg_clinet_vlan_id: 106
+t_sg_clinet_vlan_name: StorageGrid_Client
+t_sg_grid_network_mask: 24
+t_sg_grid_network_netmask: 255.255.255.0
+t_sg_grid_network_prefix: 172.16.14
+t_sg_grid_vlan_id: 107
+t_sg_grid_vlan_name: StorageGrid_Grid
+t_storage_vlan_list:
+- name: '{{ t_nfs_vlan_name }}'
+  id: '{{ t_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ t_iscsiA_vlan_name }}'
+  id: '{{ t_iscsiA_vlan_id }}'
+  native: 'no'
+  storage_protocol: iSCSI
+  fabric: A
+  state: '{{lan_state}}'
+- name: '{{ t_iscsiB_vlan_name }}'
+  id: '{{ t_iscsiB_vlan_id }}'
+  native: 'no'
+  storage_protocol: iSCSI
+  fabric: B
+  state: '{{lan_state}}'
+- name: '{{ t_nvme_tcpA_vlan_name }}'
+  id: '{{ t_nvme_tcpA_vlan_id }}'
+  native: 'no'
+  storage_protocol: NVMe
+  fabric: A
+  state: '{{lan_state}}'
+- name: '{{ t_nvme_tcpB_vlan_name }}'
+  id: '{{ t_nvme_tcpB_vlan_id }}'
+  native: 'no'
+  storage_protocol: NVMe
+  fabric: B
+  state: '{{lan_state}}'
+- name: '{{ t_sg_grid_vlan_name }}'
+  id: '{{ t_sg_grid_vlan_id }}'
+  native: 'no'
+  storage_protocol: GRID
+  state: '{{lan_state}}'
+- name: '{{ v10_nfs_vlan_name }}'
+  id: '{{ v10_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v11_nfs_vlan_name }}'
+  id: '{{ v11_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v12_nfs_vlan_name }}'
+  id: '{{ v12_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v13_nfs_vlan_name }}'
+  id: '{{ v13_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v14_nfs_vlan_name }}'
+  id: '{{ v14_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v15_nfs_vlan_name }}'
+  id: '{{ v15_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v16_nfs_vlan_name }}'
+  id: '{{ v16_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v17_nfs_vlan_name }}'
+  id: '{{ v17_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v18_nfs_vlan_name }}'
+  id: '{{ v18_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v19_nfs_vlan_name }}'
+  id: '{{ v19_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v20_nfs_vlan_name }}'
+  id: '{{ v20_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v21_nfs_vlan_name }}'
+  id: '{{ v21_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v22_nfs_vlan_name }}'
+  id: '{{ v22_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v23_nfs_vlan_name }}'
+  id: '{{ v23_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v24_nfs_vlan_name }}'
+  id: '{{ v24_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v25_nfs_vlan_name }}'
+  id: '{{ v25_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v26_nfs_vlan_name }}'
+  id: '{{ v26_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v27_nfs_vlan_name }}'
+  id: '{{ v27_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v28_nfs_vlan_name }}'
+  id: '{{ v28_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v29_nfs_vlan_name }}'
+  id: '{{ v29_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v30_nfs_vlan_name }}'
+  id: '{{ v30_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v31_nfs_vlan_name }}'
+  id: '{{ v31_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v32_nfs_vlan_name }}'
+  id: '{{ v32_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v33_nfs_vlan_name }}'
+  id: '{{ v33_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v34_nfs_vlan_name }}'
+  id: '{{ v34_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v35_nfs_vlan_name }}'
+  id: '{{ v35_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v36_nfs_vlan_name }}'
+  id: '{{ v36_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v37_nfs_vlan_name }}'
+  id: '{{ v37_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v38_nfs_vlan_name }}'
+  id: '{{ v38_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v39_nfs_vlan_name }}'
+  id: '{{ v39_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v40_nfs_vlan_name }}'
+  id: '{{ v40_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+- name: '{{ v98_nfs_vlan_name }}'
+  id: '{{ v98_nfs_vlan_id }}'
+  native: 'no'
+  storage_protocol: NFS
+  state: '{{lan_state}}'
+t_storage_vlans_list: '{{ storage_vlans_list }},{{ t_ib_vlan_id }},{{ t_nfs_vlan_id }},{{ t_iscsiA_vlan_id }},{{ t_iscsiB_vlan_id
+  }},{{ t_nvme_tcpA_vlan_id }},{{ t_nvme_tcpB_vlan_id }},{{ v10_nfs_vlan_id }},{{ v11_nfs_vlan_id }},{{ v12_nfs_vlan_id }},{{
+  v13_nfs_vlan_id }},{{ v14_nfs_vlan_id }},{{ v15_nfs_vlan_id }},{{ v16_nfs_vlan_id }},{{ v17_nfs_vlan_id }},{{ v18_nfs_vlan_id
+  }},{{ v19_nfs_vlan_id }},{{ v20_nfs_vlan_id }},{{ v21_nfs_vlan_id }},{{ v22_nfs_vlan_id }},{{ v23_nfs_vlan_id }},{{ v24_nfs_vlan_id
+  }},{{ v25_nfs_vlan_id }},{{ v26_nfs_vlan_id }},{{ v27_nfs_vlan_id }},{{ v28_nfs_vlan_id }},{{ v29_nfs_vlan_id }},{{ v30_nfs_vlan_id
+  }},{{ v31_nfs_vlan_id }},{{ v32_nfs_vlan_id }},{{ v33_nfs_vlan_id }},{{ v34_nfs_vlan_id }},{{ v35_nfs_vlan_id }},{{ v36_nfs_vlan_id
+  }},{{ v37_nfs_vlan_id }},{{ v38_nfs_vlan_id }},{{ v39_nfs_vlan_id }},{{ v40_nfs_vlan_id }},{{ v98_nfs_vlan_id }},{{ t_sg_grid_vlan_id
+  }}'
+t_svi_list:
+- name: '{{ t_iscsiA_vlan_id }}'
+  vrf: admin
+  address: '{{ t_iscsiA_network_prefix }}.{{ baseIP }}/{{ t_iscsiA_network_mask }}'
+  hsrp: '{{ t_iscsiA_network_prefix }}.1'
+- name: '{{ t_iscsiB_vlan_id }}'
+  vrf: admin
+  address: '{{ t_iscsiB_network_prefix }}.{{ baseIP }}/{{ t_iscsiB_network_mask }}'
+  hsrp: '{{ t_iscsiB_network_prefix }}.1'
+- name: '{{ t_nfs_vlan_id }}'
+  vrf: admin
+  address: '{{ t_nfs_network_prefix }}.{{ baseIP }}/{{ t_nfs_network_mask }}'
+  hsrp: '{{ t_nfs_network_prefix }}.1'
+- name: '{{ t_access_vlan_id }}'
+  vrf: admin
+  address: '{{ t_access_network_prefix }}.{{ baseIP }}/{{ t_access_network_mask }}'
+  hsrp: '{{ t_access_network_prefix }}.1'
+  gw: '{{ t_access_network_prefix }}.254'
+- name: '{{ v10_access_vlan_id }}'
+  vrf: '{{ v10_name }}'
+  address: '{{ v10_access_network_prefix }}.{{ baseIP }}/{{ v10_access_network_mask }}'
+  hsrp: '{{ v10_access_network_prefix }}.1'
+  gw: '{{ v10_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v10_nfs_vlan_id }}'
+  vrf: '{{ v10_name }}'
+  address: '{{ v10_nfs_network_prefix }}.{{ baseIP }}/{{ v10_nfs_network_mask }}'
+  hsrp: '{{ v10_nfs_network_prefix }}.1'
+- name: '{{ v11_access_vlan_id }}'
+  vrf: '{{ v11_name }}'
+  address: '{{ v11_access_network_prefix }}.{{ baseIP }}/{{ v11_access_network_mask }}'
+  hsrp: '{{ v11_access_network_prefix }}.1'
+  gw: '{{ v11_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v11_nfs_vlan_id }}'
+  vrf: '{{ v11_name }}'
+  address: '{{ v11_nfs_network_prefix }}.{{ baseIP }}/{{ v11_nfs_network_mask }}'
+  hsrp: '{{ v11_nfs_network_prefix }}.1'
+- name: '{{ v12_access_vlan_id }}'
+  vrf: '{{ v12_name }}'
+  address: '{{ v12_access_network_prefix }}.{{ baseIP }}/{{ v12_access_network_mask }}'
+  hsrp: '{{ v12_access_network_prefix }}.1'
+  gw: '{{ v12_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v12_nfs_vlan_id }}'
+  vrf: '{{ v12_name }}'
+  address: '{{ v12_nfs_network_prefix }}.{{ baseIP }}/{{ v12_nfs_network_mask }}'
+  hsrp: '{{ v12_nfs_network_prefix }}.1'
+- name: '{{ v13_access_vlan_id }}'
+  vrf: '{{ v13_name }}'
+  address: '{{ v13_access_network_prefix }}.{{ baseIP }}/{{ v13_access_network_mask }}'
+  hsrp: '{{ v13_access_network_prefix }}.1'
+  gw: '{{ v13_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v13_nfs_vlan_id }}'
+  vrf: '{{ v13_name }}'
+  address: '{{ v13_nfs_network_prefix }}.{{ baseIP }}/{{ v13_nfs_network_mask }}'
+  hsrp: '{{ v13_nfs_network_prefix }}.1'
+- name: '{{ v14_access_vlan_id }}'
+  vrf: '{{ v14_name }}'
+  address: '{{ v14_access_network_prefix }}.{{ baseIP }}/{{ v14_access_network_mask }}'
+  hsrp: '{{ v14_access_network_prefix }}.1'
+  gw: '{{ v14_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v14_nfs_vlan_id }}'
+  vrf: '{{ v14_name }}'
+  address: '{{ v14_nfs_network_prefix }}.{{ baseIP }}/{{ v14_nfs_network_mask }}'
+  hsrp: '{{ v14_nfs_network_prefix }}.1'
+- name: '{{ v15_access_vlan_id }}'
+  vrf: '{{ v15_name }}'
+  address: '{{ v15_access_network_prefix }}.{{ baseIP }}/{{ v15_access_network_mask }}'
+  hsrp: '{{ v15_access_network_prefix }}.1'
+  gw: '{{ v15_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v15_nfs_vlan_id }}'
+  vrf: '{{ v15_name }}'
+  address: '{{ v15_nfs_network_prefix }}.{{ baseIP }}/{{ v15_nfs_network_mask }}'
+  hsrp: '{{ v15_nfs_network_prefix }}.1'
+- name: '{{ v16_access_vlan_id }}'
+  vrf: '{{ v16_name }}'
+  address: '{{ v16_access_network_prefix }}.{{ baseIP }}/{{ v16_access_network_mask }}'
+  hsrp: '{{ v16_access_network_prefix }}.1'
+  gw: '{{ v16_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v16_nfs_vlan_id }}'
+  vrf: '{{ v16_name }}'
+  address: '{{ v16_nfs_network_prefix }}.{{ baseIP }}/{{ v16_nfs_network_mask }}'
+  hsrp: '{{ v16_nfs_network_prefix }}.1'
+- name: '{{ v17_access_vlan_id }}'
+  vrf: '{{ v17_name }}'
+  address: '{{ v17_access_network_prefix }}.{{ baseIP }}/{{ v17_access_network_mask }}'
+  hsrp: '{{ v17_access_network_prefix }}.1'
+  gw: '{{ v17_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v17_nfs_vlan_id }}'
+  vrf: '{{ v17_name }}'
+  address: '{{ v17_nfs_network_prefix }}.{{ baseIP }}/{{ v17_nfs_network_mask }}'
+  hsrp: '{{ v17_nfs_network_prefix }}.1'
+- name: '{{ v18_access_vlan_id }}'
+  vrf: '{{ v18_name }}'
+  address: '{{ v18_access_network_prefix }}.{{ baseIP }}/{{ v18_access_network_mask }}'
+  hsrp: '{{ v18_access_network_prefix }}.1'
+  gw: '{{ v18_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v18_nfs_vlan_id }}'
+  vrf: '{{ v18_name }}'
+  address: '{{ v18_nfs_network_prefix }}.{{ baseIP }}/{{ v18_nfs_network_mask }}'
+  hsrp: '{{ v18_nfs_network_prefix }}.1'
+- name: '{{ v19_access_vlan_id }}'
+  vrf: '{{ v19_name }}'
+  address: '{{ v19_access_network_prefix }}.{{ baseIP }}/{{ v19_access_network_mask }}'
+  hsrp: '{{ v19_access_network_prefix }}.1'
+  gw: '{{ v19_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v19_nfs_vlan_id }}'
+  vrf: '{{ v19_name }}'
+  address: '{{ v19_nfs_network_prefix }}.{{ baseIP }}/{{ v19_nfs_network_mask }}'
+  hsrp: '{{ v19_nfs_network_prefix }}.1'
+- name: '{{ v20_access_vlan_id }}'
+  vrf: '{{ v20_name }}'
+  address: '{{ v20_access_network_prefix }}.{{ baseIP }}/{{ v20_access_network_mask }}'
+  hsrp: '{{ v20_access_network_prefix }}.1'
+  gw: '{{ v20_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v20_nfs_vlan_id }}'
+  vrf: '{{ v20_name }}'
+  address: '{{ v20_nfs_network_prefix }}.{{ baseIP }}/{{ v20_nfs_network_mask }}'
+  hsrp: '{{ v20_nfs_network_prefix }}.1'
+- name: '{{ v21_access_vlan_id }}'
+  vrf: '{{ v21_name }}'
+  address: '{{ v21_access_network_prefix }}.{{ baseIP }}/{{ v21_access_network_mask }}'
+  hsrp: '{{ v21_access_network_prefix }}.1'
+  gw: '{{ v21_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v21_nfs_vlan_id }}'
+  vrf: '{{ v21_name }}'
+  address: '{{ v21_nfs_network_prefix }}.{{ baseIP }}/{{ v21_nfs_network_mask }}'
+  hsrp: '{{ v21_nfs_network_prefix }}.1'
+- name: '{{ v22_access_vlan_id }}'
+  vrf: '{{ v22_name }}'
+  address: '{{ v22_access_network_prefix }}.{{ baseIP }}/{{ v22_access_network_mask }}'
+  hsrp: '{{ v22_access_network_prefix }}.1'
+  gw: '{{ v22_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v22_nfs_vlan_id }}'
+  vrf: '{{ v22_name }}'
+  address: '{{ v22_nfs_network_prefix }}.{{ baseIP }}/{{ v22_nfs_network_mask }}'
+  hsrp: '{{ v22_nfs_network_prefix }}.1'
+- name: '{{ v23_access_vlan_id }}'
+  vrf: '{{ v23_name }}'
+  address: '{{ v23_access_network_prefix }}.{{ baseIP }}/{{ v23_access_network_mask }}'
+  hsrp: '{{ v23_access_network_prefix }}.1'
+  gw: '{{ v23_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v23_nfs_vlan_id }}'
+  vrf: '{{ v23_name }}'
+  address: '{{ v23_nfs_network_prefix }}.{{ baseIP }}/{{ v23_nfs_network_mask }}'
+  hsrp: '{{ v23_nfs_network_prefix }}.1'
+- name: '{{ v24_access_vlan_id }}'
+  vrf: '{{ v24_name }}'
+  address: '{{ v24_access_network_prefix }}.{{ baseIP }}/{{ v24_access_network_mask }}'
+  hsrp: '{{ v24_access_network_prefix }}.1'
+  gw: '{{ v24_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v24_nfs_vlan_id }}'
+  vrf: '{{ v24_name }}'
+  address: '{{ v24_nfs_network_prefix }}.{{ baseIP }}/{{ v24_nfs_network_mask }}'
+  hsrp: '{{ v24_nfs_network_prefix }}.1'
+- name: '{{ v25_access_vlan_id }}'
+  vrf: '{{ v25_name }}'
+  address: '{{ v25_access_network_prefix }}.{{ baseIP }}/{{ v25_access_network_mask }}'
+  hsrp: '{{ v25_access_network_prefix }}.1'
+  gw: '{{ v25_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v25_nfs_vlan_id }}'
+  vrf: '{{ v25_name }}'
+  address: '{{ v25_nfs_network_prefix }}.{{ baseIP }}/{{ v25_nfs_network_mask }}'
+  hsrp: '{{ v25_nfs_network_prefix }}.1'
+- name: '{{ v26_access_vlan_id }}'
+  vrf: '{{ v26_name }}'
+  address: '{{ v26_access_network_prefix }}.{{ baseIP }}/{{ v26_access_network_mask }}'
+  hsrp: '{{ v26_access_network_prefix }}.1'
+  gw: '{{ v26_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v26_nfs_vlan_id }}'
+  vrf: '{{ v26_name }}'
+  address: '{{ v26_nfs_network_prefix }}.{{ baseIP }}/{{ v26_nfs_network_mask }}'
+  hsrp: '{{ v26_nfs_network_prefix }}.1'
+- name: '{{ v27_access_vlan_id }}'
+  vrf: '{{ v27_name }}'
+  address: '{{ v27_access_network_prefix }}.{{ baseIP }}/{{ v27_access_network_mask }}'
+  hsrp: '{{ v27_access_network_prefix }}.1'
+  gw: '{{ v27_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v27_nfs_vlan_id }}'
+  vrf: '{{ v27_name }}'
+  address: '{{ v27_nfs_network_prefix }}.{{ baseIP }}/{{ v27_nfs_network_mask }}'
+  hsrp: '{{ v27_nfs_network_prefix }}.1'
+- name: '{{ v28_access_vlan_id }}'
+  vrf: '{{ v28_name }}'
+  address: '{{ v28_access_network_prefix }}.{{ baseIP }}/{{ v28_access_network_mask }}'
+  hsrp: '{{ v28_access_network_prefix }}.1'
+  gw: '{{ v28_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v28_nfs_vlan_id }}'
+  vrf: '{{ v28_name }}'
+  address: '{{ v28_nfs_network_prefix }}.{{ baseIP }}/{{ v28_nfs_network_mask }}'
+  hsrp: '{{ v28_nfs_network_prefix }}.1'
+- name: '{{ v29_access_vlan_id }}'
+  vrf: '{{ v29_name }}'
+  address: '{{ v29_access_network_prefix }}.{{ baseIP }}/{{ v29_access_network_mask }}'
+  hsrp: '{{ v29_access_network_prefix }}.1'
+  gw: '{{ v29_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v29_nfs_vlan_id }}'
+  vrf: '{{ v29_name }}'
+  address: '{{ v29_nfs_network_prefix }}.{{ baseIP }}/{{ v29_nfs_network_mask }}'
+  hsrp: '{{ v29_nfs_network_prefix }}.1'
+- name: '{{ v30_access_vlan_id }}'
+  vrf: '{{ v30_name }}'
+  address: '{{ v30_access_network_prefix }}.{{ baseIP }}/{{ v30_access_network_mask }}'
+  hsrp: '{{ v30_access_network_prefix }}.1'
+  gw: '{{ v30_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v30_nfs_vlan_id }}'
+  vrf: '{{ v30_name }}'
+  address: '{{ v30_nfs_network_prefix }}.{{ baseIP }}/{{ v30_nfs_network_mask }}'
+  hsrp: '{{ v30_nfs_network_prefix }}.1'
+- name: '{{ v31_access_vlan_id }}'
+  vrf: '{{ v31_name }}'
+  address: '{{ v31_access_network_prefix }}.{{ baseIP }}/{{ v31_access_network_mask }}'
+  hsrp: '{{ v31_access_network_prefix }}.1'
+  gw: '{{ v31_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v31_nfs_vlan_id }}'
+  vrf: '{{ v31_name }}'
+  address: '{{ v31_nfs_network_prefix }}.{{ baseIP }}/{{ v31_nfs_network_mask }}'
+  hsrp: '{{ v31_nfs_network_prefix }}.1'
+- name: '{{ v32_access_vlan_id }}'
+  vrf: '{{ v32_name }}'
+  address: '{{ v32_access_network_prefix }}.{{ baseIP }}/{{ v32_access_network_mask }}'
+  hsrp: '{{ v32_access_network_prefix }}.1'
+  gw: '{{ v32_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v32_nfs_vlan_id }}'
+  vrf: '{{ v32_name }}'
+  address: '{{ v32_nfs_network_prefix }}.{{ baseIP }}/{{ v32_nfs_network_mask }}'
+  hsrp: '{{ v32_nfs_network_prefix }}.1'
+- name: '{{ v33_access_vlan_id }}'
+  vrf: '{{ v33_name }}'
+  address: '{{ v33_access_network_prefix }}.{{ baseIP }}/{{ v33_access_network_mask }}'
+  hsrp: '{{ v33_access_network_prefix }}.1'
+  gw: '{{ v33_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v33_nfs_vlan_id }}'
+  vrf: '{{ v33_name }}'
+  address: '{{ v33_nfs_network_prefix }}.{{ baseIP }}/{{ v33_nfs_network_mask }}'
+  hsrp: '{{ v33_nfs_network_prefix }}.1'
+- name: '{{ v34_access_vlan_id }}'
+  vrf: '{{ v34_name }}'
+  address: '{{ v34_access_network_prefix }}.{{ baseIP }}/{{ v34_access_network_mask }}'
+  hsrp: '{{ v34_access_network_prefix }}.1'
+  gw: '{{ v34_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v34_nfs_vlan_id }}'
+  vrf: '{{ v34_name }}'
+  address: '{{ v34_nfs_network_prefix }}.{{ baseIP }}/{{ v34_nfs_network_mask }}'
+  hsrp: '{{ v34_nfs_network_prefix }}.1'
+- name: '{{ v35_access_vlan_id }}'
+  vrf: '{{ v35_name }}'
+  address: '{{ v35_access_network_prefix }}.{{ baseIP }}/{{ v35_access_network_mask }}'
+  hsrp: '{{ v35_access_network_prefix }}.1'
+  gw: '{{ v35_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v35_nfs_vlan_id }}'
+  vrf: '{{ v35_name }}'
+  address: '{{ v35_nfs_network_prefix }}.{{ baseIP }}/{{ v35_nfs_network_mask }}'
+  hsrp: '{{ v35_nfs_network_prefix }}.1'
+- name: '{{ v36_access_vlan_id }}'
+  vrf: '{{ v36_name }}'
+  address: '{{ v36_access_network_prefix }}.{{ baseIP }}/{{ v36_access_network_mask }}'
+  hsrp: '{{ v36_access_network_prefix }}.1'
+  gw: '{{ v36_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v36_nfs_vlan_id }}'
+  vrf: '{{ v36_name }}'
+  address: '{{ v36_nfs_network_prefix }}.{{ baseIP }}/{{ v36_nfs_network_mask }}'
+  hsrp: '{{ v36_nfs_network_prefix }}.1'
+- name: '{{ v37_access_vlan_id }}'
+  vrf: '{{ v37_name }}'
+  address: '{{ v37_access_network_prefix }}.{{ baseIP }}/{{ v37_access_network_mask }}'
+  hsrp: '{{ v37_access_network_prefix }}.1'
+  gw: '{{ v37_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v37_nfs_vlan_id }}'
+  vrf: '{{ v37_name }}'
+  address: '{{ v37_nfs_network_prefix }}.{{ baseIP }}/{{ v37_nfs_network_mask }}'
+  hsrp: '{{ v37_nfs_network_prefix }}.1'
+- name: '{{ v38_access_vlan_id }}'
+  vrf: '{{ v38_name }}'
+  address: '{{ v38_access_network_prefix }}.{{ baseIP }}/{{ v38_access_network_mask }}'
+  hsrp: '{{ v38_access_network_prefix }}.1'
+  gw: '{{ v38_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v38_nfs_vlan_id }}'
+  vrf: '{{ v38_name }}'
+  address: '{{ v38_nfs_network_prefix }}.{{ baseIP }}/{{ v38_nfs_network_mask }}'
+  hsrp: '{{ v38_nfs_network_prefix }}.1'
+- name: '{{ v39_access_vlan_id }}'
+  vrf: '{{ v39_name }}'
+  address: '{{ v39_access_network_prefix }}.{{ baseIP }}/{{ v39_access_network_mask }}'
+  hsrp: '{{ v39_access_network_prefix }}.1'
+  gw: '{{ v39_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v39_nfs_vlan_id }}'
+  vrf: '{{ v39_name }}'
+  address: '{{ v39_nfs_network_prefix }}.{{ baseIP }}/{{ v39_nfs_network_mask }}'
+  hsrp: '{{ v39_nfs_network_prefix }}.1'
+- name: '{{ v40_access_vlan_id }}'
+  vrf: '{{ v40_name }}'
+  address: '{{ v40_access_network_prefix }}.{{ baseIP }}/{{ v40_access_network_mask }}'
+  hsrp: '{{ v40_access_network_prefix }}.1'
+  gw: '{{ v40_access_network_prefix }}.254'
+  metric: '10'
+- name: '{{ v40_nfs_vlan_id }}'
+  vrf: '{{ v40_name }}'
+  address: '{{ v40_nfs_network_prefix }}.{{ baseIP }}/{{ v40_nfs_network_mask }}'
+  hsrp: '{{ v40_nfs_network_prefix }}.1'
+
+# -----------------------------------------------------------------------------
+# Virtual tenant registry overrides
+# -----------------------------------------------------------------------------
+# Only multi-tenant carrier tenants use vNN_* blocks. Keep normal tenants out of this section.
+v10_access_network_mask: 24
+v10_access_network_netmask: 255.255.255.0
+v10_access_network_prefix: 172.16.30
+v10_access_vlan_id: 300
+v10_access_vlan_name: '{{ v10_name }}-Access'
+v10_name: robinie
+v10_nfs_network_mask: 24
+v10_nfs_network_netmask: 255.255.255.0
+v10_nfs_network_prefix: 172.16.31
+v10_nfs_vlan_id: 301
+v10_nfs_vlan_name: '{{ v10_name }}-NFS'
+v11_access_network_mask: 24
+v11_access_network_netmask: 255.255.255.0
+v11_access_network_prefix: 172.16.35
+v11_access_vlan_id: 305
+v11_access_vlan_name: '{{ v11_name }}-Access'
+v11_name: douglasie
+v11_nfs_network_mask: 24
+v11_nfs_network_netmask: 255.255.255.0
+v11_nfs_network_prefix: 172.16.36
+v11_nfs_vlan_id: 306
+v11_nfs_vlan_name: '{{ v11_name }}-NFS'
+v12_access_network_mask: 24
+v12_access_network_netmask: 255.255.255.0
+v12_access_network_prefix: 172.16.40
+v12_access_vlan_id: 310
+v12_access_vlan_name: '{{ v12_name }}-Access'
+v12_name: eberesche
+v12_nfs_network_mask: 24
+v12_nfs_network_netmask: 255.255.255.0
+v12_nfs_network_prefix: 172.16.41
+v12_nfs_vlan_id: 311
+v12_nfs_vlan_name: '{{ v12_name }}-NFS'
+v13_access_network_mask: 24
+v13_access_network_netmask: 255.255.255.0
+v13_access_network_prefix: 172.16.45
+v13_access_vlan_id: 315
+v13_access_vlan_name: '{{ v13_name }}-Access'
+v13_name: walnuss
+v13_nfs_network_mask: 24
+v13_nfs_network_netmask: 255.255.255.0
+v13_nfs_network_prefix: 172.16.46
+v13_nfs_vlan_id: 316
+v13_nfs_vlan_name: '{{ v13_name }}-NFS'
+v14_access_network_mask: 24
+v14_access_network_netmask: 255.255.255.0
+v14_access_network_prefix: 172.16.50
+v14_access_vlan_id: 320
+v14_access_vlan_name: '{{ v14_name }}-Access'
+v14_name: elsbere
+v14_nfs_network_mask: 24
+v14_nfs_network_netmask: 255.255.255.0
+v14_nfs_network_prefix: 172.16.51
+v14_nfs_vlan_id: 321
+v14_nfs_vlan_name: '{{ v14_name }}-NFS'
+v15_access_network_mask: 24
+v15_access_network_netmask: 255.255.255.0
+v15_access_network_prefix: 172.16.55
+v15_access_vlan_id: 325
+v15_access_vlan_name: '{{ v15_name }}-Access'
+v15_name: speierling
+v15_nfs_network_mask: 24
+v15_nfs_network_netmask: 255.255.255.0
+v15_nfs_network_prefix: 172.16.56
+v15_nfs_vlan_id: 326
+v15_nfs_vlan_name: '{{ v15_name }}-NFS'
+v16_access_network_mask: 24
+v16_access_network_netmask: 255.255.255.0
+v16_access_network_prefix: 172.16.60
+v16_access_vlan_id: 330
+v16_access_vlan_name: '{{ v16_name }}-Access'
+v16_name: hainbuche
+v16_nfs_network_mask: 24
+v16_nfs_network_netmask: 255.255.255.0
+v16_nfs_network_prefix: 172.16.61
+v16_nfs_vlan_id: 331
+v16_nfs_vlan_name: '{{ v16_name }}-NFS'
+v17_access_network_mask: 24
+v17_access_network_netmask: 255.255.255.0
+v17_access_network_prefix: 172.16.65
+v17_access_vlan_id: 335
+v17_access_vlan_name: '{{ v17_name }}-Access'
+v17_name: eibe
+v17_nfs_network_mask: 24
+v17_nfs_network_netmask: 255.255.255.0
+v17_nfs_network_prefix: 172.16.66
+v17_nfs_vlan_id: 336
+v17_nfs_vlan_name: '{{ v17_name }}-NFS'
+v18_access_network_mask: 24
+v18_access_network_netmask: 255.255.255.0
+v18_access_network_prefix: 172.16.70
+v18_access_vlan_id: 340
+v18_access_vlan_name: '{{ v18_name }}-Access'
+v18_name: winterlinde
+v18_nfs_network_mask: 24
+v18_nfs_network_netmask: 255.255.255.0
+v18_nfs_network_prefix: 172.16.71
+v18_nfs_vlan_id: 341
+v18_nfs_vlan_name: '{{ v18_name }}-NFS'
+v19_access_network_mask: 24
+v19_access_network_netmask: 255.255.255.0
+v19_access_network_prefix: 172.16.75
+v19_access_vlan_id: 345
+v19_access_vlan_name: '{{ v19_name }}-Access'
+v19_name: waldkiefer
+v19_nfs_network_mask: 24
+v19_nfs_network_netmask: 255.255.255.0
+v19_nfs_network_prefix: 172.16.76
+v19_nfs_vlan_id: 346
+v19_nfs_vlan_name: '{{ v19_name }}-NFS'
+v20_access_network_mask: 24
+v20_access_network_netmask: 255.255.255.0
+v20_access_network_prefix: 172.16.80
+v20_access_vlan_id: 350
+v20_access_vlan_name: '{{ v20_name }}-Access'
+v20_name: edelkastanie
+v20_nfs_network_mask: 24
+v20_nfs_network_netmask: 255.255.255.0
+v20_nfs_network_prefix: 172.16.81
+v20_nfs_vlan_id: 351
+v20_nfs_vlan_name: '{{ v20_name }}-NFS'
+v21_access_network_mask: 24
+v21_access_network_netmask: 255.255.255.0
+v21_access_network_prefix: 172.16.85
+v21_access_vlan_id: 355
+v21_access_vlan_name: '{{ v21_name }}-Access'
+v21_name: rosskastanie
+v21_nfs_network_mask: 24
+v21_nfs_network_netmask: 255.255.255.0
+v21_nfs_network_prefix: 172.16.86
+v21_nfs_vlan_id: 356
+v21_nfs_vlan_name: '{{ v21_name }}-NFS'
+v22_access_network_mask: 24
+v22_access_network_netmask: 255.255.255.0
+v22_access_network_prefix: 172.16.90
+v22_access_vlan_id: 360
+v22_access_vlan_name: '{{ v22_name }}-Access'
+v22_name: wacholder
+v22_nfs_network_mask: 24
+v22_nfs_network_netmask: 255.255.255.0
+v22_nfs_network_prefix: 172.16.91
+v22_nfs_vlan_id: 361
+v22_nfs_vlan_name: '{{ v22_name }}-NFS'
+v23_access_network_mask: 24
+v23_access_network_netmask: 255.255.255.0
+v23_access_network_prefix: 172.16.95
+v23_access_vlan_id: 365
+v23_access_vlan_name: '{{ v23_name }}-Access'
+v23_name: rotbuche
+v23_nfs_network_mask: 24
+v23_nfs_network_netmask: 255.255.255.0
+v23_nfs_network_prefix: 172.16.96
+v23_nfs_vlan_id: 366
+v23_nfs_vlan_name: '{{ v23_name }}-NFS'
+v24_access_network_mask: 24
+v24_access_network_netmask: 255.255.255.0
+v24_access_network_prefix: 172.16.100
+v24_access_vlan_id: 370
+v24_access_vlan_name: '{{ v24_name }}-Access'
+v24_name: sommerlinde
+v24_nfs_network_mask: 24
+v24_nfs_network_netmask: 255.255.255.0
+v24_nfs_network_prefix: 172.16.101
+v24_nfs_vlan_id: 371
+v24_nfs_vlan_name: '{{ v24_name }}-NFS'
+v25_access_network_mask: 24
+v25_access_network_netmask: 255.255.255.0
+v25_access_network_prefix: 172.16.105
+v25_access_vlan_id: 375
+v25_access_vlan_name: '{{ v25_name }}-Access'
+v25_name: vogelkirsche
+v25_nfs_network_mask: 24
+v25_nfs_network_netmask: 255.255.255.0
+v25_nfs_network_prefix: 172.16.106
+v25_nfs_vlan_id: 376
+v25_nfs_vlan_name: '{{ v25_name }}-NFS'
+v26_access_network_mask: 24
+v26_access_network_netmask: 255.255.255.0
+v26_access_network_prefix: 172.16.110
+v26_access_vlan_id: 380
+v26_access_vlan_name: '{{ v26_name }}-Access'
+v26_name: feldahorn
+v26_nfs_network_mask: 24
+v26_nfs_network_netmask: 255.255.255.0
+v26_nfs_network_prefix: 172.16.111
+v26_nfs_vlan_id: 381
+v26_nfs_vlan_name: '{{ v26_name }}-NFS'
+v27_access_network_mask: 24
+v27_access_network_netmask: 255.255.255.0
+v27_access_network_prefix: 172.16.115
+v27_access_vlan_id: 385
+v27_access_vlan_name: '{{ v27_name }}-Access'
+v27_name: schwarzerle
+v27_nfs_network_mask: 24
+v27_nfs_network_netmask: 255.255.255.0
+v27_nfs_network_prefix: 172.16.116
+v27_nfs_vlan_id: 386
+v27_nfs_vlan_name: '{{ v27_name }}-NFS'
+v28_access_network_mask: 24
+v28_access_network_netmask: 255.255.255.0
+v28_access_network_prefix: 172.16.120
+v28_access_vlan_id: 390
+v28_access_vlan_name: '{{ v28_name }}-Access'
+v28_name: edeltanne
+v28_nfs_network_mask: 24
+v28_nfs_network_netmask: 255.255.255.0
+v28_nfs_network_prefix: 172.16.121
+v28_nfs_vlan_id: 391
+v28_nfs_vlan_name: '{{ v28_name }}-NFS'
+v29_access_network_mask: 24
+v29_access_network_netmask: 255.255.255.0
+v29_access_network_prefix: 172.16.125
+v29_access_vlan_id: 395
+v29_access_vlan_name: '{{ v29_name }}-Access'
+v29_name: silberweide
+v29_nfs_network_mask: 24
+v29_nfs_network_netmask: 255.255.255.0
+v29_nfs_network_prefix: 172.16.126
+v29_nfs_vlan_id: 396
+v29_nfs_vlan_name: '{{ v29_name }}-NFS'
+v30_access_network_mask: 24
+v30_access_network_netmask: 255.255.255.0
+v30_access_network_prefix: 172.16.130
+v30_access_vlan_id: 400
+v30_access_vlan_name: '{{ v30_name }}-Access'
+v30_name: fichte
+v30_nfs_network_mask: 24
+v30_nfs_network_netmask: 255.255.255.0
+v30_nfs_network_prefix: 172.16.131
+v30_nfs_vlan_id: 401
+v30_nfs_vlan_name: '{{ v30_name }}-NFS'
+v31_access_network_mask: 24
+v31_access_network_netmask: 255.255.255.0
+v31_access_network_prefix: 172.16.135
+v31_access_vlan_id: 405
+v31_access_vlan_name: '{{ v31_name }}-Access'
+v31_name: haselnuss
+v31_nfs_network_mask: 24
+v31_nfs_network_netmask: 255.255.255.0
+v31_nfs_network_prefix: 172.16.136
+v31_nfs_vlan_id: 406
+v31_nfs_vlan_name: '{{ v31_name }}-NFS'
+v32_access_network_mask: 24
+v32_access_network_netmask: 255.255.255.0
+v32_access_network_prefix: 172.16.140
+v32_access_vlan_id: 410
+v32_access_vlan_name: '{{ v32_name }}-Access'
+v32_name: stechpalme
+v32_nfs_network_mask: 24
+v32_nfs_network_netmask: 255.255.255.0
+v32_nfs_network_prefix: 172.16.141
+v32_nfs_vlan_id: 411
+v32_nfs_vlan_name: '{{ v32_name }}-NFS'
+v33_access_network_mask: 24
+v33_access_network_netmask: 255.255.255.0
+v33_access_network_prefix: 172.16.145
+v33_access_vlan_id: 415
+v33_access_vlan_name: '{{ v33_name }}-Access'
+v33_name: weissdorn
+v33_nfs_network_mask: 24
+v33_nfs_network_netmask: 255.255.255.0
+v33_nfs_network_prefix: 172.16.146
+v33_nfs_vlan_id: 416
+v33_nfs_vlan_name: '{{ v33_name }}-NFS'
+v34_access_network_mask: 24
+v34_access_network_netmask: 255.255.255.0
+v34_access_network_prefix: 172.16.150
+v34_access_vlan_id: 420
+v34_access_vlan_name: '{{ v34_name }}-Access'
+v34_name: birke
+v34_nfs_network_mask: 24
+v34_nfs_network_netmask: 255.255.255.0
+v34_nfs_network_prefix: 172.16.151
+v34_nfs_vlan_id: 421
+v34_nfs_vlan_name: '{{ v34_name }}-NFS'
+v35_access_network_mask: 24
+v35_access_network_netmask: 255.255.255.0
+v35_access_network_prefix: 172.16.155
+v35_access_vlan_id: 425
+v35_access_vlan_name: '{{ v35_name }}-Access'
+v35_name: stieleiche
+v35_nfs_network_mask: 24
+v35_nfs_network_netmask: 255.255.255.0
+v35_nfs_network_prefix: 172.16.156
+v35_nfs_vlan_id: 426
+v35_nfs_vlan_name: '{{ v35_name }}-NFS'
+v36_access_network_mask: 24
+v36_access_network_netmask: 255.255.255.0
+v36_access_network_prefix: 172.16.160
+v36_access_vlan_id: 430
+v36_access_vlan_name: '{{ v36_name }}-Access'
+v36_name: zirbe
+v36_nfs_network_mask: 24
+v36_nfs_network_netmask: 255.255.255.0
+v36_nfs_network_prefix: 172.16.161
+v36_nfs_vlan_id: 431
+v36_nfs_vlan_name: '{{ v36_name }}-NFS'
+v37_access_network_mask: 24
+v37_access_network_netmask: 255.255.255.0
+v37_access_network_prefix: 172.16.165
+v37_access_vlan_id: 435
+v37_access_vlan_name: '{{ v37_name }}-Access'
+v37_name: laerche
+v37_nfs_network_mask: 24
+v37_nfs_network_netmask: 255.255.255.0
+v37_nfs_network_prefix: 172.16.166
+v37_nfs_vlan_id: 436
+v37_nfs_vlan_name: '{{ v37_name }}-NFS'
+v38_access_network_mask: 24
+v38_access_network_netmask: 255.255.255.0
+v38_access_network_prefix: 172.16.170
+v38_access_vlan_id: 440
+v38_access_vlan_name: '{{ v38_name }}-Access'
+v38_name: schwarzdorn
+v38_nfs_network_mask: 24
+v38_nfs_network_netmask: 255.255.255.0
+v38_nfs_network_prefix: 172.16.171
+v38_nfs_vlan_id: 441
+v38_nfs_vlan_name: '{{ v38_name }}-NFS'
+v39_access_network_mask: 24
+v39_access_network_netmask: 255.255.255.0
+v39_access_network_prefix: 172.16.175
+v39_access_vlan_id: 445
+v39_access_vlan_name: '{{ v39_name }}-Access'
+v39_name: ahorn
+v39_nfs_network_mask: 24
+v39_nfs_network_netmask: 255.255.255.0
+v39_nfs_network_prefix: 172.16.176
+v39_nfs_vlan_id: 446
+v39_nfs_vlan_name: '{{ v39_name }}-NFS'
+v40_access_network_mask: 24
+v40_access_network_netmask: 255.255.255.0
+v40_access_network_prefix: 172.16.180
+v40_access_vlan_id: 450
+v40_access_vlan_name: '{{ v40_name }}-Access'
+v40_name: kastanie
+v40_nfs_network_mask: 24
+v40_nfs_network_netmask: 255.255.255.0
+v40_nfs_network_prefix: 172.16.181
+v40_nfs_vlan_id: 451
+v40_nfs_vlan_name: '{{ v40_name }}-NFS'
+v98_access_network_mask: 24
+v98_access_network_netmask: 255.255.255.0
+v98_access_network_prefix: 172.17.4
+v98_access_vlan_id: 204
+v98_access_vlan_name: '{{ v98_name }}-Access'
+v98_name: gpu
+v98_nfs_network_mask: 24
+v98_nfs_network_netmask: 255.255.255.0
+v98_nfs_network_prefix: 172.17.3
+v98_nfs_vlan_id: 203
+v98_nfs_vlan_name: '{{ v98_name }}-NFS'
+v99_access_network_mask: 24
+v99_access_network_netmask: 255.255.255.0
+v99_access_network_prefix: 172.16.254
+v99_access_vlan_id: 3998
+v99_access_vlan_name: '{{ v25_name }}-Access'
+v99_name: tanne
+v99_nfs_network_mask: 24
+v99_nfs_network_netmask: 255.255.255.0
+v99_nfs_network_prefix: 172.16.255
+v99_nfs_vlan_id: 3999
+v99_nfs_vlan_name: '{{ v99_name }}-NFS'
+
+# -----------------------------------------------------------------------------
+# ONTAP SVM, storage, and LIFs
+# -----------------------------------------------------------------------------
+# Storage-facing values for SVMs, LIFs, initiators, and storage-side protocol settings.
+fc_nvme_lif_01a: 20:06:00:a0:98:e2:17:ca
+fc_nvme_lif_01b: 20:07:00:a0:98:e2:17:ca
+fc_nvme_lif_02a: 20:08:00:a0:98:e2:17:ca
+fc_nvme_lif_02b: 20:09:00:a0:98:e2:17:ca
+fcp_lif_01a: 20:26:d0:39:ea:29:ce:d4
+fcp_lif_01b: 20:25:d0:39:ea:29:ce:d4
+fcp_lif_02a: 20:23:d0:39:ea:29:ce:d4
+fcp_lif_02b: 20:24:d0:39:ea:29:ce:d4
+iscsi_lif_01a: 172.16.11.103
+iscsi_lif_01b: 172.16.12.103
+iscsi_lif_02a: 172.16.11.104
+iscsi_lif_02b: 172.16.12.104
+name_of_iscsi_a_vnic: 02-iSCSI-{{ vic_type }}-A
+name_of_iscsi_b_vnic: 03-iSCSI-{{ vic_type }}-B
+name_of_iscsi_vnic_1: 00-iscsi-access-{{ vic_type }}-A
+name_of_iscsi_vnic_2: 01-iscsi-storage-{{ vic_type }}-B
+nfs_lif_01: 172.16.10.101
+nfs_lif_02: 172.16.10.102
+nvme_lif_01a: 172.16.98.103
+nvme_lif_01b: 172.16.98.103
+nvme_lif_02a: 172.16.99.104
+nvme_lif_02b: 172.16.99.104
+size_of_ip_pool_iscsi_a: 128
+size_of_ip_pool_iscsi_b: 128
+storage_iscsi_IQN: iqn.1992-08.com.netapp:sn.f16cebbcfe6d11eeaa2ad039ea561760:vs.4
+svm_node_specs:
+- node_name: c250-01n1
+  nfs_lifs:
+    name: nfs-lif-01a
+    address: '{{ nfs_lif_01 }}'
+    netmask: 255.255.255.0
+  fcp_lifs:
+  - name: fcp-lif-01a
+    home_port: 5a
+    fabric: A
+  - name: fcp-lif-01b
+    home_port: 5b
+    fabric: B
+  fc-nvme_lifs:
+  - name: fc-nvme-lif-01a
+    home_port: 2a
+    fabric: A
+  - name: fc-nvme-lif-01b
+    home_port: 2b
+    fabric: B
+  iscsi_lifs:
+  - name: iscsi-lif-01a
+    address: '{{ iscsi_lif_01a }}'
+    netmask: 255.255.255.0
+    fabric: A
+  - name: iscsi-lif-01b
+    address: '{{ iscsi_lif_01b }}'
+    netmask: 255.255.255.0
+    fabric: B
+  nvme_tcp_lifs: []
+- node_name: c250-01n2
+  nfs_lifs:
+    name: nfs-lif-02b
+    address: '{{ nfs_lif_02 }}'
+    netmask: 255.255.255.0
+  fcp_lifs:
+  - name: fcp-lif-02a
+    home_port: 5a
+    fabric: A
+  - name: fcp-lif-02b
+    home_port: 5b
+    fabric: B
+  fc-nvme_lifs:
+  - name: fc-nvme-lif-02a
+    home_port: 2a
+    fabric: A
+  - name: fc-nvme-lif-02b
+    home_port: 2b
+    fabric: B
+  iscsi_lifs:
+  - name: iscsi-lif-02a
+    address: '{{ iscsi_lif_02a }}'
+    netmask: 255.255.255.0
+    fabric: A
+  - name: iscsi-lif-02b
+    address: '{{ iscsi_lif_02b }}'
+    netmask: 255.255.255.0
+    fabric: B
+  nvme_tcp_lifs: []
+svm_specs:
+  svm_name: Infra-SVM
+  svm_root_vol: Infra_SVM_root
+  allowed_protocols:
+  - nfs
+  - iscsi
+  data_protocol: nfs
+  client_match: '{{ t_nfs_network_prefix }}.0/{{ t_nfs_network_mask }}'
+  data_volumes_file:
+  - name: infra_datastore
+    size: 1024
+    residing_aggr: c250_01n1_aggr1
+  data_volumes_block:
+  - name: infra_boot
+    size: 1024
+    residing_aggr: c250_01n1_aggr1
+  - name: infra_data
+    size: 10
+    residing_aggr: c250_01n1_aggr1
+  nvme_subsystem: nvme_infra_hosts
+  boot_luns_iscsi:
+    size: 400
+    residing_vol: infra_boot
+  data_luns_iscsi:
+    name: dataspace_data
+    size: 4
+    residing_vol: infra_data
+    host: test01
+  svm_mgmt_lif:
+    home_node: c250-01n1
+    address: 172.16.4.101
+    netmask: 255.255.252.0
+    gateway: 172.16.4.1
+    lif_name: infra-svm-mgmt
+  vsadmin_password: '{{ t_password_for_local_user }}'
+  os_type: linux
+  dns_server_svm:
+  - '{{ dns_servers[0].ip_address }}'
+  dns_domain_svm: '{{ dns_domain_name }}'
+  svm_login_banner: The infra_svm is reserved for authorized users only!
+  audit_log_volume_specs:
+    name: audit_log
+    size: 50
+    residing_aggr: c250_01n2_aggr1
+t_iscsi_hosts:
+- hostname: rke1
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:1
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke1
+- hostname: rke2
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:2
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke2
+- hostname: rke3
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:3
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke3
+- hostname: rke4
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:4
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke4
+- hostname: rke5
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:5
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke5
+- hostname: rke6
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:6
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke6
+- hostname: rke7
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:7
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke7
+- hostname: rke8
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:8
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke8
+- hostname: rke9
+  iscsi_iqn: iqn.2010-11.com.flexpod:rke-dt-ucshost:9
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:rke9
+
+# -----------------------------------------------------------------------------
+# UCS pools, policies, and boot media
+# -----------------------------------------------------------------------------
+# Tenant-specific Intersight names, pool starts, WWPN/WWNN/MAC starts, and vMedia overrides.
+description_of_bios_policy: '{{ description_of_m7_bios_policy }}'
+description_of_m5_bios_policy: BIOS Policy for Performance Optimized Intel-based M5 Linux Servers
+description_of_m6_bios_policy: BIOS Policy for Performance Optimized Intel-based M6 Linux Servers
+description_of_m7_bios_policy: BIOS Policy for Performance Optimized {{ server_cpu_type }}-based M7 Linux Servers
+description_of_network_group_policy_for_access: VLAN details of access interfaces to allow Mgmt and access traffic
+ip_pool_start_for_management_access: '{{ t_ib_network_prefix }}.201'
+mac_pool_start_on_fi_a: 00:25:B5:A0:00:00
+mac_pool_start_on_fi_b: 00:25:B5:B0:00:00
+name_of_bios_policy: '{{ name_of_m6_bios_policy }}'
+name_of_fc_vnic_1: 00-fc-access-{{ vic_type }}-A
+name_of_fc_vnic_2: 01-fc-storage-{{ vic_type }}-B
+name_of_ip_pool_for_management_access: IB-MGMT-IP-Pool
+name_of_m5_bios_policy: '{{ prefix }}-{{ server_cpu_type }}-Intel-M5-Linux-BIOS'
+name_of_m6_bios_policy: '{{ prefix }}-{{ server_cpu_type }}-M6-Linux-BIOS'
+name_of_m7_bios_policy: '{{ prefix }}-{{ server_cpu_type }}-M7-Linux-BIOS'
+oob_ip_pool_start_for_management_access: 172.16.0.201
+oob_size_of_ip_pool_for_management_access: 50
+size_of_ip_pool_for_management_access: 50
+vmedia_file_location_cdd: http://172.16.4.105/SLE15SP5.iso
+vmedia_file_location_hdd: http://172.16.4.105/autoinstall.img
+vmedia_name_cdd: SLES15SP5
+vmedia_name_hdd: AUTOINSTALL
+vsan_A_name: FlexPod-Fabric-A
+vsan_B_name: FlexPod-Fabric-B
+wwnn_pool_start: 20:00:00:25:B5:00:00:00
+wwpn_pool_start_on_san_a: 20:00:00:25:B5:A0:00:00
+wwpn_pool_start_on_san_b: 20:00:00:25:B5:B0:00:00
+
+# -----------------------------------------------------------------------------
+# Operating system and Kubernetes
+# -----------------------------------------------------------------------------
+# OS installation, RKE2, Harvester, proxy, and manifest-related configuration.
+install_k3s_version: v1.30.1+k3sr1
+install_rke2_version: v1.30.1+rke2r1
+os_bond: 'false'
+proxys:
+- 'http_proxy: "http://172.16.4.12:81"'
+- 'https_proxy: "http://172.16.4.12:81"'
+rke2_config:
+  selinux: true
+  write-kubeconfig-mode: '0640'
+
+# -----------------------------------------------------------------------------
+# Management access, DNS, and remaining overrides
+# -----------------------------------------------------------------------------
+# Tenant-local credentials, DNS, and values that intentionally override shared defaults.
+ib_management_ip_pool_details: IB-MGMT-IP-Pool
+oob_gateway_mgmt: 172.16.0.1
+oob_management_ip_pool_details: OOB-MGMT-IP-Pool
+oob_name_of_ip_pool_for_management_access: OOB-MGMT-IP-Pool
+oob_netmask_mgmt: 255.255.252.0
+oob_primary_dns_mgmt: '{{ dns_servers[0].ip_address }}'
+oob_secondary_dns_mgmt: '{{ dns_servers[1].ip_address }}'
+primary_dns_mgmt: '{{ dns_servers[0].ip_address }}'
+secondary_dns_mgmt: '{{ dns_servers[1].ip_address }}'
+t_name_of_local_user: rkeadmin
+t_password_for_local_user: CHANGE_ME_LOCAL_USER_PASSWORD  # Replace only in a private deployment overlay.
+

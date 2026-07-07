@@ -10,7 +10,7 @@ This README is written for operators who understand basic infrastructure concept
 
 ## Called By
 
-- `TENANT.yml`
+- Not called directly by the current top-level playbooks. Treat as a helper or legacy role until referenced.
 
 ## Task Flow
 
@@ -23,12 +23,11 @@ The role calls these task files from `tasks/main.yml` or nested includes:
 
 These are the primary Ansible modules or task functions detected in this role:
 
-- `cisco.nxos.nxos_vpc_interface`
-- `cisco.nxos.nxos_config`
 - `include_tasks`
 - `cisco.nxos.nxos_lag_interfaces`
 - `cisco.nxos.nxos_interfaces`
 - `cisco.nxos.nxos_l2_interfaces`
+- `cisco.nxos.nxos_config`
 - `cisco.nxos.nxos_command`
 - `set_fact`
 
@@ -36,13 +35,12 @@ These are the primary Ansible modules or task functions detected in this role:
 
 Most values come from `group_vars/*.yml`, `group_vars/tenant_defaults.yml`, `host_vars/*.yml`, or `tenants/<tenant>/vars.yml`. Pay particular attention to:
 
-- `item`
-- `proxmox_port_channels`
-- `backup_dir`
 - `proxmox1_PC`
+- `item`
 - `proxmox01_interface_list`
 - `proxmox2_PC`
 - `proxmox02_interface_list`
+- `proxmox_port_channels`
 - `native_vlan_id`
 - `vlans_list`
 - `peerlink_PC`

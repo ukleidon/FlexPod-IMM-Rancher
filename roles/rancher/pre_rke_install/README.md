@@ -11,6 +11,7 @@ This README is written for operators who understand basic infrastructure concept
 ## Called By
 
 - `TENANT.yml`
+- `RKE2.yml`
 
 ## Task Flow
 

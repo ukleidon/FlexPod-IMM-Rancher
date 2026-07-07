@@ -5,9 +5,13 @@
   # stored in the  ~/ directory. Change the directory in ../defaults/main.yml
   #  - include_tasks: initiate_nxos_config_backup.yml
   #
-  # Create VRFs
+  # Create VRFs before adding tenant SVIs
   - include_tasks: create_vrf.yml
-  # Configure SVI interfaces for L3 support and add them to the required VRF
+    when: lan_state | default('present') != 'absent'
+  # Configure or delete SVI interfaces for L3 support
   - include_tasks: set_nxos_interfaces.yml
+  # Delete tenant VRF after removing tenant SVIs
+  - include_tasks: delete_vrf.yml
+    when: lan_state | default('present') == 'absent'
   # Save Configuration
   #- include_tasks: save_nxos_config.yml

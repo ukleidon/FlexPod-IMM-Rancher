@@ -10,7 +10,7 @@ This README is written for operators who understand basic infrastructure concept
 
 ## Called By
 
-- `delete_ONTAP_SVM_Custom.yml`
+- Not called directly by the current top-level playbooks. Treat as a helper or legacy role until referenced.
 
 ## Task Flow
 

@@ -1,0 +1,6 @@
+---
+  - name: Delete Tenant VRF
+    cisco.nxos.nxos_vrf:
+      name: '{{ tenant_name }}'
+      state: absent
+    when: SMT != true

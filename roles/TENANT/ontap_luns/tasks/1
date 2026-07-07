@@ -43,7 +43,7 @@ proxys:
 #
 # Local User and password are used in Intersight and for the SVM admin
 t_name_of_local_user                  : "gpuadmin"
-t_password_for_local_user             : "CHANGE_ME_LOCAL_USER_PASSWORD"
+t_password_for_local_user             : "CHANGE_ME_LOCAL_USER_PASSWORD"  # Replace only in a private deployment overlay.
 
 # Vmedia file location used for UCS to define vmedia policy for first boot
 # CCD is for the boot ISO image.
@@ -504,7 +504,7 @@ description_of_vmedia_policy          : "vMedia Policy to enable KVM mounted DVD
 name_of_LocalUser_policy            : "{{ prefix }}-LocalUser-Policy"
 description_of_LocalUser_policy     : "Allow Local Users in this policy KVM Access to Servers"
 #t_name_of_local_user                  : "gpuadmin"
-#t_password_for_local_user             : "CHANGE_ME_LOCAL_USER_PASSWORD"
+#t_password_for_local_user             : "DataSpace24!"
 
 # Ethernet QoS Policy to set MTU 9000 and QoS Best Effort;
 # QoS values can be updated in roles/create_server_policies/defaults/main.yml

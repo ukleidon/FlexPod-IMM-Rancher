@@ -3,69 +3,85 @@
   - name: Create SVI Interfaces for L3 support
     cisco.nxos.nxos_l3_interfaces:
       config:
-      - name: Vlan{{ item.name }}
-    with_list: "{{ t_svi_list }}"
+      - name: 'Vlan{{ item.name }}'
+    with_list: '{{ t_svi_list }}'
+    when: lan_state | default('present') != 'absent'
 
   # This task enables the new SVI interface
   - name: Enable SVI Interface
     cisco.nxos.nxos_interfaces:
       config:
-      - name: Vlan{{ item.name }}
+      - name: 'Vlan{{ item.name }}'
         enabled: true
-    with_list: "{{ t_svi_list }}"
+    with_list: '{{ t_svi_list }}'
+    when: lan_state | default('present') != 'absent'
 
   # This task adds ports to the SMT-Tenant VRF context
   - name: Add SVI Interfaces to VRF
     cisco.nxos.nxos_vrf_interface:
-      vrf: "{{ item.vrf }}"
-      interface: Vlan{{ item.name }}
-    with_list: "{{ t_svi_list }}"
-    when: SMT == true
+      vrf: '{{ item.vrf }}'
+      interface: 'Vlan{{ item.name }}'
+    with_list: '{{ t_svi_list }}'
+    when:
+      - SMT == true
+      - lan_state | default('present') != 'absent'
 
   # This task adds ports to the Tenant VRF context
   - name: Add SVI Interfaces to VRF
     cisco.nxos.nxos_vrf_interface:
-      vrf: "{{ tenant_name|lower }}"
-      interface: Vlan{{ item.name }}
-    with_list: "{{ t_svi_list }}"
-    when: SMT != true
+      vrf: '{{ tenant_name|lower }}'
+      interface: 'Vlan{{ item.name }}'
+    with_list: '{{ t_svi_list }}'
+    when:
+      - SMT != true
+      - lan_state | default('present') != 'absent'
 
   # This task configures IP address on SVI
   - name: Add IP address to SVI Interfaces for L3 support
     cisco.nxos.nxos_l3_interfaces:
       config:
-      - name: Vlan{{ item.name }}
+      - name: 'Vlan{{ item.name }}'
         ipv4:
-        - address: "{{ item.address }}"
-    with_list: "{{ t_svi_list }}"
+        - address: '{{ item.address }}'
+    with_list: '{{ t_svi_list }}'
+    when: lan_state | default('present') != 'absent'
 
   # This task configures HSRP IP address on SVI
   - name: Add HSRP IP address to SVI Interfaces
     cisco.nxos.nxos_hsrp:
-      interface: Vlan{{ item.name }}
-      group: "{{ tid }}"
-      vip: "{{ item.hsrp }}"
-    with_list: "{{ t_svi_list }}"
+      interface: 'Vlan{{ item.name }}'
+      group: '{{ tid }}'
+      vip: '{{ item.hsrp }}'
+    with_list: '{{ t_svi_list }}'
+    when: lan_state | default('present') != 'absent'
 
   # This task enables the new SVI interface
   - name: Enable SVI Interface
     cisco.nxos.nxos_interfaces:
       config:
-      - name: Vlan{{ item.name }}
+      - name: 'Vlan{{ item.name }}'
         enabled: true
-    with_list: "{{ t_svi_list }}"
+    with_list: '{{ t_svi_list }}'
+    when: lan_state | default('present') != 'absent'
 
 # Set Default GW if defined
   - name: Set default GW for VRF
     cisco.nxos.nxos_static_routes:
       config:
-      - vrf: "{{ item.vrf }}"
+      - vrf: '{{ item.vrf }}'
         address_families:
         - afi: ipv4
           routes:
           - dest: 0.0.0.0/0
             next_hops:
-            - forward_router_address: "{{ item.gw|default(item.hsrp) }}"
-              admin_distance: "{{ item.metric |default(100) }}"
-    with_list: "{{ t_svi_list }}"
+            - forward_router_address: '{{ item.gw|default(item.hsrp) }}'
+              admin_distance: '{{ item.metric |default(100) }}'
+    with_list: '{{ t_svi_list }}'
+    when: lan_state | default('present') != 'absent'
 
+  - name: Delete tenant SVI Interfaces
+    cisco.nxos.nxos_config:
+      lines:
+        - 'no interface Vlan{{ item.name }}'
+    with_list: '{{ t_svi_list }}'
+    when: lan_state | default('present') == 'absent'

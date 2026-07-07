@@ -14,7 +14,7 @@ Functions called:
 - replaces the source tenant name with the new tenant name
 - updates tenant-local identity, VLAN, CIDR, and optional API/org fields
 - copies non-vars tenant assets unless `--no-copy-assets` is used
-- for virtual tenants, updates selected registry-owning tenant vars such as `tenants/harvester/vars.yml`
+- for virtual tenants, updates selected registry-owning tenant vars such as `tenants/dataspace/vars.yml`
 
 Expected configuration:
 

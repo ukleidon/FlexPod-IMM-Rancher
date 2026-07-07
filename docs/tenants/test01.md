@@ -12,8 +12,8 @@ This page summarizes the checked-in tenant source of truth without exposing cred
 | Tenant ID | `03` |
 | Tenant type | `-` |
 | Lifecycle state | `present` |
-| Access VLAN/CIDR | `304 / 172.18.4/24` |
-| NFS VLAN/CIDR | `303 / 172.18.3/24` |
+| Access VLAN/CIDR | `3304 / 172.18.4/24` |
+| NFS VLAN/CIDR | `3303 / 172.18.3/24` |
 
 ## Configuration To Expect
 

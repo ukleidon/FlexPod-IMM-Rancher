@@ -1,4 +1,5 @@
 ---
+
 - name: "LINUX: Configure LAN Connectivity Policy for iSCSI SAN"
   vars:
     api_info: &api_info_iscsi
@@ -29,7 +30,7 @@
               "Organization": {
                  "Moid": "{{ intersight_org.api_response.Moid }}"
                },
-              Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}] 
+              Tags: [{Key: "configmode", Value: "ansible"},{Key: "prefix", Value: "{{ prefix }}"}]
            }
     register: iscsi_lan_connectivity_policy
 #
@@ -95,7 +96,7 @@
            "LanConnectivityPolicy": "{{ iscsi_lan_connectivity_policy.api_response.Moid }}",
            "Order": 0
        }
-    when: (vic_type == "4G") and (configure_nvme_tcp == 'true') 
+    when: (vic_type == "4G") and (configure_nvme_tcp == 'true')
 
   - name: "LINUX: Add {{ name_of_iscsi_b_vnic }} vnic to LAN Connectivity Policy - 4th Gen VIC"
     cisco.intersight.intersight_rest_api:
@@ -179,7 +180,7 @@
            "FabricEthNetworkGroupPolicy": [ "{{ iscsi_a_network_group_policy.api_response.Moid }}" ],
            "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
            "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
-           "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
+             #    "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
            "StaticMacAddress": "",
            "IscsiBootPolicy": "{{ iscsi_a_boot_policy.api_response.Moid }}",
            "LanConnectivityPolicy": "{{ iscsi_lan_connectivity_policy.api_response.Moid }}",
@@ -229,7 +230,7 @@
            "MacPool": "{{ mac_pool_fi_b_details.api_response.Moid }}",
            "Placement": {
               "AutoPciLink": true,
-              "AutoSlotId": true,             
+              "AutoSlotId": true,
               "SwitchId": "B"
              },
            "Cdn": {
@@ -359,7 +360,7 @@
               "Source": "vnic"
            },
            "FailoverEnabled": false,
-           "FabricEthNetworkGroupPolicy": [ "{{ storage_network_group_policy.api_response.Moid }}" ],
+           "FabricEthNetworkGroupPolicy": [ "{{ access_network_group_policy.api_response.Moid }}" ],
            "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
            "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
            "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
@@ -367,7 +368,6 @@
            "LanConnectivityPolicy": "{{ iscsi_lan_connectivity_policy.api_response.Moid }}",
            "Order": 4
        }
-    when: ( name_of_iscsi_vnic_2 is defined )
 
   - name: "LINUX: Add {{ name_of_iscsi_vnic_2 }}_B to LAN Connectivity Policy"
     cisco.intersight.intersight_rest_api:
@@ -388,7 +388,7 @@
               "Source": "vnic"
            },
            "FailoverEnabled": false,
-           "FabricEthNetworkGroupPolicy": [ "{{ storage_network_group_policy.api_response.Moid }}" ],
+           "FabricEthNetworkGroupPolicy": [ "{{ access_network_group_policy.api_response.Moid }}" ],
            "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
            "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
            "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
@@ -396,8 +396,7 @@
            "LanConnectivityPolicy": "{{ iscsi_lan_connectivity_policy.api_response.Moid }}",
            "Order": 5
        }
-    when: ( name_of_iscsi_vnic_2 is defined )
-       
+
   - name: "LINUX: Add {{ name_of_iscsi_vnic_3 }}_A to LAN Connectivity Policy"
     cisco.intersight.intersight_rest_api:
         <<: *api_info_iscsi
@@ -417,7 +416,7 @@
                 "Source": "vnic"
              },
              "FailoverEnabled": false,
-             "FabricEthNetworkGroupPolicy": [ "{{ access_network_group_policy.api_response.Moid }}" ],
+             "FabricEthNetworkGroupPolicy": [ "{{ storage_network_group_policy.api_response.Moid }}" ],
              "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
              "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
              "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
@@ -446,7 +445,7 @@
                 "Source": "vnic"
              },
              "FailoverEnabled": false,
-             "FabricEthNetworkGroupPolicy": [ "{{ access_network_group_policy.api_response.Moid }}" ],
+             "FabricEthNetworkGroupPolicy": [ "{{ storage_network_group_policy.api_response.Moid }}" ],
              "FabricEthNetworkControlPolicy": "{{ ethernet_network_control_policy.api_response.Moid }}",
              "EthQosPolicy": "{{ ethernet_qos_policy.api_response.Moid }}",
              "EthAdapterPolicy": "{{ ethernet_adapter_linux_policy.api_response.Moid }}",
@@ -513,5 +512,3 @@
            "Order": 9
        }
     when: ( name_of_iscsi_vnic_4 is defined )
-
-

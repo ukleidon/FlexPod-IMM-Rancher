@@ -8,12 +8,12 @@ This directory is the source of truth for tenant-specific configuration. The pla
 
 | Field | Value |
 | --- | --- |
-| Tenant name | `RTP4-SUSE` |
-| Tenant ID | `10` |
+| Tenant name | `DataSpace` |
+| Tenant ID | `01` |
 | Tenant type | `-` |
 | Lifecycle state | `present` |
-| Access VLAN/CIDR | `1042 / 10.104.2/24` |
-| NFS VLAN/CIDR | `1047 / 10.104.7/24` |
+| Access VLAN/CIDR | `102 / 172.16.8/23` |
+| NFS VLAN/CIDR | `103 / 172.16.10/24` |
 
 ## What To Configure Here
 

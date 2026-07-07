@@ -25,7 +25,7 @@
           },
         "ConfigurationType": {
            "ConfigureInband": true,
-           "ConfigureOutOfBand": true
+           "ConfigureOutOfBand": false
           },
         "Organization": {
            "Moid": "{{ intersight_org.api_response.Moid }}"

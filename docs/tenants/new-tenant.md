@@ -27,11 +27,11 @@ Collect these values before creating the tenant:
   --access-prefix 172.16.185 \
   --nfs-vlan 456 \
   --nfs-prefix 172.16.186 \
-  --source ac01 \
+  --source eibe \
   --dry-run
 ```
 
-For virtual tenants, the script reads the selected registry vars file and picks the next free `vNN` index. The default registry target for this repository is `tenants/harvester/vars.yml`.
+For virtual tenants, the script reads the selected registry vars file and picks the next free `vNN` index. The default registry target for this repository is `tenants/dataspace/vars.yml`.
 
 ## 3. Create
 
@@ -41,8 +41,8 @@ Useful options:
 
 | Option | Purpose |
 | --- | --- |
-| `--source ac01` | Clone another source tenant. Default is `ac01`. |
-| `--virtual-registry-target harvester` | Update the virtual tenant registry owner. Repeat as needed. |
+| `--source eibe` | Clone another source tenant. Default is `eibe`. |
+| `--virtual-registry-target dataspace` | Update the virtual tenant registry owner. Repeat as needed. |
 | `--no-virtual-registry` | Create only the tenant directory and do not update registry vars. |
 | `--no-copy-assets` | Create only `vars.yml`. |
 | `--api-key-id`, `--api-private-key` | Set placeholder references; do not commit live values. |

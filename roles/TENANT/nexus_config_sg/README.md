@@ -10,7 +10,7 @@ This README is written for operators who understand basic infrastructure concept
 
 ## Called By
 
-- Not called directly by the current top-level playbooks. Treat as a helper or legacy role until referenced.
+- `TENANT.yml`
 
 ## Task Flow
 
@@ -53,6 +53,7 @@ Most values come from `group_vars/*.yml`, `group_vars/tenant_defaults.yml`, `hos
 - `sg03_interface_list`
 - `native_vlan_id`
 - `sg_vlans_list`
+- `t_storage_vlans_list`
 - `current_config`
 - `parsed_config`
 - `update_vlans`

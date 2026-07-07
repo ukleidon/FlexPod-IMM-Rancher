@@ -1,4 +1,9 @@
+# Shared StorageGRID VLAN and port-channel defaults.
+# Documentation: see docs/variables.md
+# Variable ownership overview: docs/variables.md
+
 ---
+backup_dir: "/home/ansible/backup"
 #
 
 storage_grid_01_PC:

@@ -14,10 +14,9 @@ This README is written for operators who understand basic infrastructure concept
 - `TENANT.yml`
 - `TENANT.yml`
 - `TENANT.yml`
-- `HARV.yml`
-- `HARV.yml`
-- `AA04.yml`
-- `delete_ONTAP_SVM_Custom.yml`
+- `TENANT.yml`
+- `TENANT.yml`
+- `TEST.yml`
 
 ## Task Flow
 

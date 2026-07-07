@@ -1,4 +1,10 @@
+# Shared Proxmox Nexus integration defaults.
+# Documentation: see docs/variables.md
+# Variable ownership overview: docs/variables.md
+
 ---
+backup_dir: "/home/ansible/backup"
+#
 proxmox1_PC:
   - interface: "port-channel47"
     # id must be same as port-channel number
@@ -18,5 +24,9 @@ proxmox2_PC:
 proxmox_port_channels: "{{ proxmox1_PC + proxmox2_PC }}"
 #
 
-vlans_list: "{{ all_vlans_list }},{{ sg_vlans_list }},{{ t_all_vlans_list }}"
+#
+# Define list of VLANs configured on ProxPox ports.
+# t_all_vlans_list is only used with TENANT.yml - to avoid an error with INFRA.yml the defaul(all_vlans_list) is used.
+#
+vlans_list: "{{ all_vlans_list }},{{ sg_vlans_list }},{{ t_all_vlans_list|default(all_vlans_list) }}"
 #

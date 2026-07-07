@@ -38,69 +38,55 @@ Expected configuration: Shared Nexus, ONTAP, Intersight, StorageGRID, Proxmox, a
 Build or remove one selected tenant.
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 -C
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe -C
 ```
 
 Expected configuration: Tenant VLANs, VRFs, storage objects, Intersight policies/profiles, OS install prep, RKE2, and Trident depending on inventory.
 
 ### Functions Called
 
-| Play                                                | Hosts                    | Roles called                                                                                                                    |
-| --------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| nexus                                               | nexus                    | `TENANT/env_vars`, `TENANT/nexus_config`, `TENANT/nexus_config_ip`                                                              |
-| Configure ONTAP for FlexPod                         | ontap                    | `TENANT/env_vars`, `TENANT/ontap_network`, `TENANT/ontap_svm`, `TENANT/ontap_volumes`, `TENANT/ontap_lifs`, `TENANT/ontap_luns` |
-| Create Tenant in Intersight                         | localhost                | `TENANT/env_vars`, `TENANT/ucs_create_pools`, `TENANT/ucs_create_server_policies`, `TENANT/ucs_create_sp_template`              |
-| nexus                                               | nexus                    | `TENANT/nexus_config_proxmox`                                                                                                   |
-| Prepare installation of Rancher RKE2 control nodes  | rke2_servers,rke2_agents | `rancher/env_vars`, `rancher/pre_rke_install`                                                                                   |
-| Install RKE2 Controll node server                   | rke2_servers             | `rancher/env_vars`, `rancher/rke2_server`                                                                                       |
-| Install RKE2 dedicated agent nodes                  | rke2_agents              | `rancher/rke2_agent`                                                                                                            |
-| Deploy NetApp Trident and Configure Trident Backend | k8s                      | `TENANT/env_vars`, `TENANT/trident_install`                                                                                     |
+| Play                                                | Hosts                          | Roles called                                                                                                                                         |
+| --------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nexus                                               | nexus                          | `TENANT/env_vars`, `TENANT/nexus_config`, `TENANT/nexus_config_ip`, `TENANT/nexus_config_sg`, `TENANT/nexus_config_asa`                              |
+| Configure ONTAP for FlexPod                         | ontap                          | `TENANT/env_vars`, `TENANT/ontap_network`, `TENANT/ontap_svm`, `TENANT/ontap_volumes`, `TENANT/ontap_lifs`, `TENANT/ontap_luns`, `TENANT/ontap_nvme` |
+| Create Tenant in Intersight                         | localhost                      | `TENANT/env_vars`, `TENANT/ucs_create_pools`, `TENANT/ucs_create_server_policies`, `TENANT/ucs_create_sp_template`                                   |
+| Create Server Profiles from Template                | localhost                      | `TENANT/env_vars`, `TENANT/ucs_create_server`                                                                                                        |
+| Install SUSE Linux                                  | rke2_servers,rke2_agents,hosts | `TENANT/env_vars`, `TENANT/os_install_suse`                                                                                                          |
+| Prepare installation of Rancher RKE2 control nodes  | rke2_servers,rke2_agents       | `rancher/env_vars`, `rancher/pre_rke_install`                                                                                                        |
+| Install RKE2 Controll node server                   | rke2_servers                   | `rancher/env_vars`, `rancher/rke2_server`                                                                                                            |
+| Install RKE2 dedicated agent nodes                  | rke2_agents                    | `rancher/rke2_agent`                                                                                                                                 |
+| Deploy NetApp Trident and Configure Trident Backend | k8s                            | `TENANT/env_vars`, `TENANT/trident_install`                                                                                                          |
 
-## `HARV.yml`
+## `RKE2.yml`
 
-Run the Harvester-focused tenant workflow.
+Run the RKE2 role flow for a selected tenant context.
 
 ```bash
-ansible-playbook -i inventory HARV.yml -e tenant=harvester -C
+ansible-playbook -i inventory RKE2.yml -e tenant=eibe -C
 ```
 
-Expected configuration: Harvester tenant storage, Intersight, and platform configuration where matching inventory exists.
+Expected configuration: RKE2 prerequisite, server, and agent configuration where matching hosts exist.
 
 ### Functions Called
 
-| Play                         | Hosts     | Roles called                                                                                                                    |
-| ---------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Configure ONTAP for FlexPod  | ontap     | `TENANT/env_vars`, `TENANT/ontap_network`, `TENANT/ontap_svm`, `TENANT/ontap_volumes`, `TENANT/ontap_lifs`, `TENANT/ontap_luns` |
-| Create Tenant in Intersight  | localhost | `TENANT/env_vars`, `TENANT/ucs_create_pools`, `TENANT/ucs_create_server_policies`, `TENANT/ucs_create_sp_template`              |
+| Play                | Hosts        | Roles called                                  |
+| ------------------- | ------------ | --------------------------------------------- |
+| Testing play        | rke2_servers | `rancher/env_vars`, `rancher/pre_rke_install` |
+| Install RKE2 Server | rke2_servers | `rancher/env_vars`, `rancher/rke2_server`     |
+| Agent play          | rke2_agents  | `rancher/rke2_agent`                          |
 
-## `AA04.yml`
+## `TEST.yml`
 
-Run the AA04-specific Intersight tenant workflow.
+Run a repository-specific automation workflow.
 
 ```bash
-ansible-playbook -i inventory AA04.yml -C
+ansible-playbook -i inventory TEST.yml -C
 ```
 
-Expected configuration: AA04-specific Intersight tenant objects.
+Expected configuration: Configuration described by the plays and roles in the playbook.
 
 ### Functions Called
 
-| Play                         | Hosts     | Roles called                                     |
-| ---------------------------- | --------- | ------------------------------------------------ |
-| Create Tenant in Intersight  | localhost | `TENANT/env_vars`, `SUSE/harvester_ucs_policies` |
-
-## `delete_ONTAP_SVM_Custom.yml`
-
-Remove a custom ONTAP SVM workflow.
-
-```bash
-ansible-playbook -i inventory delete_ONTAP_SVM_Custom.yml -C
-```
-
-Expected configuration: Selected ONTAP custom SVM objects are removed according to vars.
-
-### Functions Called
-
-| Play                        | Hosts | Roles called                                 |
-| --------------------------- | ----- | -------------------------------------------- |
-| Configure ONTAP for FlexPod | ontap | `TENANT/env_vars`, `TENANT/ontap_svm_custom` |
+| Play                     | Hosts | Roles called                                        |
+| ------------------------ | ----- | --------------------------------------------------- |
+| Configure virtual Tenant | k8s   | `TENANT/env_vars`, `TENANT/harvester_tenant_config` |

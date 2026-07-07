@@ -1,0 +1,29 @@
+# Define the Tenant name
+[all:vars]
+tenant=robinie
+
+# Definition of the Group / Tenant child areas.
+[rancher:children]
+rancher_hosts
+rke2_servers
+rke2_agents
+k8s
+
+# Kubernetes Cluster information
+[k8s]
+master
+
+# Rancher RKE2 Control nodes
+[rke2_servers]
+robinie-rke-1 node_labels='["extraLabel0=true"]' node_ip="172.16.30.10" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+robinie-rke-2 node_labels='["extraLabel0=true"]' node_ip="172.16.30.11" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+robinie-rke-3 node_labels='["extraLabel0=true"]' node_ip="172.16.30.12" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+
+# Rancher RKE2 worker nodes
+[rke2_agents]
+#dataspace-rke-4 node_labels='["extraLabel0=true"]' node_ip="172.16.30.13" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+#dataspace-rke-5 node_labels='["extraLabel0=true"]' node_ip="172.16.30.14" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+#dataspace-rke-6 node_labels='["extraLabel0=true"]' node_ip="172.16.30.15" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+
+# Host not running RKE2 or K3s
+[rancher_hosts]

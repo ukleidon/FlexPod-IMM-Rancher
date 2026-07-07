@@ -1,13 +1,22 @@
-[all:vars]
-tenant=aa04
+#
+# Ontap hostname listed here must match the cluster_name specified in the tenant vars file.
+# The SVM will only deployed on the cluster with the matching name.
+#
+[ontap]
+c250-01 ansible_host=172.16.4.25  # Production System for Dataspace
+c250-02 ansible_host=172.16.4.30  # Performance Test System
+#
+# Nexus hostnames listed here must have a vars file in host_vars with the port configuration.
+#
+[nexus]
+nx1 ansible_host=172.16.0.2 ansible_user=admin ansible_password=DataSpace24! ansible_network_os=nxos
+nx2 ansible_host=172.16.0.3 ansible_user=admin ansible_password=DataSpace24! ansible_network_os=nxos
 
+# UCS hostname are not used as the configuration is on Intersight.
+# The execution for all UCS plays are on the localhost using Intersight API.
+#
+[ucs]
+
+# Kubernetes Cluster information
 [k8s]
 master
-# ONTAP Cluster Management IP. List only one ONTAP cluster IP.
-
-[ontap]
-AA07-A400 ansible_host=10.107.0.10  # Production System for Dataspace
-
-[nexus]
-aa04-n9kA ansible_host=10.104.0.3 ansible_user=admin ansible_password= ansible_network_os=nxos
-aa04-n9kB ansible_host=10.104.0.4 ansible_user=admin ansible_password= ansible_network_os=nxos

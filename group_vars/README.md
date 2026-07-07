@@ -7,7 +7,6 @@ Group variable files provide shared defaults. Tenant-specific IDs, CIDRs, creden
 | File                  | Purpose                       | Operator notes                                                        |
 | --------------------- | ----------------------------- | --------------------------------------------------------------------- |
 | `all.yml`             | Global defaults               | Shared fabric, DNS/NTP, base VLANs, and common toggles.               |
-| `all_ac01.yml`        | Variable file                 | Review before use.                                                    |
 | `mds.yml`             | MDS defaults                  | Shared SAN fabric values.                                             |
 | `nexus.yml`           | Nexus defaults                | Shared NX-OS values if included by a playbook or role.                |
 | `ontap.yml`           | ONTAP defaults                | Shared ONTAP cluster/protocol values.                                 |

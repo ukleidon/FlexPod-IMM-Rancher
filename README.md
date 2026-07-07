@@ -1,4 +1,4 @@
-# FlexPod IMM Rancher Automation Framework
+# FlexPod IMM Rancher Public KL-IDTA Framework
 
 This repository automates a FlexPod-based lab and tenant environment. It uses Ansible to configure the shared Cisco Nexus, Cisco MDS, Cisco Intersight, NetApp ONTAP, and optional RKE2/Rancher layers that make up the infrastructure.
 
@@ -44,9 +44,8 @@ Keep real deployment secrets in ignored local files, Ansible Vault, environment-
 | -------------------------------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | [`INFRA.yml`](INFRA.yml)                                       | Build or validate shared FlexPod infrastructure.               | Shared Nexus, ONTAP, Intersight, StorageGRID, Proxmox, and ASA integration objects.                                           |
 | [`TENANT.yml`](TENANT.yml)                                     | Build or remove one selected tenant.                           | Tenant VLANs, VRFs, storage objects, Intersight policies/profiles, OS install prep, RKE2, and Trident depending on inventory. |
-| [`HARV.yml`](HARV.yml)                                         | Run the Harvester-focused tenant workflow.                     | Harvester tenant storage, Intersight, and platform configuration where matching inventory exists.                             |
-| [`AA04.yml`](AA04.yml)                                         | Run the AA04-specific Intersight tenant workflow.              | AA04-specific Intersight tenant objects.                                                                                      |
-| [`delete_ONTAP_SVM_Custom.yml`](delete_ONTAP_SVM_Custom.yml)   | Remove a custom ONTAP SVM workflow.                            | Selected ONTAP custom SVM objects are removed according to vars.                                                              |
+| [`RKE2.yml`](RKE2.yml)                                         | Run the RKE2 role flow for a selected tenant context.          | RKE2 prerequisite, server, and agent configuration where matching hosts exist.                                                |
+| [`TEST.yml`](TEST.yml)                                         | Run a repository-specific automation workflow.                 | Configuration described by the plays and roles in the playbook.                                                               |
 | [`scripts/create_tenant.py`](scripts/create_tenant.py)         | Create a new tenant directory from a known-good tenant.        | New `tenants/<name>/vars.yml` and optional virtual registry vars updates.                                                     |
 | [`scripts/publication_check.py`](scripts/publication_check.py) | Check for accidental literal keys/passwords before publishing. | The repo is safe to stage from a credential hygiene perspective.                                                              |
 
@@ -63,8 +62,8 @@ Keep real deployment secrets in ignored local files, Ansible Vault, environment-
 
 ```bash
 ansible-playbook -i inventory INFRA.yml --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 -C
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe -C
 ```
 
 ## Documentation

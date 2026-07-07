@@ -4,3 +4,4 @@
   - name: Save the Nexus Configuration
     cisco.nxos.nxos_config:
       save_when: modified
+    when: not ansible_check_mode

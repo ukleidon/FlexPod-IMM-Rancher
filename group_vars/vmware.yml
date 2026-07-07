@@ -1,2 +1,6 @@
+# Shared VMware/vCenter defaults.
+# Documentation: see docs/variables.md
+# Variable ownership overview: docs/variables.md
+
 ---
 # Currently there are no variables defined here 

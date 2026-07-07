@@ -1,5 +1,9 @@
+# Shared ONTAP infrastructure defaults.
+# Documentation: see docs/variables.md
+# Variable ownership overview: docs/variables.md
+
 # This variable file is used by the playbooks for the ontap 
 # These don't have to be explicitly imported by the var_files: they are autopopulated
 # Credentials for connecting to the ONTAP cluster 
-username: flexadmin
+username: admin
 password: CHANGE_ME_ONTAP_PASSWORD  # Replace only in a private deployment overlay.

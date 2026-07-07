@@ -10,7 +10,7 @@ This README is written for operators who understand basic infrastructure concept
 
 ## Called By
 
-- Not called directly by the current top-level playbooks. Treat as a helper or legacy role until referenced.
+- `TENANT.yml`
 
 ## Task Flow
 
@@ -18,9 +18,11 @@ Main tasks detected:
 
 - Modify the mtu speed and duplex for ASA ports
 - {{ item.interface }}
-- Enabling Infrastructure vlans on ASA Trunk Interfaces
+- Enabling Infrastructure vlans on ASA access Interface
 - {{ asa_interface_list[0].interface }}
+- Enabling tenant vlans on ASA Trunk Interface
 - {{ asa_interface_list[1].interface }}
+- Remove tenant vlans from ASA Trunk Interface
 - Set - switchport mode trunk
 
 ## Automation Functions Called

@@ -40,6 +40,6 @@ The CVD presents base infrastructure automation as a staged workflow across Nexu
 | --- | --- | --- |
 | Base Nexus, SAN, ONTAP, and Intersight setup | `INFRA.yml` | Shared FlexPod fabric, storage, and Intersight pool objects. |
 | Workload or tenant network/storage/compute intent | `TENANT.yml -e tenant=<name>` | One tenant's VLANs, VRFs, storage, policies, profiles, and optional platform configuration. |
-| Kubernetes or platform installation | `TENANT.yml -e tenant=<name>` and repository-specific platform playbooks such as `HARV.yml` | RKE2, Harvester, Trident, or tenant platform integration where inventory and playbook roles exist. |
+| Kubernetes or platform installation | `RKE2.yml -e tenant=<name>` or the RKE2 sections inside `TENANT.yml` | RKE2, Harvester, Trident, or tenant platform integration where inventory and playbook roles exist. |
 
 Use the CVD for the product sequence and prerequisites, and use this repository's playbooks for the current tenant-aware implementation.

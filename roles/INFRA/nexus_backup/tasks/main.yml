@@ -1,0 +1,7 @@
+---
+  # Configuration for Nexus
+  #
+  # Initiate a configuration backup before making changes. The backup will be
+  # stored in the  ~/ directory. Change the directory in ../defaults/main.yml
+  - include_tasks: initiate_nxos_config_backup.yml
+  #

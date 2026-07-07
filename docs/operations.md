@@ -28,7 +28,7 @@ Use the Cisco FlexPod IaC CVD as the product sequencing reference, then run the 
 | Tenant syntax | `ansible-playbook -i inventory TENANT.yml -e tenant=<name> --syntax-check` | Confirm the selected tenant variable stack loads. |
 | Tenant check mode | `ansible-playbook -i inventory TENANT.yml -e tenant=<name> -C` | Validate only that tenant's network, storage, compute, and optional platform intent. |
 | Tenant live | `ansible-playbook -i inventory TENANT.yml -e tenant=<name>` | Configure the selected tenant independently. |
-| Optional Harvester check mode | `ansible-playbook -i inventory HARV.yml -e tenant=harvester -C` | Validate the Harvester-focused platform workflow. |
+| Optional RKE2 check mode | `ansible-playbook -i inventory RKE2.yml -e tenant=<name> -C` | Validate Kubernetes platform configuration when run outside `TENANT.yml`. |
 
 ## Before You Run
 
@@ -50,8 +50,8 @@ Expected result: no syntax errors. Check mode can report changed tasks on networ
 ## Validate One Tenant
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 -C
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe -C
 ```
 
 Expected result: tenant vars load after shared defaults, Nexus ASA trunk tasks have access VLAN lists, and no undefined variables appear.
@@ -59,7 +59,7 @@ Expected result: tenant vars load after shared defaults, Nexus ASA trunk tasks h
 ## Validate Tenant Removal
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 -e lan_state=absent -C
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe -e lan_state=absent -C
 ```
 
 Expected result: only the selected tenant is removed from device intent. No other tenant vars should be edited or required.
@@ -84,7 +84,7 @@ Remove `--dry-run` only after the generated target path and virtual registry tar
 Run live only after syntax and check mode are understood:
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe
 ```
 
 ## Troubleshooting Pointers

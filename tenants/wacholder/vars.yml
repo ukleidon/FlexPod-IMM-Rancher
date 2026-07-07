@@ -1,0 +1,232 @@
+---
+# Tenant-specific overrides for wacholder.
+# Shared generated defaults are in group_vars/tenant_defaults.yml.
+# Keep tenant identity, VLAN IDs, CIDRs, credentials, and API key references here for independent configure/unconfigure.
+# See docs/tenants/README.md and docs/tenants/new-tenant.md.
+
+# -----------------------------------------------------------------------------
+# Tenant identity and lifecycle
+# -----------------------------------------------------------------------------
+# Selects the tenant and controls configure/unconfigure behavior. Keep these values tenant-local.
+configure_local: 'true'
+lan_state: present
+tenant_name: wacholder
+tenant_type: virtual
+tid: '22'
+
+# -----------------------------------------------------------------------------
+# Intersight access and organization
+# -----------------------------------------------------------------------------
+# Tenant API material and Intersight organization overrides. Do not move secrets into shared defaults.
+api_key_id: CHANGE_ME_INTERSIGHT_API_KEY_ID  # Replace only in a private deployment overlay.
+api_private_key: Keys/CHANGE_ME_INTERSIGHT_SECRET_KEY.txt  # Replace only in a private deployment overlay.
+num_profiles: 3
+org_name: '{{ tenant_name if (SMT == true) else organization }}'
+prefix: '{{ tenant_name }}'
+
+# -----------------------------------------------------------------------------
+# Tenant VLANs and network CIDRs
+# -----------------------------------------------------------------------------
+# Layer-2 IDs and Layer-3 prefixes unique to this tenant. These must not collide with other tenants.
+t_access_network_mask: 24
+t_access_network_netmask: 255.255.255.0
+t_access_network_prefix: 172.16.90
+t_access_vlan_id: 360
+t_ib_network_mask: 24
+t_ib_network_netmask: 255.255.255.0
+t_ib_network_prefix: 172.16.90
+t_ib_vlan_id: 360
+t_iscsiA_network_mask: 24
+t_iscsiA_network_netmask: 255.255.255.0
+t_iscsiA_network_prefix: 172.16.91
+t_iscsiA_vlan_id: 361
+t_iscsiB_network_mask: 24
+t_iscsiB_network_netmask: 255.255.255.0
+t_iscsiB_network_prefix: 172.16.91
+t_iscsiB_vlan_id: 361
+t_nfs_network_prefix: 172.16.91
+t_nfs_vlan_id: 361
+
+# -----------------------------------------------------------------------------
+# ONTAP SVM, storage, and LIFs
+# -----------------------------------------------------------------------------
+# Storage-facing values for SVMs, LIFs, initiators, and storage-side protocol settings.
+fc_nvme_lif_01a: 20:06:00:a0:98:e2:17:ca
+fc_nvme_lif_01b: 20:07:00:a0:98:e2:17:ca
+fc_nvme_lif_02a: 20:08:00:a0:98:e2:17:ca
+fc_nvme_lif_02b: 20:09:00:a0:98:e2:17:ca
+fcp_lif_01a: 20:26:d0:39:ea:29:ce:d4
+fcp_lif_01b: 20:25:d0:39:ea:29:ce:d4
+fcp_lif_02a: 20:23:d0:39:ea:29:ce:d4
+fcp_lif_02b: 20:24:d0:39:ea:29:ce:d4
+iscsi_lif_01a: '{{ t_iscsiA_network_prefix }}.103'
+iscsi_lif_01b: '{{ t_iscsiB_network_prefix }}.103'
+iscsi_lif_02a: '{{ t_iscsiA_network_prefix }}.104'
+iscsi_lif_02b: '{{ t_iscsiB_network_prefix }}.104'
+name_of_iscsi_a_vnic: '{{ prefix | lower}}-iSCSI-{{ vic_type }}-A'
+name_of_iscsi_b_vnic: '{{ prefix | lower}}-iSCSI-{{ vic_type }}-B'
+name_of_iscsi_vnic_1: '{{ prefix | lower}}-iscsi-mgmt-{{ vic_type }}-A'
+name_of_iscsi_vnic_2: '{{ prefix | lower}}-iscsi-access-{{ vic_type }}-B'
+nfs_lif_01: '{{ t_nfs_network_prefix }}.103'
+nfs_lif_02: '{{ t_nfs_network_prefix }}.104'
+nvme_lif_01a: '{{ t_nvme_tcpA_network_prefix }}.103'
+nvme_lif_01b: '{{ t_nvme_tcpB_network_prefix }}.103'
+nvme_lif_02a: '{{ t_nvme_tcpA_network_prefix }}.104'
+nvme_lif_02b: '{{ t_nvme_tcpB_network_prefix }}.104'
+size_of_ip_pool_iscsi_a: 128
+size_of_ip_pool_iscsi_b: 128
+storage_iscsi_IQN: iqn.1992-08.com.netapp:sn.cd343aa9018111efaa2ad039ea561760:vs.6
+svm_node_specs:
+- node_name: '{{ cluster_name }}n1'
+  nfs_lifs:
+    name: '{{ tenant_name }}-nfs-lif-01a'
+    address: '{{ nfs_lif_01 }}'
+    netmask: '{{ t_nfs_network_netmask }}'
+  fcp_lifs:
+  - name: '{{ tenant_name }}-fcp-lif-01a'
+    home_port: 5a
+    fabric: A
+  - name: '{{ tenant_name }}-fcp-lif-01b'
+    home_port: 5b
+    fabric: B
+  fc-nvme_lifs:
+  - name: '{{ tenant_name }}-fc-nvme-lif-01a'
+    home_port: 2a
+    fabric: A
+  - name: '{{ tenant_name }}-fc-nvme-lif-01b'
+    home_port: 2b
+    fabric: B
+  iscsi_lifs:
+  - name: '{{ tenant_name }}-iscsi-lif-01a'
+    address: '{{ iscsi_lif_01a }}'
+    netmask: '{{ t_iscsiA_network_netmask }}'
+    fabric: A
+  - name: '{{ tenant_name }}-iscsi-lif-01b'
+    address: '{{ iscsi_lif_01b }}'
+    netmask: '{{ t_iscsiB_network_netmask }}'
+    fabric: B
+  nvme_tcp_lifs: []
+- node_name: '{{ cluster_name }}n2'
+  nfs_lifs:
+    name: '{{ tenant_name }}-nfs-lif-02b'
+    address: '{{ nfs_lif_02 }}'
+    netmask: '{{ t_nfs_network_netmask }}'
+  fcp_lifs:
+  - name: '{{ tenant_name }}-fcp-lif-02a'
+    home_port: 5a
+    fabric: A
+  - name: '{{ tenant_name }}-fcp-lif-02b'
+    home_port: 5b
+    fabric: B
+  fc-nvme_lifs:
+  - name: '{{ tenant_name }}-fc-nvme-lif-02a'
+    home_port: 2a
+    fabric: A
+  - name: '{{ tenant_name }}-fc-nvme-lif-02b'
+    home_port: 2b
+    fabric: B
+  iscsi_lifs:
+  - name: '{{ tenant_name }}-iscsi-lif-02a'
+    address: '{{ iscsi_lif_02a }}'
+    netmask: '{{ t_iscsiA_network_netmask }}'
+    fabric: A
+  - name: '{{ tenant_name }}-iscsi-lif-02b'
+    address: '{{ iscsi_lif_02b }}'
+    netmask: '{{ t_iscsiB_network_netmask }}'
+    fabric: B
+  nvme_tcp_lifs: []
+svm_specs:
+  svm_name: '{{ tenant_name }}_svm'
+  svm_root_vol: '{{ tenant_name }}_svm_root'
+  allowed_protocols:
+  - nfs
+  data_protocol: nfs
+  client_match: '{{ t_nfs_network_prefix }}.0/{{ t_nfs_network_mask }}'
+  data_volumes_file:
+  - name: '{{tenant_name}}_datastore'
+    size: 1024
+    residing_aggr: '{{ aggr_prefix }}n2_aggr1'
+  data_volumes_block:
+  - name: '{{tenant_name}}_boot'
+    size: 1024
+    residing_aggr: '{{ aggr_prefix }}n2_aggr1'
+  nvme_subsystem: nvme_infra_hosts
+  boot_luns_iscsi:
+    size: 400
+    residing_vol: '{{tenant_name}}_boot'
+  data_luns_iscsi:
+    name: '{{ tenant_name }}-data-01'
+    size: 400
+    residing_vol: '{{tenant_name}}_data'
+    host: test01
+  svm_mgmt_lif:
+    home_node: '{{ cluster_name }}n2'
+    address: '{{ t_ib_network_prefix }}.101'
+    netmask: '{{ t_ib_network_netmask }}'
+    gateway: '{{ t_ib_network_prefix }}.1'
+    lif_name: '{{ tenant_name }}-svm-mgmt'
+  vsadmin_password: '{{ t_password_for_local_user }}'
+  os_type: '{{ os_type }}'
+  dns_server_svm:
+  - '{{ dns_servers[0].ip_address }}'
+  dns_domain_svm: '{{ dns_domain_name }}'
+  svm_login_banner: This SVM is reserved for authorized users only!
+  audit_log_volume_specs:
+    name: '{{tenant_name}}_audit_log'
+    size: 50
+    residing_aggr: '{{ aggr_prefix }}n1_aggr1'
+t_iscsi_hosts:
+- hostname: '{{ tenant_name }}-01'
+  iscsi_iqn: iqn.2010-11.com.flexpod:{{ tenant_name }}-ucshost:1
+  nvme_nqn: nqn.2014-08.com.cisco.flexpodb4:nvme:{{ tenant_name }}-01
+
+# -----------------------------------------------------------------------------
+# UCS pools, policies, and boot media
+# -----------------------------------------------------------------------------
+# Tenant-specific Intersight names, pool starts, WWPN/WWNN/MAC starts, and vMedia overrides.
+description_of_bios_policy: BIOS Policy for Performance Optimized {{ server_cpu_type }}-based M6 Linux Servers
+description_of_lan_connectivity_policy: LAN Connectivity Policy for local disk boot - {{ vic_type }} VIC
+description_of_m5_bios_policy: BIOS Policy for Performance Optimized Intel-based M5 ESXi Servers
+description_of_network_group_policy_for_access: VLAN details of access interfaces to allow access traffic
+ip_pool_start_for_management_access: '{{ t_ib_network_prefix }}.230'
+mac_pool_start_on_fi_a: 00:25:B5:A0:{{tid}}:00
+mac_pool_start_on_fi_b: 00:25:B5:B0:{{tid}}:00
+name_of_bios_policy: '{{ prefix }}-{{ server_cpu_type }}-M6-Linux-BIOS'
+name_of_fc_vnic_1: '{{ prefix | lower}}-fc-mgmt-{{ vic_type }}-A'
+name_of_fc_vnic_2: '{{ prefix | lower}}-fc-access-{{ vic_type }}-B'
+name_of_ip_pool_for_management_access: '{{ prefix }}-IB-MGMT-IP-Pool'
+name_of_lan_connectivity_policy: '{{ prefix }}-{{ vic_type }}-LANCon'
+name_of_m5_bios_policy: '{{ prefix }}-Intel-M5-Linux-BIOS'
+size_of_ip_pool_for_management_access: 20
+vmedia_file_location_cdd: http://172.16.4.105/SLE15SP5.iso
+vmedia_file_location_hdd: http://172.16.4.105/autoinstall.img
+vmedia_name_cdd: SLES15SP5
+vmedia_name_hdd: AUTOINSTALL
+vsan_A_name: '{{ tenant_name }}-FlexPod-Fabric-A'
+vsan_B_name: '{{ tenant_name }}-FlexPod-Fabric-B'
+wwnn_pool_start: 20:00:00:25:B5:{{tid}}:00:00
+wwpn_pool_start_on_san_a: 20:00:00:25:B5:A0:{{tid}}:00
+wwpn_pool_start_on_san_b: 20:00:00:25:B5:B0:{{tid}}:00
+
+# -----------------------------------------------------------------------------
+# Operating system and Kubernetes
+# -----------------------------------------------------------------------------
+# OS installation, RKE2, Harvester, proxy, and manifest-related configuration.
+install_rke2_version: v1.27.12+rke2r1
+os_bond: 'true'
+proxys:
+- 'http_proxy: "http://10.128.31.33:81"'
+- 'https_proxy: "http://10.128.31.33:81"'
+rke2_config:
+  selinux: true
+  write-kubeconfig-mode: '0640'
+
+# -----------------------------------------------------------------------------
+# Management access, DNS, and remaining overrides
+# -----------------------------------------------------------------------------
+# Tenant-local credentials, DNS, and values that intentionally override shared defaults.
+primary_dns_mgmt: '{{ dns_servers[0].ip_address }}'
+secondary_dns_mgmt: '{{ dns_servers[1].ip_address }}'
+t_name_of_local_user: eberesche
+t_password_for_local_user: CHANGE_ME_LOCAL_USER_PASSWORD  # Replace only in a private deployment overlay.
+

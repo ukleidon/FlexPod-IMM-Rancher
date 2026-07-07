@@ -2,26 +2,26 @@
   ##
   # Configure VLANs on the Nexus Switches
   #
-  - name: Create IB-MGMT VLAN
+  - name: Ensure IB-MGMT VLAN
     cisco.nxos.nxos_vlans:
       config:
-        - vlan_id: "{{ item.id }}"
-          name: "{{ item.name }}"
-      state: merged
-    with_list: "{{ t_ib_mgmt_vlan_list }}"
+        - vlan_id: '{{ item.id }}'
+          name: '{{ item.name }}'
+      state: '{{ ''deleted'' if (lan_state | default(''present'')) == ''absent'' else ''merged'' }}'
+    with_list: '{{ t_ib_mgmt_vlan_list }}'
 #
-  - name: Create Storage VLANs
+  - name: Ensure Storage VLANs
     cisco.nxos.nxos_vlans:
       config:
-        - vlan_id: "{{ item.id }}"
-          name: "{{ item.name }}"
-      state: merged
-    with_list: "{{ t_storage_vlan_list }}"
+        - vlan_id: '{{ item.id }}'
+          name: '{{ item.name }}'
+      state: '{{ ''deleted'' if (lan_state | default(''present'')) == ''absent'' else ''merged'' }}'
+    with_list: '{{ t_storage_vlan_list }}'
 #
-  - name: Create Remaining VLANs
+  - name: Ensure Remaining VLANs
     cisco.nxos.nxos_vlans:
       config:
-        - vlan_id: "{{ item.id }}"
-          name: "{{ item.name }}"
-      state: merged
-    with_list: "{{ t_remaining_vlan_list }}"
+        - vlan_id: '{{ item.id }}'
+          name: '{{ item.name }}'
+      state: '{{ ''deleted'' if (lan_state | default(''present'')) == ''absent'' else ''merged'' }}'
+    with_list: '{{ t_remaining_vlan_list }}'

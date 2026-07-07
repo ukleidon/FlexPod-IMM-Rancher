@@ -1,0 +1,29 @@
+# Define the Tenant name
+[all:vars]
+tenant=seebuck
+
+# Definition of the Group / Tenant child areas.
+[rancher:children]
+rancher_hosts
+rke2_servers
+rke2_agents
+k8s
+
+# Kubernetes Cluster information
+[k8s]
+master
+
+# Rancher RKE2 Control nodes
+[rke2_servers]
+seebuck-rke-1 node_labels='["extraLabel0=true"]' node_ip="172.16.22.10" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+seebuck-rke-2 node_labels='["extraLabel0=true"]' node_ip="172.16.22.11" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+seebuck-rke-3 node_labels='["extraLabel0=true"]' node_ip="172.16.22.12" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+
+# Rancher RKE2 worker nodes
+[rke2_agents]
+#dataspace-rke-4 node_labels='["extraLabel0=true"]' node_ip="172.16.22.13" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+#dataspace-rke-5 node_labels='["extraLabel0=true"]' node_ip="172.16.22.14" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+#dataspace-rke-6 node_labels='["extraLabel0=true"]' node_ip="172.16.22.15" ansible_user="rancher" ansible_sudo_pass="Tenant04!"
+
+# Host not running RKE2 or K3s
+[rancher_hosts]

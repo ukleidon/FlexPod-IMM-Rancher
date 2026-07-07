@@ -6,4 +6,5 @@
     cisco.nxos.nxos_config:
       backup: yes
       backup_options:
-        dir_path: "{{ backup_dir }}"
+        dir_path: '{{ backup_dir }}'
+    when: not ansible_check_mode

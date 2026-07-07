@@ -10,7 +10,7 @@ This README is written for operators who understand basic infrastructure concept
 
 ## Called By
 
-- Not called directly by the current top-level playbooks. Treat as a helper or legacy role until referenced.
+- `TENANT.yml`
 
 ## Task Flow
 

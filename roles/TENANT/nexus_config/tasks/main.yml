@@ -7,11 +7,16 @@
   #
   # Configure Features
   - include_tasks: configure_nxos_features.yml
-  # Configure vlans
+  # Configure VLANs before interfaces when building a tenant
   - include_tasks: configure_nxos_vlans.yml
+    when: lan_state | default('present') != 'absent'
   # Configure NTP Distribution Interface Default Gateway
   - include_tasks: configure_default_gw.yml
-  # Configure Inerface, Port-Channel and Trunk Settings
+    when: lan_state | default('present') != 'absent'
+  # Configure Interface, Port-Channel and Trunk Settings
   - include_tasks: set_nxos_interfaces.yml
+  # Delete VLANs after pruning them from shared trunks when removing a tenant
+  - include_tasks: configure_nxos_vlans.yml
+    when: lan_state | default('present') == 'absent'
   # Save Configuration
   - include_tasks: save_nxos_config.yml

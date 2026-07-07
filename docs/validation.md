@@ -28,8 +28,8 @@ Expected result: no literal API keys, private key files, passwords, or token val
 
 ```bash
 ansible-playbook -i inventory INFRA.yml --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 --syntax-check
-ansible-playbook -i inventory HARV.yml -e tenant=harvester --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe --syntax-check
+ansible-playbook -i inventory RKE2.yml -e tenant=eibe --syntax-check
 ```
 
 Expected result: playbooks parse cleanly. Tenant or platform playbooks can warn about empty host groups when the selected inventory has no matching hosts.
@@ -37,7 +37,7 @@ Expected result: playbooks parse cleanly. Tenant or platform playbooks can warn 
 ## Tenant Present Path
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 -C
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe -C
 ```
 
 Expected result: Nexus, ONTAP, Intersight, OS install, RKE2, and Trident sections either validate or skip safely depending on inventory and check-mode guards.
@@ -45,7 +45,7 @@ Expected result: Nexus, ONTAP, Intersight, OS install, RKE2, and Trident section
 ## Tenant Absent Path
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=ac01 -e lan_state=absent -C
+ansible-playbook -i inventory TENANT.yml -e tenant=eibe -e lan_state=absent -C
 ```
 
 Expected result: the selected tenant removal path validates without requiring another tenant file.

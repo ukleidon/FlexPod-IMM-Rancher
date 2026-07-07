@@ -11,7 +11,6 @@ This README is written for operators who understand basic infrastructure concept
 ## Called By
 
 - `TENANT.yml`
-- `HARV.yml`
 
 ## Task Flow
 
@@ -43,8 +42,6 @@ The role calls these task files from `tasks/main.yml` or nested includes:
 These are the primary Ansible modules or task functions detected in this role:
 
 - `cisco.intersight.intersight_rest_api`
-- `cisco.intersight.intersight_bios_policy`
-- `ansible.builtin.set_fact`
 - `include_tasks`
 
 ## Inputs To Check
@@ -56,21 +53,21 @@ Most values come from `group_vars/*.yml`, `group_vars/tenant_defaults.yml`, `hos
 - `api_uri`
 - `validate_certs`
 - `state`
-- `name_of_m7_bios_policy`
-- `description_of_m7_bios_policy`
-- `intersight_org`
-- `prefix`
 - `name_of_bios_policy`
 - `description_of_bios_policy`
+- `intersight_org`
+- `prefix`
 - `name_of_m5_bios_policy`
 - `description_of_m5_bios_policy`
-- `name_of_m6_bios_policy`
-- `description_of_m6_bios_policy`
-- `name_of_m6__bios_policy`
 - `fc_boot_order_policy_name`
 - `fc_boot_order_policy_description`
 - `boot_mode`
 - `enable_uefi_secureboot`
+- `san_boot_device_1a_name`
+- `lun_id`
+- `name_of_vhba_a`
+- `san_boot_target_1a_wwpn`
+- `san_boot_device_2a_name`
 
 ## Configuration To Expect
 

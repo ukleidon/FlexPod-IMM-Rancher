@@ -1,0 +1,10 @@
+# Configure VLANs, LIFs, SVM, and LUNs for the tenant
+- name: Deploy NetApp Trident and Configure Trident Backend
+  hosts: k8s
+    #serial: 1
+  gather_facts: False
+  connection: local
+  roles:
+  - { role: TENANT/env_vars }
+  - { role: TENANT/trident_install, tags: [ 'trident_install' ] }
+

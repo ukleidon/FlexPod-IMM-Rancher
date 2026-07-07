@@ -11,7 +11,6 @@ This README is written for operators who understand basic infrastructure concept
 ## Called By
 
 - `TENANT.yml`
-- `HARV.yml`
 
 ## Task Flow
 
@@ -29,7 +28,6 @@ Main tasks detected:
 - TENANT - Set password for vsadmin user
 - TENANT - Unlock vsadmin user
 - TENANT - Create login banner for the SVM
-- TENANT - Remove insecure ciphers from the SVM
 
 ## Automation Functions Called
 
@@ -44,8 +42,6 @@ These are the primary Ansible modules or task functions detected in this role:
 - `netapp.ontap.na_ontap_nvme`
 - `netapp.ontap.na_ontap_user`
 - `netapp.ontap.na_ontap_login_messages`
-- `netapp.ontap.na_ontap_rest_cli`
-- `command`
 
 ## Inputs To Check
 
