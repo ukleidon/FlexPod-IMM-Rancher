@@ -50,8 +50,8 @@ Expected result: no syntax errors. Check mode can report changed tasks on networ
 ## Validate One Tenant
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=eibe --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=eibe -C
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 -C
 ```
 
 Expected result: tenant vars load after shared defaults, Nexus ASA trunk tasks have access VLAN lists, and no undefined variables appear.
@@ -59,7 +59,7 @@ Expected result: tenant vars load after shared defaults, Nexus ASA trunk tasks h
 ## Validate Tenant Removal
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=eibe -e lan_state=absent -C
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 -e lan_state=absent -C
 ```
 
 Expected result: only the selected tenant is removed from device intent. No other tenant vars should be edited or required.
@@ -71,9 +71,9 @@ Expected result: only the selected tenant is removed from device intent. No othe
   --name tenant41 \
   --tid 41 \
   --access-vlan 455 \
-  --access-prefix 172.16.185 \
+  --access-prefix 198.51.100 \
   --nfs-vlan 456 \
-  --nfs-prefix 172.16.186 \
+  --nfs-prefix 203.0.113 \
   --dry-run
 ```
 
@@ -84,7 +84,7 @@ Remove `--dry-run` only after the generated target path and virtual registry tar
 Run live only after syntax and check mode are understood:
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=eibe
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01
 ```
 
 ## Troubleshooting Pointers

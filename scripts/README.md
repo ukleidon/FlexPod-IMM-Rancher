@@ -14,7 +14,7 @@ Functions called:
 - replaces the source tenant name with the new tenant name
 - updates tenant-local identity, VLAN, CIDR, and optional API/org fields
 - copies non-vars tenant assets unless `--no-copy-assets` is used
-- for virtual tenants, updates selected registry-owning tenant vars such as `tenants/dataspace/vars.yml`
+- for virtual tenants, updates selected registry-owning tenant vars such as `tenants/tenant-hub/vars.yml`
 
 Expected configuration:
 
@@ -25,7 +25,7 @@ Expected configuration:
 Always start with:
 
 ```bash
-./scripts/create_tenant.py --name tenant41 --tid 41 --access-vlan 455 --access-prefix 172.16.185 --nfs-vlan 456 --nfs-prefix 172.16.186 --dry-run
+./scripts/create_tenant.py --name tenant41 --tid 41 --access-vlan 455 --access-prefix 198.51.100 --nfs-vlan 456 --nfs-prefix 203.0.113 --dry-run
 ```
 
 ## `publication_check.py`
@@ -56,4 +56,12 @@ Run before staging:
 
 ```bash
 ./scripts/generate_architecture_overview.py .
+```
+
+## Public Documentation Generator
+
+`generate_public_docs.py` renders public-safe documentation with neutral hostnames, tenant names, VLANs, and documentation networks. Run it before publication when docs or framework structure changes.
+
+```bash
+./scripts/generate_public_docs.py .
 ```

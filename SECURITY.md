@@ -1,6 +1,6 @@
 # Security and Publication Notes
 
-This repository is the public version of KL-IDTA. Keep live credentials out of git.
+This repository is prepared for public publication. Keep live credentials and deployment-specific identity material out of git.
 
 ## Do Not Commit
 

@@ -1,4 +1,4 @@
-# FlexPod IMM Rancher Public KL-IDTA Framework
+# FlexPod IMM Rancher Framework
 
 This repository automates a FlexPod-based lab and tenant environment. It uses Ansible to configure the shared Cisco Nexus, Cisco MDS, Cisco Intersight, NetApp ONTAP, and optional RKE2/Rancher layers that make up the infrastructure.
 
@@ -62,8 +62,8 @@ Keep real deployment secrets in ignored local files, Ansible Vault, environment-
 
 ```bash
 ansible-playbook -i inventory INFRA.yml --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=eibe --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=eibe -C
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 -C
 ```
 
 ## Documentation

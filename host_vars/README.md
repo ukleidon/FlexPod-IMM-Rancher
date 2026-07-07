@@ -1,16 +1,13 @@
 # Host Variables
 
-[Framework README](../README.md) | [Variables](../docs/variables.md)
+[Documentation index](../docs/README.md) | [Variables](../docs/variables.md)
 
-Host variable files describe individual infrastructure devices. Use them for switch, storage, or host-specific topology that should not be shared globally.
+`host_vars/` contains device-specific topology, interface, and platform values for inventory hosts. The public documentation intentionally uses neutral device labels instead of site hostnames.
 
-| File          | Purpose                                                  |
-| ------------- | -------------------------------------------------------- |
-| `c250-01.yml` | Device-specific topology, interface, or platform values. |
-| `c250-02.yml` | Device-specific topology, interface, or platform values. |
-| `mdsA.yml`    | Device-specific topology, interface, or platform values. |
-| `mdsB.yml`    | Device-specific topology, interface, or platform values. |
-| `n9kSSA.yml`  | Device-specific topology, interface, or platform values. |
-| `n9kSSB.yml`  | Device-specific topology, interface, or platform values. |
-| `nx1.yml`     | Device-specific topology, interface, or platform values. |
-| `nx2.yml`     | Device-specific topology, interface, or platform values. |
+| Public label | Configuration to expect |
+| --- | --- |
+| `nexus-a.yml` / `nexus-b.yml` | vPC peer settings, physical interface lists, port-channel members, base SVI addressing logic. |
+| `storage-controller-a.yml` / `storage-controller-b.yml` | ONTAP node, aggregate, SVM, LIF, and platform-specific values. |
+| `san-fabric-a.yml` / `san-fabric-b.yml` | VSAN, zoning, device alias, and SAN interface values when FC roles are used. |
+
+Keep live management addresses, site names, and device hostnames in private deployment documentation.

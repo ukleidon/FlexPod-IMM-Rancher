@@ -1,63 +1,52 @@
 # New Tenant Guide
 
-[Tenants](README.md) | [Variables](../variables.md) | [Validation](../validation.md) | [Template](../../tenants/_tenant_template/README.md)
+[Tenant examples](README.md) | [Variables](../variables.md) | [Validation](../validation.md)
 
-Use `scripts/create_tenant.py` for the normal path. It clones a known-good tenant directory, updates tenant-local identity and network facts, preserves non-vars tenant assets, and, for virtual tenants, updates the registry-owning tenant vars file directly.
+Use this guide to create a new tenant from a template while keeping tenant-specific values isolated in `tenants/<tenant>/vars.yml`.
 
-## 1. Choose Tenant Facts
+The public example values below use documentation networks. Replace them with deployment-specific VLANs, CIDRs, tenant names, and key references in a private branch or overlay.
 
-Collect these values before creating the tenant:
+## Example Input
 
-| Fact | Example | Notes |
+| Field | Example value | Purpose |
 | --- | --- | --- |
-| Tenant name | `tenant41` | Lowercase letters, digits, `_`, and `-`. |
-| Tenant ID | `41` | Must be unique across tenant vars. |
-| Access VLAN/CIDR | `455 / 172.16.185/24` | Used for access and management-side traffic. |
-| NFS VLAN/CIDR | `456 / 172.16.186/24` | Used for storage/NFS traffic. |
-| API key material | `api_key_id`, `api_private_key` | Keep only placeholders in public files. Real values belong in a private overlay or vault. |
-| Storage facts | IQNs, LIFs, pool starts | Review after the clone because these are environment-specific. |
+| Tenant name | `tenant41` | Directory name and default tenant identity. |
+| Tenant ID | `41` | Used for generated pools such as MAC, WWPN, UUID, or IQN ranges. |
+| Access VLAN/CIDR | `455 / 198.51.100.0/24` | Used for access and management-side traffic. |
+| NFS VLAN/CIDR | `456 / 203.0.113.0/24` | Used for storage/NFS traffic. |
 
-## 2. Dry Run
+## Dry Run First
 
 ```bash
 ./scripts/create_tenant.py \
   --name tenant41 \
   --tid 41 \
   --access-vlan 455 \
-  --access-prefix 172.16.185 \
+  --access-prefix 198.51.100 \
   --nfs-vlan 456 \
-  --nfs-prefix 172.16.186 \
-  --source eibe \
+  --nfs-prefix 203.0.113 \
+  --source tenant_template \
   --dry-run
 ```
 
-For virtual tenants, the script reads the selected registry vars file and picks the next free `vNN` index. The default registry target for this repository is `tenants/dataspace/vars.yml`.
+For virtual tenants, the script can update one or more registry vars files with `vNN_*` values. In public documentation, call this a registry or hub tenant. In a private deployment, select the real registry tenant name.
 
-## 3. Create
-
-Remove `--dry-run` only after the plan shows the expected source tenant, target directory, VLAN IDs, CIDRs, and registry target.
-
-Useful options:
-
-| Option | Purpose |
-| --- | --- |
-| `--source eibe` | Clone another source tenant. Default is `eibe`. |
-| `--virtual-registry-target dataspace` | Update the virtual tenant registry owner. Repeat as needed. |
-| `--no-virtual-registry` | Create only the tenant directory and do not update registry vars. |
-| `--no-copy-assets` | Create only `vars.yml`. |
-| `--api-key-id`, `--api-private-key` | Set placeholder references; do not commit live values. |
-
-## 4. Review
-
-Open `tenants/tenant41/vars.yml` and confirm tenant identity, lifecycle, API placeholders, VLANs, CIDRs, ONTAP values, RKE2 values, and any app-specific overrides.
-
-## 5. Validate
+## Create The Tenant
 
 ```bash
-./scripts/publication_check.py
-ansible-playbook -i inventory TENANT.yml -e tenant=tenant41 --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=tenant41 -C
-ansible-playbook -i inventory TENANT.yml -e tenant=tenant41 -e lan_state=absent -C
+./scripts/create_tenant.py \
+  --name tenant41 \
+  --tid 41 \
+  --access-vlan 455 \
+  --access-prefix 198.51.100 \
+  --nfs-vlan 456 \
+  --nfs-prefix 203.0.113 \
+  --source tenant_template
 ```
 
-The final command matters: every tenant must be independently unconfigurable without relying on another tenant directory.
+## Validate
+
+```bash
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant41 --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant41 -C
+```

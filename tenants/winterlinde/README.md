@@ -1,36 +1,19 @@
-# Tenant: `winterlinde`
+# Tenant Directory
 
-[Tenant index](../README.md) | [Framework tenant guide](../../docs/tenants/winterlinde.md) | [Variables](../../docs/variables.md)
+[Public tenant examples](../../docs/tenants/README.md) | [Variables](../../docs/variables.md)
 
-This directory is the source of truth for tenant-specific configuration. The playbook loads shared defaults first and then loads `tenants/winterlinde/vars.yml`, so values in this file override shared defaults for this tenant only.
+This directory contains tenant-local artifacts such as `vars.yml`, optional manifests, airgap content, and workload-specific files. The public README is intentionally anonymized and does not expose deployment-specific tenant names, VLAN IDs, CIDRs, hostnames, or SVM names.
 
-## Tenant Facts
+For the public operating model, use the neutral examples in `docs/tenants/`. For a real deployment, keep live tenant facts in a private branch, private overlay, Ansible Vault, or internal documentation.
 
-| Field | Value |
-| --- | --- |
-| Tenant name | `winterlinde` |
-| Tenant ID | `17` |
-| Tenant type | `virtual` |
-| Lifecycle state | `present` |
-| Access VLAN/CIDR | `{{ t_ib_vlan_id }} / {{ t_ib_network_prefix }}/{{ t_ib_network_mask }}` |
-| NFS VLAN/CIDR | `341 / 172.16.71/24` |
+## Configuration To Expect
 
-## What To Configure Here
+Running `TENANT.yml -e tenant=<tenant-name>` configures or validates only the selected tenant's network, storage, compute policy, and platform objects. Running with `-e lan_state=absent` should remove only that tenant's network-facing objects.
 
-- tenant identity and lifecycle
-- VLAN IDs and network prefixes
-- Intersight API key references for this tenant
-- ONTAP SVM, LIF, IQN, WWPN, volume, and pool values
-- tenant-specific RKE2, Harvester, Trident, or application overrides
-
-## Expected Configuration
-
-Running `TENANT.yml -e tenant=winterlinde` should configure or validate only this tenant's network, storage, compute policy, and platform objects. Running with `-e lan_state=absent` should remove only this tenant's network-facing objects.
-
-## Validation
+## Operator Checks
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=winterlinde --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=winterlinde -C
-ansible-playbook -i inventory TENANT.yml -e tenant=winterlinde -e lan_state=absent -C
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 -C
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 -e lan_state=absent -C
 ```

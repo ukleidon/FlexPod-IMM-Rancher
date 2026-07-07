@@ -1,36 +1,19 @@
-# Tenant: `rotbuche`
+# Tenant Directory
 
-[Tenant index](../README.md) | [Framework tenant guide](../../docs/tenants/rotbuche.md) | [Variables](../../docs/variables.md)
+[Public tenant examples](../../docs/tenants/README.md) | [Variables](../../docs/variables.md)
 
-This directory is the source of truth for tenant-specific configuration. The playbook loads shared defaults first and then loads `tenants/rotbuche/vars.yml`, so values in this file override shared defaults for this tenant only.
+This directory contains tenant-local artifacts such as `vars.yml`, optional manifests, airgap content, and workload-specific files. The public README is intentionally anonymized and does not expose deployment-specific tenant names, VLAN IDs, CIDRs, hostnames, or SVM names.
 
-## Tenant Facts
+For the public operating model, use the neutral examples in `docs/tenants/`. For a real deployment, keep live tenant facts in a private branch, private overlay, Ansible Vault, or internal documentation.
 
-| Field | Value |
-| --- | --- |
-| Tenant name | `rotbuche` |
-| Tenant ID | `23` |
-| Tenant type | `virtual` |
-| Lifecycle state | `present` |
-| Access VLAN/CIDR | `365 / 172.16.95/24` |
-| NFS VLAN/CIDR | `366 / 172.16.96/24` |
+## Configuration To Expect
 
-## What To Configure Here
+Running `TENANT.yml -e tenant=<tenant-name>` configures or validates only the selected tenant's network, storage, compute policy, and platform objects. Running with `-e lan_state=absent` should remove only that tenant's network-facing objects.
 
-- tenant identity and lifecycle
-- VLAN IDs and network prefixes
-- Intersight API key references for this tenant
-- ONTAP SVM, LIF, IQN, WWPN, volume, and pool values
-- tenant-specific RKE2, Harvester, Trident, or application overrides
-
-## Expected Configuration
-
-Running `TENANT.yml -e tenant=rotbuche` should configure or validate only this tenant's network, storage, compute policy, and platform objects. Running with `-e lan_state=absent` should remove only this tenant's network-facing objects.
-
-## Validation
+## Operator Checks
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=rotbuche --syntax-check
-ansible-playbook -i inventory TENANT.yml -e tenant=rotbuche -C
-ansible-playbook -i inventory TENANT.yml -e tenant=rotbuche -e lan_state=absent -C
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 --syntax-check
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 -C
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 -e lan_state=absent -C
 ```

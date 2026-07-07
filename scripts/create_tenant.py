@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a new KL-IDTA tenant from an existing tenant directory.
+"""Create a new FlexPod tenant from an existing tenant directory.
 
 Tenant vars are the source of truth. For virtual tenants, the script can also
 update the registry-owning tenant vars files that consume the vNN_* values.
@@ -31,15 +31,15 @@ class NoAliasDumper(yaml.SafeDumper):
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create a KL-IDTA tenant directory and update virtual tenant vars when requested."
+        description="Create a FlexPod tenant directory and update virtual tenant vars when requested."
     )
     parser.add_argument("--name", required=True, help="New tenant name, for example kastanie.")
     parser.add_argument("--tid", required=True, help="Tenant ID used by the playbooks.")
     parser.add_argument("--access-vlan", type=int, required=True, help="Access/management VLAN ID.")
-    parser.add_argument("--access-prefix", required=True, help="Access CIDR prefix without host part, for example 172.16.65.")
+    parser.add_argument("--access-prefix", required=True, help="Access CIDR prefix without host part, for example 198.51.100.")
     parser.add_argument("--nfs-vlan", type=int, required=True, help="NFS/storage VLAN ID.")
-    parser.add_argument("--nfs-prefix", required=True, help="NFS/storage CIDR prefix without host part, for example 172.16.66.")
-    parser.add_argument("--source", default="eibe", help="Source tenant to clone. Default: eibe.")
+    parser.add_argument("--nfs-prefix", required=True, help="NFS/storage CIDR prefix without host part, for example 203.0.113.")
+    parser.add_argument("--source", default="tenant_template", help="Source tenant to clone. Default: tenant_template.")
     parser.add_argument("--tenant-type", default="virtual", help="Tenant type. Default: virtual.")
     parser.add_argument("--ib-vlan", type=int, help="Infrastructure/back-end VLAN ID. Defaults to access VLAN.")
     parser.add_argument("--ib-prefix", help="Infrastructure/back-end CIDR prefix. Defaults to access prefix.")
@@ -57,7 +57,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--virtual-registry-target",
         action="append",
-        help="Tenant vars file to update with vNN data, for example dataspace or harvester. Default for virtual tenants: dataspace.",
+        help="Tenant vars file to update with vNN data, for example tenant-hub. No registry is updated unless this option is provided.",
     )
     parser.add_argument("--no-virtual-registry", action="store_true", help="Do not update any vNN registry vars files.")
     parser.add_argument("--no-copy-assets", action="store_true", help="Only create vars.yml; do not copy other tenant files/symlinks.")
@@ -75,7 +75,7 @@ def repo_root() -> Path:
     root = Path.cwd()
     missing = [name for name in REPO_MARKERS if not (root / name).exists()]
     if missing:
-        die(f"run this script from the KL-IDTA repository root; missing {', '.join(missing)}")
+        die(f"run this script from the FlexPod repository root; missing {', '.join(missing)}")
     return root
 
 
@@ -83,6 +83,12 @@ def validate_tenant_name(name: str) -> str:
     if not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", name):
         die("tenant names may contain lowercase letters, digits, '_' and '-', and must start with a letter or digit")
     return name
+
+
+def resolve_source_dir_name(source: str) -> str:
+    if source in {"tenant_template", "_tenant_template"}:
+        return "_tenant_template"
+    return validate_tenant_name(source)
 
 
 def validate_prefix(prefix: str, mask: int) -> str:
@@ -172,7 +178,7 @@ def virtual_indexes(registry_data: dict[str, Any]) -> dict[int, str]:
 def selected_registry_targets(args: argparse.Namespace) -> list[str]:
     if args.no_virtual_registry or args.tenant_type != "virtual":
         return []
-    return args.virtual_registry_target or ["dataspace"]
+    return args.virtual_registry_target or []
 
 
 def choose_virtual_index(registry_paths: list[Path], requested: int | None, tenant_name: str) -> int | None:
@@ -304,8 +310,9 @@ def main() -> int:
     root = repo_root()
 
     new_name = validate_tenant_name(args.name)
-    source_name = validate_tenant_name(args.source)
-    source_dir = root / "tenants" / source_name
+    source_name = args.source
+    source_dir_name = resolve_source_dir_name(args.source)
+    source_dir = root / "tenants" / source_dir_name
     target_dir = root / "tenants" / new_name
     source_vars = source_dir / "vars.yml"
     target_vars = target_dir / "vars.yml"
@@ -325,7 +332,7 @@ def main() -> int:
     iscsi_a_prefix = validate_prefix(args.iscsi_a_prefix or args.nfs_prefix, mask)
     iscsi_b_prefix = validate_prefix(args.iscsi_b_prefix or args.nfs_prefix, mask)
 
-    data = recursive_replace(copy.deepcopy(load_vars(source_vars)), source_name, new_name)
+    data = recursive_replace(copy.deepcopy(load_vars(source_vars)), source_dir_name, new_name)
     data.update(
         {
             "tenant_name": new_name,

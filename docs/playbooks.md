@@ -38,7 +38,7 @@ Expected configuration: Shared Nexus, ONTAP, Intersight, StorageGRID, Proxmox, a
 Build or remove one selected tenant.
 
 ```bash
-ansible-playbook -i inventory TENANT.yml -e tenant=eibe -C
+ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 -C
 ```
 
 Expected configuration: Tenant VLANs, VRFs, storage objects, Intersight policies/profiles, OS install prep, RKE2, and Trident depending on inventory.
@@ -62,7 +62,7 @@ Expected configuration: Tenant VLANs, VRFs, storage objects, Intersight policies
 Run the RKE2 role flow for a selected tenant context.
 
 ```bash
-ansible-playbook -i inventory RKE2.yml -e tenant=eibe -C
+ansible-playbook -i inventory RKE2.yml -e tenant=tenant01 -C
 ```
 
 Expected configuration: RKE2 prerequisite, server, and agent configuration where matching hosts exist.

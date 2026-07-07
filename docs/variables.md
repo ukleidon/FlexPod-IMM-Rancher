@@ -15,7 +15,7 @@ The framework separates shared defaults from tenant-local facts. This keeps the 
 | `group_vars/tenant_defaults.yml` | Reusable tenant defaults. | Generated policy names, descriptions, boot defaults, common list defaults. |
 | `host_vars/*.yml` | Per-device topology. | Nexus/MDS/ONTAP host-specific interface, peer, and platform settings. |
 | `tenants/<tenant>/vars.yml` | Tenant source of truth. | Tenant ID, VLAN IDs, CIDRs, API references, storage identities, profile counts. |
-| `tenants/dataspace/vars.yml` | Default virtual tenant registry owner. | `vNN_*` values consumed by virtual tenant logic. |
+| `tenants/tenant-hub/vars.yml` | Default virtual tenant registry owner. | `vNN_*` values consumed by virtual tenant logic. |
 
 ## What Must Stay Tenant-Local
 
