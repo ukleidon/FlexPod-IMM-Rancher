@@ -1,6 +1,6 @@
 # Architecture Overview Diagram
 
-[Documentation index](README.md) | [Architecture](architecture.md) | [Variables](variables.md) | [Playbooks](playbooks.md) | [Tenants](tenants/README.md)
+[Documentation index](README.md) | [Architecture](architecture.md) | [Workflows](workflows.md) | [Variables](variables.md) | [Playbooks](playbooks.md) | [Tenants](tenants/README.md)
 
 This page gives a Technical Marketing style overview of the components managed by this Ansible framework. Because this is the public FlexPod-IMM-Rancher repository, device names, tenant names, VLAN IDs, and IP networks in this page are anonymized examples. Private deployment documentation can keep the full site-specific values.
 
@@ -135,6 +135,8 @@ flowchart TB
   infra["INFRA.yml<br/>shared FlexPod base"]
   tenant["TENANT.yml<br/>one tenant at a time"]
   rke["RKE2.yml<br/>platform configuration"]
+  harvesterPlay["HARVESTER.yml<br/>Harvester tenant support"]
+  harvesterRke["HARVESTER_RKE.yml<br/>virtual RKE2 on Harvester"]
 
   infra --> infnexus["INFRA/nexus_*<br/>features, VLANs, vPC, edge, object storage, hypervisor uplinks"]
   infra --> infontap["INFRA/ontap_*<br/>network, SVM, volumes, LIFs"]
@@ -149,6 +151,33 @@ flowchart TB
   rke --> pre["rancher/pre_rke_install"]
   rke --> server["rancher/rke2_server"]
   rke --> agent["rancher/rke2_agent"]
+
+  harvesterPlay --> hplatform["harvester/platform_config<br/>optional platform baseline"]
+  harvesterPlay --> htenant["TENANT/harvester_tenant_config<br/>namespace, networks, DHCP, cloud-init"]
+  harvesterRke --> htenant
+  harvesterRke --> rcluster["rancher/harvester_rke_cluster<br/>Rancher HarvesterConfig and Cluster"]
+  harvesterRke --> workload["rancher/harvester_workload_config<br/>kube-vip, storage annotations, Kasten"]
+```
+
+## Harvester And Rancher Workflow
+
+```mermaid
+flowchart TB
+  tenantvars["tenants/&lt;tenant&gt;/vars.yml<br/>tenant_type=virtual"]
+  harvesterObjects["HARVESTER.yml<br/>tenant namespace, networks, DHCP, cloud-init"]
+  defaultTemplate["Harvester ConfigMap<br/>default/sle-micro-default"]
+  adaptedTemplate["Tenant ConfigMap<br/>&lt;tenant&gt;-sle-micro-default"]
+  image["Harvester VM image<br/>sl-micro.x86_64-6.2*"]
+  rancherConfig["Rancher HarvesterConfig<br/>VM sizing, image, networks, userData"]
+  rancherCluster["Rancher Cluster<br/>&lt;tenant&gt;-rke"]
+  vms["Harvester VMs<br/>three nodes by default"]
+  downstream["Downstream RKE2 cluster<br/>optional add-on workflow"]
+
+  tenantvars --> harvesterObjects
+  defaultTemplate --> harvesterObjects --> adaptedTemplate
+  adaptedTemplate --> rancherConfig
+  image --> rancherConfig
+  rancherConfig --> rancherCluster --> vms --> downstream
 ```
 
 ## Network Connections Managed By The Framework
@@ -206,6 +235,8 @@ Platform or hub tenants can publish `vNN_*` registry entries for virtual tenants
 | `INFRA.yml` | INFRA/env_vars<br>INFRA/nexus_config<br>INFRA/nexus_config_sg<br>INFRA/nexus_config_ip<br>INFRA/nexus_config_proxmox<br>INFRA/env_vars<br>INFRA/ontap_network<br>INFRA/ontap_svm<br>INFRA/ontap_volumes<br>INFRA/ontap_lifs<br>INFRA/env_vars<br>INFRA/ucs_create_pools<br>INFRA/env_vars<br>INFRA/nexus_config_asa |
 | `TENANT.yml` | TENANT/env_vars<br>TENANT/nexus_config<br>TENANT/nexus_config_ip<br>TENANT/nexus_config_sg<br>TENANT/nexus_config_asa<br>TENANT/env_vars<br>TENANT/ontap_network<br>TENANT/ontap_svm<br>TENANT/ontap_volumes<br>TENANT/ontap_lifs<br>TENANT/ontap_luns<br>TENANT/ontap_nvme<br>TENANT/env_vars<br>TENANT/ucs_create_pools<br>TENANT/ucs_create_server_policies<br>TENANT/ucs_create_sp_template<br>TENANT/env_vars<br>TENANT/ucs_create_server<br>TENANT/env_vars<br>TENANT/os_install_suse<br>rancher/env_vars<br>rancher/pre_rke_install<br>rancher/env_vars<br>rancher/rke2_server<br>rancher/rke2_agent<br>TENANT/env_vars<br>TENANT/trident_install |
 | `RKE2.yml` | rancher/env_vars<br>rancher/pre_rke_install<br>rancher/env_vars<br>rancher/rke2_server<br>rancher/rke2_agent |
+| `HARVESTER.yml` | common/tenant_preflight<br>TENANT/env_vars<br>harvester/platform_config<br>TENANT/harvester_tenant_config |
+| `HARVESTER_RKE.yml` | common/tenant_preflight<br>TENANT/env_vars<br>TENANT/harvester_tenant_config<br>rancher/harvester_rke_cluster<br>rancher/harvester_workload_config |
 
 ## How To Explain This To An Audience
 

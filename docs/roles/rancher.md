@@ -1,6 +1,6 @@
 # Rancher/RKE2 Roles
 
-[Role index](README.md) | [Playbooks](../playbooks.md) | [Product references](../references.md)
+[Role index](README.md) | [Workflows](../workflows.md) | [Playbooks](../playbooks.md) | [Product references](../references.md)
 
 Use this page to understand what each role is expected to configure before opening the detailed role README.
 
@@ -13,3 +13,13 @@ Use this page to understand what each role is expected to configure before openi
 | [`rancher/rke2_agent`](../../roles/rancher/rke2_agent/README.md)           | `TENANT.yml`, `RKE2.yml`                           | Installs and joins RKE2 worker/agent nodes.                                  |
 | [`rancher/rke2_common`](../../roles/rancher/rke2_common/README.md)         | -                                                  | Provides common RKE2 install, tarball, repository, image, and service tasks. |
 | [`rancher/rke2_server`](../../roles/rancher/rke2_server/README.md)         | `TENANT.yml`, `RKE2.yml`                           | Installs and joins RKE2 control-plane nodes.                                 |
+
+## Rancher-Provisioned Harvester Clusters
+
+The Harvester RKE roles are local-control-node roles that use kubeconfig
+contexts rather than SSHing into tenant hosts. `rancher/harvester_rke_cluster`
+creates Rancher provisioning objects for `<tenant>-rke`; `rancher/harvester_workload_config`
+runs later, after the downstream kube context exists.
+
+Public defaults use placeholders for Rancher cloud credentials and creator IDs.
+Override those values from private inventory or Ansible Vault before a live run.

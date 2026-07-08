@@ -35,6 +35,15 @@ These links are the external product references used by this framework documenta
 
 ## Kubernetes and Virtualization
 
+- [SUSE Harvester Documentation](https://docs.harvesterhci.io/)
+- [Rancher Documentation](https://ranchermanager.docs.rancher.com/)
 - [SUSE RKE2 Documentation](https://docs.rke2.io/)
+- [Kubernetes Core Ansible Collection](https://docs.ansible.com/projects/ansible/latest/collections/kubernetes/core/index.html)
+- [Kubernetes Core Collection on Ansible Galaxy](https://galaxy.ansible.com/ui/repo/published/kubernetes/core/)
 - [Community VMware Ansible Collection](https://docs.ansible.com/projects/ansible/latest/collections/community/vmware/index.html)
 - [Community VMware Collection on Ansible Galaxy](https://galaxy.ansible.com/ui/repo/published/community/vmware/)
+
+## Data Protection And Storage Integrations
+
+- [NetApp Trident Documentation](https://docs.netapp.com/us-en/trident/)
+- [Veeam Kasten Documentation](https://docs.kasten.io/latest/)

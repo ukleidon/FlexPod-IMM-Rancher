@@ -1,6 +1,6 @@
 # Playbooks
 
-[Documentation index](README.md) | [Operations](operations.md) | [Validation](validation.md)
+[Documentation index](README.md) | [Workflows](workflows.md) | [Operations](operations.md) | [Validation](validation.md)
 
 This page describes the top-level playbooks an operator should run. Each table lists the plays and role functions called by the playbook.
 
@@ -96,6 +96,11 @@ that virtualenv, or override the interpreter variable.
 Expected configuration: tenant namespace, Harvester access/storage networks,
 DHCP IPPools, and tenant-adapted `sle-micro-default` cloud-init.
 
+Use this playbook for virtual tenant support objects. It can also apply the
+shared Harvester platform baseline when `harvester_manage_platform=true` is
+set, but that path should be run deliberately because it affects the whole
+Harvester cluster.
+
 ### Functions Called
 
 | Play | Hosts | Roles called |
@@ -118,6 +123,12 @@ Expected configuration: Harvester tenant objects plus Rancher
 `HarvesterConfig` and `provisioning.cattle.io/v1 Cluster` manifests. Optional
 post-cluster configuration can apply kube-vip, storage annotations, and Kasten
 K10 once the downstream kubeconfig context exists.
+
+This playbook first makes sure the Harvester tenant support objects are in the
+same desired state as `HARVESTER.yml`. It then creates or removes the Rancher
+provisioning objects for `<tenant>-rke`. Public defaults contain placeholders
+for Rancher cloud credentials and creator IDs; private values must be provided
+before live use.
 
 ### Functions Called
 

@@ -12,10 +12,12 @@ This repository is designed to be useful as a public automation example without 
 - Ansible Vault password files
 - local inventory overlays with customer-only addresses or credentials
 - generated logs, retry files, or device backups
+- kubeconfig files, Rancher cloud credential names, cloud-provider config secret names, or creator IDs from a live management cluster
+- generated tenant manifests under `tenants/<tenant>/manifests/*` when they contain cloud-init data, private domains, application secrets, or live endpoint references
 
 ## Placeholder Model
 
-Public files use placeholders such as `CHANGE_ME_INTERSIGHT_API_KEY_ID`, `CHANGE_ME_LOCAL_USER_PASSWORD`, or `CHANGE_ME_TRIDENT_PASSWORD`. Replace these only in a private working copy, ignored local file, Ansible Vault, environment-backed variable, or deployment overlay.
+Public files use placeholders such as `CHANGE_ME_INTERSIGHT_API_KEY_ID`, `CHANGE_ME_LOCAL_USER_PASSWORD`, `CHANGE_ME_TRIDENT_PASSWORD`, or `REPLACE_ME_RANCHER_CREATOR_ID`. Replace these only in a private working copy, ignored local file, Ansible Vault, environment-backed variable, or deployment overlay.
 
 ## Recommended Pre-Push Workflow
 
@@ -23,6 +25,8 @@ Public files use placeholders such as `CHANGE_ME_INTERSIGHT_API_KEY_ID`, `CHANGE
 ./scripts/publication_check.py
 ansible-playbook -i inventory INFRA.yml --syntax-check
 ansible-playbook -i inventory TENANT.yml -e tenant=tenant01 --syntax-check
+ansible-playbook -i inventory HARVESTER.yml -e tenant=tenant01 --syntax-check
+ansible-playbook -i inventory HARVESTER_RKE.yml -e tenant=tenant01 --syntax-check
 git status --short
 git diff --check
 ```
@@ -34,4 +38,6 @@ Expected result: the publication check passes, playbooks parse, and git shows on
 - Keep `README.md` as the browser landing page.
 - Keep `README` as the short structure note for operators who open the legacy text file.
 - Use `requirements.yml` to document Ansible collection dependencies.
+- Use `requirements-python.txt` to document the Python Kubernetes client required by Harvester and Rancher roles.
 - Use `.gitignore` to keep local keys, vault files, logs, retry files, and generated device backups out of the repository.
+- Keep examples on documentation networks, `example.com` domains, and explicit `REPLACE_ME` or `CHANGE_ME` placeholders.

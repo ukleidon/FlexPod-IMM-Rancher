@@ -1,6 +1,6 @@
 # Tenant Roles
 
-[Role index](README.md) | [Playbooks](../playbooks.md) | [Product references](../references.md)
+[Role index](README.md) | [Workflows](../workflows.md) | [Playbooks](../playbooks.md) | [Product references](../references.md)
 
 Use this page to understand what each role is expected to configure before opening the detailed role README.
 
@@ -28,3 +28,11 @@ Use this page to understand what each role is expected to configure before openi
 | [`TENANT/ucs_create_server`](../../roles/TENANT/ucs_create_server/README.md)                   | `TENANT.yml`                                                                       | Creates or deploys server profiles from existing profile templates.                                   |
 | [`TENANT/ucs_create_server_policies`](../../roles/TENANT/ucs_create_server_policies/README.md) | `TENANT.yml`                                                                       | Builds Intersight server, BIOS, adapter, boot, LAN, SAN, QoS, and connectivity policies.              |
 | [`TENANT/ucs_create_sp_template`](../../roles/TENANT/ucs_create_sp_template/README.md)         | `TENANT.yml`                                                                       | Builds Intersight server profile templates and derives tenant server profiles.                        |
+
+## Tenant-Specific Harvester Objects
+
+`TENANT/harvester_tenant_config` is a tenant role even though it talks to
+Harvester. It consumes the same tenant source-of-truth file as the network,
+storage, and compute roles, then renders tenant-local Harvester manifests for
+namespace, networks, DHCP pools, and cloud-init. This keeps virtual tenants
+independently configurable and removable.

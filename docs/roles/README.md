@@ -1,6 +1,6 @@
 # Role Index
 
-[Documentation index](../README.md) | [Playbooks](../playbooks.md) | [Variables](../variables.md)
+[Documentation index](../README.md) | [Workflows](../workflows.md) | [Playbooks](../playbooks.md) | [Variables](../variables.md)
 
 Each role README explains purpose, called task functions, key inputs, expected configuration, and product references.
 

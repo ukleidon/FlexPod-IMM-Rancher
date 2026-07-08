@@ -1,6 +1,6 @@
 # Tenant Example: `tenant01`
 
-[Tenant examples](README.md) | [Variables](../variables.md) | [Validation](../validation.md)
+[Tenant examples](README.md) | [Workflows](../workflows.md) | [Variables](../variables.md) | [Validation](../validation.md)
 
 This public page describes the tenant pattern without exposing internal tenant names, hostnames, VLAN IDs, or CIDRs.
 
