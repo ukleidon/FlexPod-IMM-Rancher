@@ -5,6 +5,12 @@
   # stored in the  ~/ directory. Change the directory in ../defaults/main.yml
   #  - include_tasks: initiate_nxos_config_backup.yml
   #
+  - name: Normalize tenant SVI list
+    ansible.builtin.set_fact:
+      tenant_svi_list: "{{ t_svi_list | unique(attribute='name') | list }}"
+    tags:
+      - always
+
   # Create VRFs before adding tenant SVIs
   - include_tasks: create_vrf.yml
     when: lan_state | default('present') != 'absent'

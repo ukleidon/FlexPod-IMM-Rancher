@@ -6,20 +6,20 @@
   ansible.builtin.systemd:
     name: firewalld
     state: stopped
-    enabled: no
+    enabled: false
 #
 # Disable swap and remove swap entry from /etc/fstab
 #
 - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
-  shell: |
-    swapoff -a
+  ansible.builtin.command: swapoff -a
+  changed_when: false
 
 - name: Remove swap from fstab (2/2)
-  mount:
+  ansible.posix.mount:
     name: "{{ item }}"
     fstype: swap
     state: absent
-  with_items:
+  loop:
     - swap
 
 #
@@ -29,8 +29,9 @@
   ansible.builtin.lineinfile:
     path: /etc/default/rke2-server
     line: "{{ item }}"
-    create: yes
-  with_list: "{{ proxys }}"
+    create: true
+    mode: "0644"
+  loop: "{{ proxys }}"
   when: proxys is defined
 
 #-------------------------------------------------------------------------------------
@@ -52,13 +53,14 @@
     path: /var/lib/rancher/rke2/agent/images
     state: directory
     mode: '0755'
-  when: ( airgap_files.matched != '0' )
+  when: airgap_files.matched | int > 0
 
 - name: Copy repository files for Air-Gapped installation into place
-  copy:
+  ansible.builtin.copy:
     src: "{{ tenant_dir }}/airgap/"
     dest: '/var/lib/rancher/rke2/agent/images/'
-  when: ( airgap_files.matched != '0' )
+    mode: preserve
+  when: airgap_files.matched | int > 0
 
 #-------------------------------------------------------------------------------------
 #
@@ -81,10 +83,11 @@
   register: manifest_files
 
 - name: Copy local manifests into /var/lib/rancher/rke2/server/manifests/
-  copy:
+  ansible.builtin.copy:
     src: "{{ tenant_dir }}/manifests/"
     dest: '/var/lib/rancher/rke2/server/manifests/'
-  when: ( manifest_files.matched != '0' )
+    mode: preserve
+  when: manifest_files.matched | int > 0
 
 - name: Check for rke2-server Proxy configuration
   delegate_to: localhost
@@ -94,7 +97,8 @@
   register: proxy_file
 
 - name: Copy RKE2-Proxy config to /etc/default
-  copy:
+  ansible.builtin.copy:
     src: "{{ tenant_dir }}/rke2-server-proxy"
     dest: '/etc/default/rke2-server'
+    mode: "0644"
   when: proxy_file.stat.exists

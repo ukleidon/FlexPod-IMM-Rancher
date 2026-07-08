@@ -1,6 +1,9 @@
 ---
 collections:
+  - name: ansible.posix
+  - name: ansible.utils
   - name: cisco.intersight
   - name: cisco.nxos
+  - name: kubernetes.core
   - name: netapp.ontap
   - name: community.vmware

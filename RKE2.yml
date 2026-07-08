@@ -1,15 +1,27 @@
 ---
-- name: Testing play
+- name: Preflight tenant input and variable files
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: common/tenant_preflight
+  tags:
+    - always
+    - preflight
+
+- name: Prepare RKE2 nodes
   hosts: rke2_servers
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
   roles:
     - role: rancher/env_vars
     - role: rancher/pre_rke_install
+  tags:
+    - rke_install
+    - rke_prepare
 #
 # Setup RKE2 Control-Nodes or Control-/Agent-Nodes
 #
-- name: Install RKE2 Server
+- name: Install RKE2 servers
   hosts: rke2_servers
   any_errors_fatal: true
   become: true
@@ -20,15 +32,21 @@
   environment:
     http_proxy: http://172.16.4.12:81
     https_proxy: http://172.16.4.12:81
+  tags:
+    - rke_install
+    - rke_server
 
 #
 # Setup RKE2 dedicated Agent-Nodes
 #
-- name: Agent play
+- name: Install RKE2 agents
   hosts: rke2_agents
   any_errors_fatal: true
   become: true
   roles:
+    - role: rancher/env_vars
     - role: rancher/rke2_agent
   serial: 3
-#
+  tags:
+    - rke_install
+    - rke_agent

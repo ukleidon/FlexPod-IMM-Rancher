@@ -1,0 +1,70 @@
+---
+- name: Validate tenant extra variable
+  ansible.builtin.assert:
+    that:
+      - tenant is defined
+      - tenant | string | trim | length > 0
+      - (tenant | string) is match('^[A-Za-z0-9_-]+$')
+    fail_msg: "Run this playbook with -e tenant=<tenant-directory-name>."
+    quiet: true
+  run_once: true
+  tags:
+    - always
+    - preflight
+
+- name: Set tenant preflight paths
+  ansible.builtin.set_fact:
+    tenant_preflight_dir: "{{ (tenants_dir | default(playbook_dir ~ '/tenants')) ~ '/' ~ (tenant | string | lower) }}"
+    tenant_preflight_vars_file: "{{ (tenants_dir | default(playbook_dir ~ '/tenants')) ~ '/' ~ (tenant | string | lower) ~ '/vars.yml' }}"
+  run_once: true
+  tags:
+    - always
+    - preflight
+
+- name: Check tenant vars file exists
+  ansible.builtin.stat:
+    path: "{{ tenant_preflight_vars_file }}"
+  register: tenant_preflight_vars_stat
+  run_once: true
+  tags:
+    - always
+    - preflight
+
+- name: Stop when tenant vars are missing
+  ansible.builtin.fail:
+    msg: "Tenant '{{ tenant }}' was not found. Expected vars file: {{ tenant_preflight_vars_file }}"
+  when: not tenant_preflight_vars_stat.stat.exists
+  run_once: true
+  tags:
+    - always
+    - preflight
+
+- name: Parse tenant vars for preflight validation
+  ansible.builtin.include_vars:
+    file: "{{ tenant_preflight_vars_file }}"
+  run_once: true
+  tags:
+    - always
+    - preflight
+
+- name: Validate tenant identity fields
+  ansible.builtin.assert:
+    that:
+      - tenant_name is defined
+      - tenant_name | string | trim | length > 0
+      - tenant_type | default('physical') in ['physical', 'virtual']
+    fail_msg: "Tenant '{{ tenant }}' must define tenant_name and use tenant_type physical or virtual when tenant_type is set."
+    quiet: true
+  run_once: true
+  tags:
+    - always
+    - preflight
+
+- name: Show tenant preflight summary
+  ansible.builtin.debug:
+    msg: "Tenant preflight OK: {{ tenant }} -> {{ tenant_name }} ({{ tenant_type | default('physical') }})"
+    verbosity: 1
+  run_once: true
+  tags:
+    - always
+    - preflight

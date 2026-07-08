@@ -1,57 +1,84 @@
 ---
 #
-# This Playbook sets up a physical Tenant on FlexPod, configuring Nexus switches, NetApp storage and UCS profiles.
+# This playbook configures one tenant at a time. Use tags to run a phase
+# explicitly: preflight, nexus_config, ontap_config, ucs_config, os_install,
+# rke_install, or trident_install.
 #
-# Configure VLANs, VRF, and IP addresses for the tenant
-- hosts: nexus
-  connection: network_cli
-  gather_facts: no
+- name: Preflight tenant input and variable files
+  hosts: localhost
+  gather_facts: false
   roles:
-  - { role: TENANT/env_vars }
-  - { role: TENANT/nexus_config }
-  - { role: TENANT/nexus_config_ip }
-  - { role: TENANT/nexus_config_sg }
-  - { role: TENANT/nexus_config_asa }
+    - role: common/tenant_preflight
   tags:
-  - nexus_config
-  - hardware_tenant
+    - always
+    - preflight
+
+# Configure VLANs, VRF, and IP addresses for the tenant
+- name: Configure tenant Nexus network
+  hosts: nexus
+  connection: network_cli
+  gather_facts: false
+  roles:
+    - role: TENANT/env_vars
+    - role: TENANT/nexus_config
+    - role: TENANT/nexus_config_ip
+    - role: TENANT/nexus_config_sg
+    - role: TENANT/nexus_config_asa
+  tags:
+    - nexus_config
+    - hardware_tenant
 
 # Configure VLANs, LIFs, SVM, and LUNs for the tenant
-- name: Configure ONTAP for FlexPod
+- name: Configure tenant ONTAP storage
   hosts: ontap
     #serial: 1
-  gather_facts: False
+  gather_facts: false
   connection: local
   roles:
-  - { role: TENANT/env_vars }
-  - { role: TENANT/ontap_network, tags: [ 'ontap_network' ], when: not ansible_check_mode }
-  - { role: TENANT/ontap_svm, tags: [ 'ontap_svm' ], when: not ansible_check_mode }
-  - { role: TENANT/ontap_volumes, tags: [ 'ontap_volumes' ], when: not ansible_check_mode }
-  - { role: TENANT/ontap_lifs, tags: [ 'ontap_lifs' ], when: not ansible_check_mode }
-  - { role: TENANT/ontap_luns, tags: [ 'ontap_luns' ], when: not ansible_check_mode }
-  - { role: TENANT/ontap_nvme, tags: [ 'ontap_nvme' ], when: not ansible_check_mode }
+    - role: TENANT/env_vars
+    - role: TENANT/ontap_network
+      tags: [ontap_network]
+      when: not ansible_check_mode
+    - role: TENANT/ontap_svm
+      tags: [ontap_svm]
+      when: not ansible_check_mode
+    - role: TENANT/ontap_volumes
+      tags: [ontap_volumes]
+      when: not ansible_check_mode
+    - role: TENANT/ontap_lifs
+      tags: [ontap_lifs]
+      when: not ansible_check_mode
+    - role: TENANT/ontap_luns
+      tags: [ontap_luns]
+      when: not ansible_check_mode
+    - role: TENANT/ontap_nvme
+      tags: [ontap_nvme]
+      when: not ansible_check_mode
   tags:
-  - ontap_config
-  - flexpod_config
-  - hardware_tenant
+    - ontap_config
+    - flexpod_config
+    - hardware_tenant
 
 # Create various pools, policies, and a server profile template
 #
 - name: Create Tenant in Intersight
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars_files:
     - group_vars/ucs.yml
   roles:
-  - { role: TENANT/env_vars }
-  - { role: TENANT/ucs_create_pools, when: not ansible_check_mode }
-  - { role: TENANT/ucs_create_server_policies, when: not ansible_check_mode }
-  - { role: TENANT/ucs_create_sp_template, when: not ansible_check_mode }
+    - role: TENANT/env_vars
+    - role: TENANT/ucs_create_pools
+      when: not ansible_check_mode
+    - role: TENANT/ucs_create_server_policies
+      when: not ansible_check_mode
+    - role: TENANT/ucs_create_sp_template
+      when: not ansible_check_mode
     #  - { role: TENANT/ucs_create_server }
   tags:
-  - ucs_config
-  - flexpod_config
-  - hardware_tenant
+    - ucs_config
+    - flexpod_config
+    - hardware_tenant
 
 
 #Execute the below ONTAP Role after installing and configuring ESXi Hosts
@@ -73,7 +100,7 @@
 #
 - name: Create Server Profiles from Template
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   vars_files:
     - group_vars/ucs.yml
   roles:
@@ -81,7 +108,7 @@
     - role: TENANT/ucs_create_server
       when: not ansible_check_mode
   tags:
-  - os_install
+    - os_install
 
 
 #
@@ -89,28 +116,29 @@
 #
 - name: Install SUSE Linux
   hosts: rke2_servers,rke2_agents,hosts
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
   roles:
     - role: TENANT/env_vars
     - role: TENANT/os_install_suse
       when: not ansible_check_mode
   tags:
-  - os_install
+    - os_install
 
 #
 # Prepare RKE2 Install behind proxy Server
 #
 - name: Prepare installation of Rancher RKE2 control nodes
   hosts: rke2_servers,rke2_agents
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
   roles:
     - role: rancher/env_vars
     - role: rancher/pre_rke_install
       when: not ansible_check_mode
   tags:
-  - rke_install
+    - rke_install
+    - rke_prepare
 #
 # Setup RKE2 Control-Nodes or Control-/Agent-Nodes
 #
@@ -127,7 +155,8 @@
     http_proxy: http://172.16.4.12:81
     https_proxy: http://172.16.4.12:81
   tags:
-  - rke_install
+    - rke_install
+    - rke_server
 
 #
 # Setup RKE2 dedicated Agent-Nodes
@@ -141,16 +170,19 @@
       when: not ansible_check_mode
   serial: 3
   tags:
-  - rke_install
+    - rke_install
+    - rke_agent
 #
 # Configure Astra Trident on K8s cluster and the storage backend
 - name: Deploy NetApp Trident and Configure Trident Backend
   hosts: k8s
     #serial: 1
-  gather_facts: False
+  gather_facts: false
   connection: local
   roles:
-  - { role: TENANT/env_vars }
-  - { role: TENANT/trident_install, tags: [ 'trident_install' ], when: not ansible_check_mode }
+    - role: TENANT/env_vars
+    - role: TENANT/trident_install
+      tags: [trident_install]
+      when: not ansible_check_mode
   tags:
-  - trident_install
+    - trident_install

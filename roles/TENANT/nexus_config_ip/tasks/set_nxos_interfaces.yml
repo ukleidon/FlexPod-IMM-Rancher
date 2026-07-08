@@ -4,7 +4,7 @@
     cisco.nxos.nxos_l3_interfaces:
       config:
       - name: 'Vlan{{ item.name }}'
-    with_list: '{{ t_svi_list }}'
+    loop: "{{ tenant_svi_list | default(t_svi_list) }}"
     when: lan_state | default('present') != 'absent'
 
   # This task enables the new SVI interface
@@ -13,7 +13,7 @@
       config:
       - name: 'Vlan{{ item.name }}'
         enabled: true
-    with_list: '{{ t_svi_list }}'
+    loop: "{{ tenant_svi_list | default(t_svi_list) }}"
     when: lan_state | default('present') != 'absent'
 
   # This task adds ports to the SMT-Tenant VRF context
@@ -21,7 +21,7 @@
     cisco.nxos.nxos_vrf_interface:
       vrf: '{{ item.vrf }}'
       interface: 'Vlan{{ item.name }}'
-    with_list: '{{ t_svi_list }}'
+    loop: "{{ tenant_svi_list | default(t_svi_list) }}"
     when:
       - SMT == true
       - lan_state | default('present') != 'absent'
@@ -31,7 +31,7 @@
     cisco.nxos.nxos_vrf_interface:
       vrf: '{{ tenant_name|lower }}'
       interface: 'Vlan{{ item.name }}'
-    with_list: '{{ t_svi_list }}'
+    loop: "{{ tenant_svi_list | default(t_svi_list) }}"
     when:
       - SMT != true
       - lan_state | default('present') != 'absent'
@@ -43,7 +43,7 @@
       - name: 'Vlan{{ item.name }}'
         ipv4:
         - address: '{{ item.address }}'
-    with_list: '{{ t_svi_list }}'
+    loop: "{{ tenant_svi_list | default(t_svi_list) }}"
     when: lan_state | default('present') != 'absent'
 
   # This task configures HSRP IP address on SVI
@@ -52,16 +52,7 @@
       interface: 'Vlan{{ item.name }}'
       group: '{{ tid }}'
       vip: '{{ item.hsrp }}'
-    with_list: '{{ t_svi_list }}'
-    when: lan_state | default('present') != 'absent'
-
-  # This task enables the new SVI interface
-  - name: Enable SVI Interface
-    cisco.nxos.nxos_interfaces:
-      config:
-      - name: 'Vlan{{ item.name }}'
-        enabled: true
-    with_list: '{{ t_svi_list }}'
+    loop: "{{ tenant_svi_list | default(t_svi_list) }}"
     when: lan_state | default('present') != 'absent'
 
 # Set Default GW if defined
@@ -76,12 +67,12 @@
             next_hops:
             - forward_router_address: '{{ item.gw|default(item.hsrp) }}'
               admin_distance: '{{ item.metric |default(100) }}'
-    with_list: '{{ t_svi_list }}'
+    loop: "{{ tenant_svi_list | default(t_svi_list) }}"
     when: lan_state | default('present') != 'absent'
 
   - name: Delete tenant SVI Interfaces
     cisco.nxos.nxos_config:
       lines:
         - 'no interface Vlan{{ item.name }}'
-    with_list: '{{ t_svi_list }}'
+    loop: "{{ tenant_svi_list | default(t_svi_list) }}"
     when: lan_state | default('present') == 'absent'
