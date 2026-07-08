@@ -1,0 +1,226 @@
+---
+- name: Validate virtual workload cluster inputs
+  ansible.builtin.assert:
+    that:
+      - tenant_name is defined
+      - tenant_name | length > 0
+      - harvester_workload_context | length > 0
+      - harvester_workload_state in ['present', 'absent']
+
+- name: List local kubeconfig contexts
+  ansible.builtin.command: kubectl config get-contexts -o name
+  register: harvester_workload_kube_contexts
+  changed_when: false
+  check_mode: false
+
+- name: Check workload kube context availability
+  ansible.builtin.set_fact:
+    harvester_workload_context_available: "{{ harvester_workload_context in harvester_workload_kube_contexts.stdout_lines }}"
+
+- name: Report missing workload kube context
+  ansible.builtin.debug:
+    msg: >-
+      Workload kube context {{ harvester_workload_context }} is not present in
+      the local kubeconfig. Rancher/Harvester cluster creation can continue; run
+      this role after exporting or merging the downstream cluster kubeconfig.
+  when: not harvester_workload_context_available | bool
+
+- name: Skip workload configuration when kube context is absent
+  ansible.builtin.meta: end_host
+  when: not harvester_workload_context_available | bool
+
+- name: Check tenant kube-vip manifest
+  ansible.builtin.stat:
+    path: "{{ harvester_workload_kube_vip_manifest }}"
+  register: harvester_workload_kube_vip_file
+  when: harvester_workload_apply_kube_vip | bool
+
+- name: Apply tenant kube-vip manifest
+  kubernetes.core.k8s:
+    context: "{{ harvester_workload_context }}"
+    state: "{{ harvester_workload_state }}"
+    src: "{{ harvester_workload_kube_vip_manifest }}"
+  when:
+    - harvester_workload_apply_kube_vip | bool
+    - harvester_workload_kube_vip_file.stat.exists
+
+- name: Read tenant VolumeSnapshotClass
+  kubernetes.core.k8s_info:
+    api_version: snapshot.storage.k8s.io/v1
+    kind: VolumeSnapshotClass
+    name: "{{ harvester_workload_snapshotclass_name }}"
+    context: "{{ harvester_workload_context }}"
+  register: harvester_workload_snapshotclass
+  failed_when: false
+  when: harvester_workload_annotate_snapshotclass | bool
+
+- name: Mark tenant VolumeSnapshotClass for Kasten
+  kubernetes.core.k8s_json_patch:
+    api_version: snapshot.storage.k8s.io/v1
+    kind: VolumeSnapshotClass
+    name: "{{ harvester_workload_snapshotclass_name }}"
+    context: "{{ harvester_workload_context }}"
+    patch:
+      - op: add
+        path: /metadata/annotations
+        value: >-
+          {{
+            harvester_workload_snapshotclass.resources[0].metadata.annotations | default({})
+            | combine({'k10.kasten.io/is-snapshot-class': 'true'})
+          }}
+  when:
+    - harvester_workload_annotate_snapshotclass | bool
+    - harvester_workload_snapshotclass.resources | default([]) | length > 0
+
+- name: Read Harvester storage class in tenant cluster
+  kubernetes.core.k8s_info:
+    api_version: storage.k8s.io/v1
+    kind: StorageClass
+    name: "{{ harvester_workload_harvester_storageclass }}"
+    context: "{{ harvester_workload_context }}"
+  register: harvester_workload_storageclass
+
+- name: Configure Harvester storage class default annotation
+  kubernetes.core.k8s_json_patch:
+    api_version: storage.k8s.io/v1
+    kind: StorageClass
+    name: "{{ harvester_workload_harvester_storageclass }}"
+    context: "{{ harvester_workload_context }}"
+    patch:
+      - op: add
+        path: /metadata/annotations
+        value: >-
+          {{
+            harvester_workload_storageclass.resources[0].metadata.annotations | default({})
+            | combine({
+                'storageclass.kubernetes.io/is-default-class':
+                harvester_workload_harvester_storageclass_default | bool | string | lower
+              })
+          }}
+  when: harvester_workload_storageclass.resources | length > 0
+
+- name: Ensure tenant workload manifest directory exists
+  ansible.builtin.file:
+    path: "{{ harvester_workload_manifest_dir }}"
+    state: directory
+    mode: "0755"
+  when:
+    - harvester_workload_apply_trident_psa_rbac | bool
+    - harvester_workload_state == 'present'
+    - not ansible_check_mode
+
+- name: Render Trident PSA RBAC manifest
+  ansible.builtin.template:
+    src: trident-psa-rbac.yml.j2
+    dest: "{{ harvester_workload_manifest_dir }}/trident-psa-rbac.yml"
+    mode: "0644"
+  when:
+    - harvester_workload_apply_trident_psa_rbac | bool
+    - harvester_workload_state == 'present'
+    - not ansible_check_mode
+
+- name: Apply Trident PSA RBAC manifest
+  kubernetes.core.k8s:
+    context: "{{ harvester_workload_context }}"
+    state: present
+    definition: "{{ lookup('ansible.builtin.template', 'trident-psa-rbac.yml.j2') | from_yaml_all | list }}"
+  when:
+    - harvester_workload_apply_trident_psa_rbac | bool
+    - harvester_workload_state == 'present'
+
+- name: Ensure Kasten tenant manifest directory exists
+  ansible.builtin.file:
+    path: "{{ harvester_workload_kasten_manifest_dir }}"
+    state: directory
+    mode: "0755"
+  when:
+    - harvester_workload_install_kasten | bool
+    - harvester_workload_state == 'present'
+
+- name: Render Kasten ingress and policy manifests
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ harvester_workload_kasten_manifest_dir }}/{{ item.dest }}"
+    mode: "0644"
+  loop:
+    - src: kasten-ingress.yml.j2
+      dest: kasten-ingress.yml
+    - src: kasten-system-policy.yml.j2
+      dest: kasten-system-policy.yml
+    - src: kasten-basys-policy.yml.j2
+      dest: kasten-basys-policy.yml
+  loop_control:
+    label: "{{ item.dest }}"
+  when:
+    - harvester_workload_install_kasten | bool
+    - harvester_workload_state == 'present'
+
+- name: Render Kasten StorageGRID location profile
+  ansible.builtin.template:
+    src: kasten-location-profile.yml.j2
+    dest: "{{ harvester_workload_kasten_manifest_dir }}/kasten-location-profile.yml"
+    mode: "0600"
+  when:
+    - harvester_workload_install_kasten | bool
+    - harvester_workload_kasten_location_profile_enabled | bool
+    - harvester_workload_state == 'present'
+
+- name: Add Kasten Helm repository
+  kubernetes.core.helm_repository:
+    name: "{{ harvester_workload_kasten_repo_name }}"
+    repo_url: "{{ harvester_workload_kasten_repo_url }}"
+  when:
+    - harvester_workload_install_kasten | bool
+    - harvester_workload_state == 'present'
+    - not ansible_check_mode
+
+- name: Install or upgrade Kasten K10
+  kubernetes.core.helm:
+    name: "{{ harvester_workload_kasten_release_name }}"
+    chart_ref: "{{ harvester_workload_kasten_chart_ref }}"
+    release_namespace: "{{ harvester_workload_kasten_namespace }}"
+    create_namespace: true
+    kube_context: "{{ harvester_workload_context }}"
+    state: present
+  when:
+    - harvester_workload_install_kasten | bool
+    - harvester_workload_state == 'present'
+    - not ansible_check_mode
+
+- name: Apply rendered Kasten manifests
+  kubernetes.core.k8s:
+    context: "{{ harvester_workload_context }}"
+    state: present
+    src: "{{ item }}"
+  loop: >-
+    {{
+      [
+        harvester_workload_kasten_manifest_dir ~ '/kasten-ingress.yml',
+        harvester_workload_kasten_manifest_dir ~ '/kasten-system-policy.yml',
+        harvester_workload_kasten_manifest_dir ~ '/kasten-basys-policy.yml'
+      ]
+      + (
+        [harvester_workload_kasten_manifest_dir ~ '/kasten-location-profile.yml']
+        if harvester_workload_kasten_location_profile_enabled | bool else []
+      )
+    }}
+  when:
+    - harvester_workload_install_kasten | bool
+    - harvester_workload_state == 'present'
+
+- name: Find tenant extra workload manifests
+  ansible.builtin.find:
+    paths: "{{ harvester_workload_extra_manifest_glob | dirname }}"
+    patterns: "{{ harvester_workload_extra_manifest_glob | basename }}"
+    file_type: file
+  register: harvester_workload_extra_manifests
+  failed_when: false
+
+- name: Apply tenant extra workload manifests
+  kubernetes.core.k8s:
+    context: "{{ harvester_workload_context }}"
+    state: "{{ harvester_workload_state }}"
+    src: "{{ item.path }}"
+  loop: "{{ harvester_workload_extra_manifests.files | default([]) }}"
+  loop_control:
+    label: "{{ item.path }}"

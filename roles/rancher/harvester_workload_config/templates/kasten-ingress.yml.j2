@@ -1,0 +1,27 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: k10
+  namespace: "{{ harvester_workload_kasten_namespace }}"
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: gateway
+                port:
+                  number: 80
+            path: /k10
+            pathType: Prefix
+    - host: "{{ harvester_workload_kasten_ingress_host }}"
+      http:
+        paths:
+          - backend:
+              service:
+                name: gateway
+                port:
+                  number: 80
+            path: /k10
+            pathType: Prefix

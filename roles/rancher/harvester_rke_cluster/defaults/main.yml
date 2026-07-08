@@ -1,0 +1,68 @@
+---
+harvester_context: harvester
+rancher_context: rancher
+rancher_namespace: fleet-default
+harvester_rke_rancher_creator_id: "REPLACE_ME_RANCHER_CREATOR_ID"
+
+harvester_rke_state: "{{ lan_state | default('present') }}"
+harvester_rke_cluster_name: "{{ tenant_name | lower }}-rke"
+harvester_rke_machine_pool_name: pool1
+harvester_rke_machine_config_name: "nc-{{ harvester_rke_cluster_name }}-{{ harvester_rke_machine_pool_name }}"
+harvester_rke_manifest_dir: "{{ tenants_dir }}/{{ tenant_name | lower }}/manifests/rancher"
+
+# Rancher/Harvester integration defaults are public placeholders. Override
+# them from private group_vars, host_vars, Ansible Vault, or an ignored overlay.
+harvester_rke_cloud_credential_secret_name: "cattle-global-data:cc-REPLACE_ME"
+harvester_rke_cloud_provider_config_secret: "secret://fleet-default:REPLACE_ME_HARVESTER_CLOUD_PROVIDER_CONFIG"
+harvester_rke_kubernetes_version: "v1.34.5+rke2r1"
+harvester_rke_node_count: 3
+harvester_rke_unhealthy_node_timeout: 0s
+
+harvester_rke_cpu_count: "10"
+harvester_rke_memory_size: "24"
+harvester_rke_disk_size: 40
+harvester_rke_disk_boot_order: 1
+harvester_rke_ssh_user: rancher
+harvester_rke_ssh_port: "22"
+harvester_rke_reserved_memory_size: "-1"
+
+# Leave harvester_rke_image_name empty to discover the newest matching image.
+harvester_rke_image_name: ""
+harvester_rke_image_display_name_regex: "^sl-micro\\.x86_64-6\\.2.*"
+
+harvester_rke_access_network_name: "{{ tenant_name | lower }}/{{ tenant_name | lower }}-access"
+harvester_rke_storage_network_name: "{{ tenant_name | lower }}/{{ tenant_name | lower }}-storage"
+harvester_rke_vm_namespace: "{{ tenant_name | lower }}"
+
+# Cloud-init template source. If the tenant-specific ConfigMap exists, it wins;
+# otherwise the role reads sle-micro-default and replaces [TENANT].
+harvester_rke_cloud_config_source_namespace: default
+harvester_rke_cloud_config_source_name: sle-micro-default
+harvester_rke_tenant_cloud_config_name: "{{ tenant_name | lower }}-sle-micro-default"
+harvester_rke_cloud_config_tenant_name: "{{ tenant_name | lower }}"
+harvester_rke_tenant_fqdn: "{{ harvester_rke_cloud_config_tenant_name }}.example.com"
+harvester_rke_user_data: ""
+
+harvester_rke_http_proxy: "http://proxy.example.com:8080"
+harvester_rke_https_proxy: "{{ harvester_rke_http_proxy }}"
+harvester_rke_no_proxy_items:
+  - "{{ harvester_rke_tenant_fqdn }}"
+  - "rancher.example.com"
+  - "localhost"
+  - "127.0.0.1"
+  - "0.0.0.0"
+  - "10.0.0.0/8"
+  - "172.16.0.0/12"
+  - "cattle-system.svc"
+  - ".svc"
+  - ".cluster.local"
+  - ".example.com"
+harvester_rke_no_proxy: "{{ harvester_rke_no_proxy_items | join(',') }}"
+
+harvester_rke_machine_global_config:
+  cni: calico
+  disable-kube-proxy: false
+  etcd-expose-metrics: false
+
+harvester_rke_etcd_snapshot_retention: 5
+harvester_rke_etcd_snapshot_schedule_cron: "0 */5 * * *"

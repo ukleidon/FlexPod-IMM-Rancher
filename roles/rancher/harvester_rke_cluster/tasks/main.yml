@@ -1,0 +1,204 @@
+---
+- name: Validate Rancher Harvester RKE inputs
+  ansible.builtin.assert:
+    that:
+      - tenant_name is defined
+      - tenant_name | length > 0
+      - tenant_type | default('physical') == 'virtual'
+      - harvester_rke_state in ['present', 'absent']
+      - rancher_context | length > 0
+      - harvester_context | length > 0
+      - rancher_namespace | length > 0
+      - harvester_rke_rancher_creator_id | length > 0
+      - harvester_rke_cloud_credential_secret_name | length > 0
+      - harvester_rke_cloud_provider_config_secret | length > 0
+    fail_msg: >-
+      Rancher Harvester RKE cluster creation requires a virtual tenant and
+      Rancher/Harvester context plus cloud credential variables.
+
+- name: Read existing Rancher virtual RKE2 cluster
+  kubernetes.core.k8s_info:
+    api_version: provisioning.cattle.io/v1
+    kind: Cluster
+    name: "{{ harvester_rke_cluster_name }}"
+    namespace: "{{ rancher_namespace }}"
+    context: "{{ rancher_context }}"
+  register: harvester_rke_existing_cluster
+  when: harvester_rke_state == 'present'
+
+- name: Resolve Rancher creator ID
+  ansible.builtin.set_fact:
+    harvester_rke_effective_creator_id: >-
+      {{
+        harvester_rke_existing_cluster.resources[0].metadata.annotations['field.cattle.io/creatorId']
+        if (
+          harvester_rke_existing_cluster.resources | default([]) | length > 0
+          and harvester_rke_existing_cluster.resources[0].metadata.annotations is defined
+          and harvester_rke_existing_cluster.resources[0].metadata.annotations['field.cattle.io/creatorId'] is defined
+        )
+        else harvester_rke_rancher_creator_id
+      }}
+  when: harvester_rke_state == 'present'
+
+- name: Discover Harvester VM images
+  kubernetes.core.k8s_info:
+    api_version: harvesterhci.io/v1beta1
+    kind: VirtualMachineImage
+    context: "{{ harvester_context }}"
+  register: harvester_rke_vm_images
+  when:
+    - harvester_rke_state == 'present'
+    - harvester_rke_image_name | length == 0
+
+- name: Select matching SL Micro Harvester image candidates
+  ansible.builtin.set_fact:
+    harvester_rke_image_candidates: >-
+      {{
+        harvester_rke_vm_images.resources
+        | selectattr('spec.displayName', 'defined')
+        | selectattr('spec.displayName', 'match', harvester_rke_image_display_name_regex)
+        | list
+      }}
+  when:
+    - harvester_rke_state == 'present'
+    - harvester_rke_image_name | length == 0
+
+- name: Validate discovered SL Micro image
+  ansible.builtin.assert:
+    that:
+      - harvester_rke_image_candidates | length > 0
+    fail_msg: >-
+      No Harvester VirtualMachineImage matched {{ harvester_rke_image_display_name_regex }}
+      on context {{ harvester_context }}. Set harvester_rke_image_name explicitly if needed.
+  when:
+    - harvester_rke_state == 'present'
+    - harvester_rke_image_name | length == 0
+
+- name: Set selected Harvester image from discovery
+  ansible.builtin.set_fact:
+    harvester_rke_selected_image_resource: "{{ harvester_rke_image_candidates | sort(attribute='metadata.creationTimestamp') | last }}"
+  when:
+    - harvester_rke_state == 'present'
+    - harvester_rke_image_name | length == 0
+
+- name: Resolve Harvester image reference
+  ansible.builtin.set_fact:
+    harvester_rke_image_name_resolved: >-
+      {{
+        harvester_rke_image_name
+        if harvester_rke_image_name | length > 0
+        else harvester_rke_selected_image_resource.metadata.namespace ~ '/' ~ harvester_rke_selected_image_resource.metadata.name
+      }}
+  when: harvester_rke_state == 'present'
+
+- name: Read tenant-adapted cloud-init template
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    name: "{{ harvester_rke_tenant_cloud_config_name }}"
+    namespace: "{{ tenant_name | lower }}"
+    context: "{{ harvester_context }}"
+  register: harvester_rke_tenant_cloud_config
+  when:
+    - harvester_rke_state == 'present'
+    - harvester_rke_user_data | length == 0
+
+- name: Read default cloud-init template when tenant template is absent
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    name: "{{ harvester_rke_cloud_config_source_name }}"
+    namespace: "{{ harvester_rke_cloud_config_source_namespace }}"
+    context: "{{ harvester_context }}"
+  register: harvester_rke_default_cloud_config
+  when:
+    - harvester_rke_state == 'present'
+    - harvester_rke_user_data | length == 0
+    - harvester_rke_tenant_cloud_config.resources | length == 0
+
+- name: Resolve tenant cloud-init user data
+  ansible.builtin.set_fact:
+    harvester_rke_user_data_plain: >-
+      {{
+        harvester_rke_user_data
+        if harvester_rke_user_data | length > 0
+        else (
+          harvester_rke_tenant_cloud_config.resources[0].data.cloudInit
+          if harvester_rke_tenant_cloud_config.resources | length > 0
+          else (
+            harvester_rke_default_cloud_config.resources[0].data.cloudInit
+            | replace('[TENANT]', harvester_rke_cloud_config_tenant_name)
+          )
+        )
+      }}
+  when: harvester_rke_state == 'present'
+
+- name: Encode tenant cloud-init user data for Rancher HarvesterConfig
+  ansible.builtin.set_fact:
+    harvester_rke_user_data_b64: "{{ harvester_rke_user_data_plain | b64encode }}"
+  when: harvester_rke_state == 'present'
+
+- name: Ensure Rancher manifest directory exists
+  ansible.builtin.file:
+    path: "{{ harvester_rke_manifest_dir }}"
+    state: directory
+    mode: "0755"
+  when:
+    - harvester_rke_state == 'present'
+    - not ansible_check_mode
+
+- name: Render Rancher Harvester machine config manifest
+  ansible.builtin.template:
+    src: harvester-config.yml.j2
+    dest: "{{ harvester_rke_manifest_dir }}/harvester-config.yml"
+    mode: "0600"
+  when:
+    - harvester_rke_state == 'present'
+    - not ansible_check_mode
+
+- name: Render Rancher virtual RKE2 cluster manifest
+  ansible.builtin.template:
+    src: rancher-cluster.yml.j2
+    dest: "{{ harvester_rke_manifest_dir }}/rancher-cluster.yml"
+    mode: "0600"
+  when:
+    - harvester_rke_state == 'present'
+    - not ansible_check_mode
+
+- name: Apply Rancher Harvester machine config
+  kubernetes.core.k8s:
+    state: present
+    context: "{{ rancher_context }}"
+    definition: "{{ lookup('ansible.builtin.template', 'harvester-config.yml.j2') | from_yaml }}"
+  when: harvester_rke_state == 'present'
+
+- name: Apply Rancher virtual RKE2 cluster
+  kubernetes.core.k8s:
+    state: present
+    context: "{{ rancher_context }}"
+    definition: "{{ lookup('ansible.builtin.template', 'rancher-cluster.yml.j2') | from_yaml }}"
+  when: harvester_rke_state == 'present'
+
+- name: Remove Rancher virtual RKE2 cluster
+  kubernetes.core.k8s:
+    state: absent
+    context: "{{ rancher_context }}"
+    definition:
+      apiVersion: provisioning.cattle.io/v1
+      kind: Cluster
+      metadata:
+        name: "{{ harvester_rke_cluster_name }}"
+        namespace: "{{ rancher_namespace }}"
+  when: harvester_rke_state == 'absent'
+
+- name: Remove Rancher Harvester machine config
+  kubernetes.core.k8s:
+    state: absent
+    context: "{{ rancher_context }}"
+    definition:
+      apiVersion: rke-machine-config.cattle.io/v1
+      kind: HarvesterConfig
+      metadata:
+        name: "{{ harvester_rke_machine_config_name }}"
+        namespace: "{{ rancher_namespace }}"
+  when: harvester_rke_state == 'absent'

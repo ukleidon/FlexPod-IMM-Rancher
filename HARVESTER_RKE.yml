@@ -1,0 +1,66 @@
+---
+# Create or remove a virtual RKE2 cluster on Harvester HCI through Rancher.
+#
+# Default cluster name: <tenant>-rke
+# Default VM count:     3
+#
+# Create/validate:
+#   ansible-playbook -i inventory HARVESTER_RKE.yml -e tenant=tenant01 -C
+#
+# Configure add-ons after the downstream kubeconfig context exists:
+#   ansible-playbook -i inventory HARVESTER_RKE.yml -e tenant=tenant01 --tags workload_cluster \
+#     -e harvester_workload_apply=true
+
+- name: Preflight tenant input and variable files
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ harvester_ansible_python_interpreter | default(playbook_dir ~ '/.venv/bin/python') }}"
+  roles:
+    - role: common/tenant_preflight
+  tags:
+    - always
+    - preflight
+
+- name: Prepare Harvester objects for the virtual tenant
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    ansible_python_interpreter: "{{ harvester_ansible_python_interpreter | default(playbook_dir ~ '/.venv/bin/python') }}"
+  roles:
+    - role: TENANT/env_vars
+    - role: TENANT/harvester_tenant_config
+  tags:
+    - harvester
+    - harvester_tenant
+    - virtual_rke
+
+- name: Create virtual RKE2 cluster through Rancher
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    ansible_python_interpreter: "{{ harvester_ansible_python_interpreter | default(playbook_dir ~ '/.venv/bin/python') }}"
+  roles:
+    - role: TENANT/env_vars
+    - role: rancher/harvester_rke_cluster
+  tags:
+    - rancher
+    - harvester_rke
+    - virtual_rke
+
+- name: Configure the installed virtual RKE2 cluster
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    ansible_python_interpreter: "{{ harvester_ansible_python_interpreter | default(playbook_dir ~ '/.venv/bin/python') }}"
+  roles:
+    - role: TENANT/env_vars
+    - role: rancher/harvester_workload_config
+      when: harvester_workload_apply | default(false) | bool
+  tags:
+    - workload_cluster
+    - kasten
+    - kube_vip

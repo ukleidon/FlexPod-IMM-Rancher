@@ -1,0 +1,17 @@
+---
+apiVersion: network.harvesterhci.io/v1beta1
+kind: VlanConfig
+metadata:
+  name: "{{ harvester_platform_vlan_config_name }}"
+spec:
+  clusterNetwork: "{{ harvester_platform_cluster_network_name }}"
+  uplink:
+    nics:
+{% for nic in harvester_platform_vlan_config_nics %}
+      - "{{ nic }}"
+{% endfor %}
+    bondOptions:
+      mode: "{{ harvester_platform_vlan_config_bond_mode }}"
+    linkAttributes:
+      mtu: {{ harvester_platform_vlan_config_mtu | int }}
+  nodeSelector: {}

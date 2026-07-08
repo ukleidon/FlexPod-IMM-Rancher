@@ -1,0 +1,24 @@
+---
+apiVersion: network.harvesterhci.io/v1alpha1
+kind: IPPool
+metadata:
+  name: "{{ item.name }}"
+  namespace: "{{ harvester_tenant_namespace }}"
+spec:
+  networkName: "{{ item.network_name }}"
+  ipv4Config:
+    serverIP: "{{ item.server_ip }}"
+    cidr: "{{ item.cidr }}"
+    pool:
+      start: "{{ item.pool_start }}"
+      end: "{{ item.pool_end }}"
+{% if item.router is defined %}
+    router: "{{ item.router }}"
+{% endif %}
+{% if item.dns is defined and item.dns | length > 0 %}
+    dns:
+{% for dns_server in item.dns %}
+      - "{{ dns_server }}"
+{% endfor %}
+{% endif %}
+    leaseTime: {{ harvester_tenant_dhcp_lease_time | int }}

@@ -1,0 +1,61 @@
+---
+harvester_context: harvester
+
+# Platform-wide Harvester settings converted from the legacy
+# configure-harvester.sh helper. These should be reviewed before applying live.
+harvester_platform_http_proxy: "http://proxy.example.com:8080"
+harvester_platform_https_proxy: "{{ harvester_platform_http_proxy }}"
+harvester_platform_no_proxy:
+  - "harvester.example.com"
+  - "rancher.example.com"
+  - "localhost"
+  - "127.0.0.1"
+  - "0.0.0.0"
+  - "10.0.0.0/8"
+  - "172.16.0.0/12"
+  - "192.168.130.0/24"
+  - "10.42.0.0/16"
+  - "10.43.0.0/16"
+  - "cattle-system.svc"
+  - ".svc"
+  - ".cluster.local"
+  - ".example.com"
+
+harvester_platform_ntp_servers: "{{ ib_mgmt_ntp_servers | default(ntp_servers) | map(attribute='ip_address') | list }}"
+
+harvester_platform_storage_network:
+  vlan: 107
+  clusterNetwork: data-9000
+  range: 192.168.130.0/24
+
+harvester_platform_cluster_network_name: data-9000
+harvester_platform_vlan_config_name: storage
+harvester_platform_update_existing_networking: false
+harvester_platform_update_storage_network_setting: false
+harvester_platform_vlan_config_nics:
+  - eno6
+  - eno10
+harvester_platform_vlan_config_bond_mode: active-backup
+harvester_platform_vlan_config_mtu: 9000
+
+harvester_platform_dhcp_addon:
+  name: harvester-vm-dhcp-controller
+  namespace: harvester-system
+  repo: https://charts.harvesterhci.io
+  version: 1.7.1
+  chart: harvester-vm-dhcp-controller
+  enabled: true
+
+harvester_platform_standard_addons:
+  - name: rancher-monitoring
+    namespace: cattle-monitoring-system
+    enabled: true
+  - name: rancher-logging
+    namespace: cattle-logging-system
+    enabled: true
+  - name: harvester-seeder
+    namespace: harvester-system
+    enabled: true
+  - name: vm-import-controller
+    namespace: harvester-system
+    enabled: true

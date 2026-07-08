@@ -1,0 +1,46 @@
+---
+apiVersion: config.kio.kasten.io/v1alpha1
+kind: Policy
+metadata:
+  name: basys-backup-policy
+  namespace: "{{ harvester_workload_kasten_namespace }}"
+spec:
+  frequency: "@daily"
+  subFrequency:
+    minutes:
+      - 0
+    hours:
+      - 22
+    weekdays:
+      - 0
+    days:
+      - 1
+    months:
+      - 1
+  retention:
+    daily: 7
+    weekly: 4
+    monthly: 12
+    yearly: 7
+  selector:
+    matchExpressions:
+      - key: k10.kasten.io/appNamespace
+        operator: In
+        values:
+          - aas*
+  actions:
+    - action: backup
+      backupParameters:
+        filters: {}
+        profile:
+          name: "{{ harvester_workload_kasten_profile_name }}"
+          namespace: "{{ harvester_workload_kasten_namespace }}"
+    - action: export
+      exportParameters:
+        frequency: "@daily"
+        profile:
+          name: "{{ harvester_workload_kasten_profile_name }}"
+          namespace: "{{ harvester_workload_kasten_namespace }}"
+        exportData:
+          enabled: true
+      retention: {}

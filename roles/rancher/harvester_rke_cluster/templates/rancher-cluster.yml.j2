@@ -1,0 +1,74 @@
+---
+apiVersion: provisioning.cattle.io/v1
+kind: Cluster
+metadata:
+  name: "{{ harvester_rke_cluster_name }}"
+  namespace: "{{ rancher_namespace }}"
+  annotations:
+    field.cattle.io/creatorId: "{{ harvester_rke_effective_creator_id }}"
+    provisioning.cattle.io/management-cluster-display-name: "{{ harvester_rke_cluster_name }}"
+spec:
+  agentEnvVars:
+    - name: NO_PROXY
+      value: "{{ harvester_rke_no_proxy }}"
+    - name: HTTP_PROXY
+      value: "{{ harvester_rke_http_proxy }}"
+    - name: HTTPS_PROXY
+      value: "{{ harvester_rke_https_proxy }}"
+  cloudCredentialSecretName: "{{ harvester_rke_cloud_credential_secret_name }}"
+  kubernetesVersion: "{{ harvester_rke_kubernetes_version }}"
+  localClusterAuthEndpoint: {}
+  rkeConfig:
+    chartValues:
+      harvester-cloud-provider:
+        cloudConfigPath: /var/lib/rancher/rke2/etc/config-files/cloud-provider-config
+        global:
+          cattle:
+            clusterName: "{{ harvester_rke_cluster_name }}"
+      rke2-calico: {}
+    dataDirectories: {}
+    etcd:
+      snapshotRetention: {{ harvester_rke_etcd_snapshot_retention | int }}
+      snapshotScheduleCron: "{{ harvester_rke_etcd_snapshot_schedule_cron }}"
+    machineGlobalConfig:
+{{ harvester_rke_machine_global_config | to_nice_yaml(indent=2) | indent(6, true) }}
+    machinePoolDefaults: {}
+    machinePools:
+      - controlPlaneRole: true
+        drainBeforeDelete: true
+        etcdRole: true
+        machineConfigRef:
+          kind: HarvesterConfig
+          name: "{{ harvester_rke_machine_config_name }}"
+        name: "{{ harvester_rke_machine_pool_name }}"
+        quantity: {{ harvester_rke_node_count | int }}
+        unhealthyNodeTimeout: "{{ harvester_rke_unhealthy_node_timeout }}"
+        workerRole: true
+    machineSelectorConfig:
+      - config:
+          cloud-provider-config: "{{ harvester_rke_cloud_provider_config_secret }}"
+          cloud-provider-name: harvester
+          protect-kernel-defaults: false
+    networking: {}
+    registries: {}
+    upgradeStrategy:
+      controlPlaneConcurrency: "1"
+      controlPlaneDrainOptions:
+        deleteEmptyDirData: true
+        disableEviction: false
+        enabled: false
+        force: false
+        gracePeriod: -1
+        ignoreDaemonSets: true
+        skipWaitForDeleteTimeoutSeconds: 0
+        timeout: 120
+      workerConcurrency: "1"
+      workerDrainOptions:
+        deleteEmptyDirData: true
+        disableEviction: false
+        enabled: false
+        force: false
+        gracePeriod: -1
+        ignoreDaemonSets: true
+        skipWaitForDeleteTimeoutSeconds: 0
+        timeout: 120

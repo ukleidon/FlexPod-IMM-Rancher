@@ -1,0 +1,39 @@
+---
+# Harvester context used by kubernetes.core modules.
+harvester_context: harvester
+
+# The role follows the tenant lifecycle by default. Use absent to remove only
+# this tenant's Harvester objects.
+harvester_tenant_state: "{{ lan_state | default('present') }}"
+harvester_tenant_force_non_virtual: false
+
+# Generated manifests are kept with the tenant, not in a central CSV/artifact
+# directory. This makes each tenant independently configurable.
+harvester_tenant_manifest_dir: "{{ tenants_dir }}/{{ tenant_name | lower }}/manifests/harvester"
+
+# Harvester L2 network defaults matching the existing site design.
+harvester_tenant_access_cluster_network: mgmt
+harvester_tenant_access_bridge: mgmt-br
+harvester_tenant_storage_cluster_network: data-9000
+harvester_tenant_storage_bridge: data-9000-br
+harvester_tenant_storage_mtu: 9000
+harvester_tenant_update_existing_networks: false
+harvester_tenant_update_existing_dhcp_pools: false
+
+# DHCP defaults based on the existing Harvester artifacts.
+harvester_tenant_dhcp_lease_time: 300
+harvester_tenant_access_dhcp_server_host: 99
+harvester_tenant_access_dhcp_start_host: 100
+harvester_tenant_access_dhcp_end_host: 199
+harvester_tenant_storage_dhcp_server_host: 99
+harvester_tenant_storage_dhcp_start_host: 110
+harvester_tenant_storage_dhcp_end_host: 199
+harvester_tenant_dhcp_dns_servers: "{{ dns_servers | default([]) | map(attribute='ip_address') | list }}"
+
+# Harvester cloud-init template adoption. The source template is read from the
+# Harvester cluster and rendered into a tenant-local ConfigMap.
+harvester_tenant_cloud_config_source_namespace: default
+harvester_tenant_cloud_config_source_name: sle-micro-default
+harvester_tenant_cloud_config_name: "{{ tenant_name | lower }}-sle-micro-default"
+harvester_tenant_cloud_config_tenant_name: "{{ tenant_name | lower }}"
+harvester_tenant_fqdn: "{{ harvester_tenant_cloud_config_tenant_name }}.example.com"

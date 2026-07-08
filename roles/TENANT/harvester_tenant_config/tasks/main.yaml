@@ -1,45 +1,291 @@
-- name: current_working_directory
-  ansible.builtin.debug:
-    var: playbook_dir
-  register: current_working_directory
+---
+- name: Validate Harvester tenant inputs
+  ansible.builtin.assert:
+    that:
+      - tenant_name is defined
+      - tenant_name | length > 0
+      - tenant_type | default('physical') == 'virtual' or harvester_tenant_force_non_virtual | bool
+      - t_access_vlan_id is defined
+      - t_access_network_prefix is defined
+      - t_access_network_mask is defined
+      - t_nfs_vlan_id is defined
+      - t_nfs_network_prefix is defined
+      - t_nfs_network_mask is defined
+      - harvester_tenant_state in ['present', 'absent']
+    fail_msg: >-
+      Harvester tenant configuration requires a virtual tenant with access and
+      storage VLAN/CIDR values in tenants/{{ tenant | default(tenant_name) }}/vars.yml.
 
-- name: Create a directory if it does not exist
-  ansible.builtin.file:
-    path: "{{  current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests"
-    state: directory
+- name: Build Harvester tenant facts
+  ansible.builtin.set_fact:
+    harvester_tenant_namespace: "{{ tenant_name | lower }}"
+    harvester_tenant_access_network_name: "{{ tenant_name | lower }}-access"
+    harvester_tenant_storage_network_name: "{{ tenant_name | lower }}-storage"
+    harvester_tenant_access_cidr: "{{ t_access_network_prefix }}.0/{{ t_access_network_mask }}"
+    harvester_tenant_storage_cidr: "{{ t_nfs_network_prefix }}.0/{{ t_nfs_network_mask }}"
+    harvester_tenant_access_router: "{{ t_access_network_prefix }}.1"
+    harvester_tenant_access_dhcp_server: "{{ t_access_network_prefix }}.{{ harvester_tenant_access_dhcp_server_host }}"
+    harvester_tenant_access_dhcp_start: "{{ t_access_network_prefix }}.{{ harvester_tenant_access_dhcp_start_host }}"
+    harvester_tenant_access_dhcp_end: "{{ t_access_network_prefix }}.{{ harvester_tenant_access_dhcp_end_host }}"
+    harvester_tenant_storage_dhcp_server: "{{ t_nfs_network_prefix }}.{{ harvester_tenant_storage_dhcp_server_host }}"
+    harvester_tenant_storage_dhcp_start: "{{ t_nfs_network_prefix }}.{{ harvester_tenant_storage_dhcp_start_host }}"
+    harvester_tenant_storage_dhcp_end: "{{ t_nfs_network_prefix }}.{{ harvester_tenant_storage_dhcp_end_host }}"
 
-#
-- name: Create Tenant namespace
-  kubernetes.core.k8s:
-    name: "{{ tenant_name }}"
-    context: "{{ harvester_context }}"
+- name: Build Harvester network definitions
+  ansible.builtin.set_fact:
+    harvester_tenant_networks:
+      - name: "{{ harvester_tenant_access_network_name }}"
+        role: access
+        vlan_id: "{{ t_access_vlan_id }}"
+        cluster_network: "{{ harvester_tenant_access_cluster_network }}"
+        bridge: "{{ harvester_tenant_access_bridge }}"
+      - name: "{{ harvester_tenant_storage_network_name }}"
+        role: storage
+        vlan_id: "{{ t_nfs_vlan_id }}"
+        cluster_network: "{{ harvester_tenant_storage_cluster_network }}"
+        bridge: "{{ harvester_tenant_storage_bridge }}"
+        mtu: "{{ harvester_tenant_storage_mtu }}"
+    harvester_tenant_dhcp_pools:
+      - name: "{{ harvester_tenant_access_network_name }}"
+        cidr: "{{ harvester_tenant_access_cidr }}"
+        network_name: "{{ harvester_tenant_namespace }}/{{ harvester_tenant_access_network_name }}"
+        server_ip: "{{ harvester_tenant_access_dhcp_server }}"
+        pool_start: "{{ harvester_tenant_access_dhcp_start }}"
+        pool_end: "{{ harvester_tenant_access_dhcp_end }}"
+        router: "{{ harvester_tenant_access_router }}"
+        dns: "{{ harvester_tenant_dhcp_dns_servers }}"
+      - name: "{{ harvester_tenant_storage_network_name }}"
+        cidr: "{{ harvester_tenant_storage_cidr }}"
+        network_name: "{{ harvester_tenant_namespace }}/{{ harvester_tenant_storage_network_name }}"
+        server_ip: "{{ harvester_tenant_storage_dhcp_server }}"
+        pool_start: "{{ harvester_tenant_storage_dhcp_start }}"
+        pool_end: "{{ harvester_tenant_storage_dhcp_end }}"
+
+- name: Read Harvester cloud-init source template
+  kubernetes.core.k8s_info:
     api_version: v1
-    kind: Namespace
-    state: present
-#
-- name: Generate tenant access network config
-  template:
-    src: 'tenant_access.j2'
-    dest: "{{ current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests/tenant_access.yml"
-    mode: 0644
-#
-- name: Generate tenant storage network config
-  template:
-    src: 'tenant_storage.j2'
-    dest: "{{ current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests/tenant_storage.yml"
-    mode: 0644
-#
-#
+    kind: ConfigMap
+    name: "{{ harvester_tenant_cloud_config_source_name }}"
+    namespace: "{{ harvester_tenant_cloud_config_source_namespace }}"
+    context: "{{ harvester_context }}"
+  register: harvester_tenant_cloud_config_source
+  when: harvester_tenant_state == 'present'
 
-- name: Apply tenant access network on the Harvester cluster
+- name: Validate Harvester cloud-init source template
+  ansible.builtin.assert:
+    that:
+      - harvester_tenant_cloud_config_source.resources | length == 1
+      - harvester_tenant_cloud_config_source.resources[0].data.cloudInit is defined
+    fail_msg: >-
+      Cloud-init template {{ harvester_tenant_cloud_config_source_namespace }}/{{ harvester_tenant_cloud_config_source_name }}
+      was not found on Harvester context {{ harvester_context }}.
+  when: harvester_tenant_state == 'present'
+
+- name: Adapt Harvester cloud-init template for this tenant
+  ansible.builtin.set_fact:
+    harvester_tenant_cloud_init: >-
+      {{
+        harvester_tenant_cloud_config_source.resources[0].data.cloudInit
+        | replace('[TENANT]', harvester_tenant_cloud_config_tenant_name)
+      }}
+  when: harvester_tenant_state == 'present'
+
+- name: Ensure tenant Harvester manifest directory exists
+  ansible.builtin.file:
+    path: "{{ harvester_tenant_manifest_dir }}"
+    state: directory
+    mode: "0755"
+  when:
+    - harvester_tenant_state == 'present'
+    - not ansible_check_mode
+
+- name: Render Harvester tenant namespace manifest
+  ansible.builtin.template:
+    src: namespace.yml.j2
+    dest: "{{ harvester_tenant_manifest_dir }}/namespace.yml"
+    mode: "0644"
+  when:
+    - harvester_tenant_state == 'present'
+    - not ansible_check_mode
+
+- name: Render Harvester tenant network manifests
+  ansible.builtin.template:
+    src: network.yml.j2
+    dest: "{{ harvester_tenant_manifest_dir }}/network-{{ item.role }}.yml"
+    mode: "0644"
+  loop: "{{ harvester_tenant_networks }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - harvester_tenant_state == 'present'
+    - not ansible_check_mode
+
+- name: Render Harvester tenant DHCP manifests
+  ansible.builtin.template:
+    src: dhcp-pool.yml.j2
+    dest: "{{ harvester_tenant_manifest_dir }}/dhcp-{{ item.name }}.yml"
+    mode: "0644"
+  loop: "{{ harvester_tenant_dhcp_pools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - harvester_tenant_state == 'present'
+    - not ansible_check_mode
+
+- name: Render Harvester tenant cloud-init manifest
+  ansible.builtin.template:
+    src: cloud-config.yml.j2
+    dest: "{{ harvester_tenant_manifest_dir }}/cloud-config.yml"
+    mode: "0600"
+  when:
+    - harvester_tenant_state == 'present'
+    - not ansible_check_mode
+
+- name: Apply Harvester tenant namespace
   kubernetes.core.k8s:
     state: present
     context: "{{ harvester_context }}"
-    src: "{{ current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests/tenant_access.yml"
+    definition: "{{ lookup('ansible.builtin.template', 'namespace.yml.j2') | from_yaml }}"
+  when: harvester_tenant_state == 'present'
 
-- name: Apply tenant storage network on the Harvester cluster
+- name: Read existing Harvester tenant networks
+  kubernetes.core.k8s_info:
+    api_version: k8s.cni.cncf.io/v1
+    kind: NetworkAttachmentDefinition
+    name: "{{ item.name }}"
+    namespace: "{{ harvester_tenant_namespace }}"
+    context: "{{ harvester_context }}"
+  register: harvester_tenant_existing_network_query
+  loop: "{{ harvester_tenant_networks }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: harvester_tenant_state == 'present'
+
+- name: Build existing Harvester tenant network list
+  ansible.builtin.set_fact:
+    harvester_tenant_existing_network_names: >-
+      {{
+        harvester_tenant_existing_network_names | default([])
+        + ([item.item.name] if item.resources | default([]) | length > 0 else [])
+      }}
+  loop: "{{ harvester_tenant_existing_network_query.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when: harvester_tenant_state == 'present'
+
+- name: Report existing Harvester tenant networks left unchanged
+  ansible.builtin.debug:
+    msg: >-
+      Existing Harvester networks {{ harvester_tenant_existing_network_names | default([]) | join(', ') }}
+      are left unchanged. Set harvester_tenant_update_existing_networks=true only when the
+      tenant VMs using those networks are stopped and you intend to patch the NADs.
+  when:
+    - harvester_tenant_state == 'present'
+    - not harvester_tenant_update_existing_networks | bool
+    - harvester_tenant_existing_network_names | default([]) | length > 0
+
+- name: Apply Harvester tenant networks
   kubernetes.core.k8s:
     state: present
     context: "{{ harvester_context }}"
-    src: "{{ current_working_directory.playbook_dir }}/tenants/{{ tenant_name }}/manifests/tenant_storage.yml"
+    definition: "{{ lookup('ansible.builtin.template', 'network.yml.j2') | from_yaml }}"
+  loop: "{{ harvester_tenant_networks }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - harvester_tenant_state == 'present'
+    - harvester_tenant_update_existing_networks | bool or item.name not in (harvester_tenant_existing_network_names | default([]))
 
+- name: Read existing Harvester tenant DHCP pools
+  kubernetes.core.k8s_info:
+    api_version: network.harvesterhci.io/v1alpha1
+    kind: IPPool
+    name: "{{ item.name }}"
+    namespace: "{{ harvester_tenant_namespace }}"
+    context: "{{ harvester_context }}"
+  register: harvester_tenant_existing_dhcp_query
+  loop: "{{ harvester_tenant_dhcp_pools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: harvester_tenant_state == 'present'
+
+- name: Build existing Harvester tenant DHCP pool list
+  ansible.builtin.set_fact:
+    harvester_tenant_existing_dhcp_names: >-
+      {{
+        harvester_tenant_existing_dhcp_names | default([])
+        + ([item.item.name] if item.resources | default([]) | length > 0 else [])
+      }}
+  loop: "{{ harvester_tenant_existing_dhcp_query.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when: harvester_tenant_state == 'present'
+
+- name: Report existing Harvester tenant DHCP pools left unchanged
+  ansible.builtin.debug:
+    msg: >-
+      Existing Harvester DHCP pools {{ harvester_tenant_existing_dhcp_names | default([]) | join(', ') }}
+      are left unchanged. Set harvester_tenant_update_existing_dhcp_pools=true when an
+      intentional DHCP range change is required.
+  when:
+    - harvester_tenant_state == 'present'
+    - not harvester_tenant_update_existing_dhcp_pools | bool
+    - harvester_tenant_existing_dhcp_names | default([]) | length > 0
+
+- name: Apply Harvester tenant DHCP pools
+  kubernetes.core.k8s:
+    state: present
+    context: "{{ harvester_context }}"
+    definition: "{{ lookup('ansible.builtin.template', 'dhcp-pool.yml.j2') | from_yaml }}"
+  loop: "{{ harvester_tenant_dhcp_pools }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - harvester_tenant_state == 'present'
+    - harvester_tenant_update_existing_dhcp_pools | bool or item.name not in (harvester_tenant_existing_dhcp_names | default([]))
+
+- name: Apply Harvester tenant cloud-init config
+  kubernetes.core.k8s:
+    state: present
+    context: "{{ harvester_context }}"
+    definition: "{{ lookup('ansible.builtin.template', 'cloud-config.yml.j2') | from_yaml }}"
+  when: harvester_tenant_state == 'present'
+
+- name: Remove Harvester tenant support objects
+  kubernetes.core.k8s:
+    state: absent
+    context: "{{ harvester_context }}"
+    definition: "{{ item }}"
+  loop:
+    - apiVersion: network.harvesterhci.io/v1alpha1
+      kind: IPPool
+      metadata:
+        name: "{{ harvester_tenant_access_network_name }}"
+        namespace: "{{ harvester_tenant_namespace }}"
+    - apiVersion: network.harvesterhci.io/v1alpha1
+      kind: IPPool
+      metadata:
+        name: "{{ harvester_tenant_storage_network_name }}"
+        namespace: "{{ harvester_tenant_namespace }}"
+    - apiVersion: k8s.cni.cncf.io/v1
+      kind: NetworkAttachmentDefinition
+      metadata:
+        name: "{{ harvester_tenant_access_network_name }}"
+        namespace: "{{ harvester_tenant_namespace }}"
+    - apiVersion: k8s.cni.cncf.io/v1
+      kind: NetworkAttachmentDefinition
+      metadata:
+        name: "{{ harvester_tenant_storage_network_name }}"
+        namespace: "{{ harvester_tenant_namespace }}"
+    - apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ harvester_tenant_cloud_config_name }}"
+        namespace: "{{ harvester_tenant_namespace }}"
+    - apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ harvester_tenant_namespace }}"
+  loop_control:
+    label: "{{ item.kind }}/{{ item.metadata.name }}"
+  when: harvester_tenant_state == 'absent'

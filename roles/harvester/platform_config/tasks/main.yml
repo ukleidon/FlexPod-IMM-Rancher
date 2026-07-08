@@ -1,0 +1,139 @@
+---
+- name: Validate Harvester platform inputs
+  ansible.builtin.assert:
+    that:
+      - harvester_context | length > 0
+      - harvester_platform_cluster_network_name | length > 0
+      - harvester_platform_vlan_config_name | length > 0
+      - harvester_platform_vlan_config_nics | length > 0
+      - harvester_platform_storage_network.vlan is defined
+      - harvester_platform_storage_network.clusterNetwork is defined
+      - harvester_platform_storage_network.range is defined
+
+- name: Configure Harvester proxy and NTP settings
+  kubernetes.core.k8s:
+    context: "{{ harvester_context }}"
+    state: present
+    definition:
+      apiVersion: harvesterhci.io/v1beta1
+      kind: Setting
+      metadata:
+        name: "{{ item.name }}"
+      value: "{{ item.value | to_json }}"
+  loop:
+    - name: http-proxy
+      value:
+        httpProxy: "{{ harvester_platform_http_proxy }}"
+        httpsProxy: "{{ harvester_platform_https_proxy }}"
+        noProxy: "{{ harvester_platform_no_proxy | join(',') }}"
+    - name: ntp-servers
+      value:
+        ntpServers: "{{ harvester_platform_ntp_servers }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Ensure Harvester VM DHCP controller add-on exists
+  kubernetes.core.k8s:
+    context: "{{ harvester_context }}"
+    state: present
+    definition:
+      apiVersion: harvesterhci.io/v1beta1
+      kind: Addon
+      metadata:
+        name: "{{ harvester_platform_dhcp_addon.name }}"
+        namespace: "{{ harvester_platform_dhcp_addon.namespace }}"
+        labels:
+          addon.harvesterhci.io/experimental: "true"
+      spec:
+        enabled: "{{ harvester_platform_dhcp_addon.enabled | bool }}"
+        repo: "{{ harvester_platform_dhcp_addon.repo }}"
+        version: "{{ harvester_platform_dhcp_addon.version }}"
+        chart: "{{ harvester_platform_dhcp_addon.chart }}"
+        valuesContent: ""
+
+- name: Enable selected Harvester add-ons
+  kubernetes.core.k8s:
+    context: "{{ harvester_context }}"
+    state: present
+    definition:
+      apiVersion: harvesterhci.io/v1beta1
+      kind: Addon
+      metadata:
+        name: "{{ item.name }}"
+        namespace: "{{ item.namespace }}"
+      spec:
+        enabled: "{{ item.enabled | bool }}"
+  loop: "{{ harvester_platform_standard_addons }}"
+  loop_control:
+    label: "{{ item.namespace }}/{{ item.name }}"
+
+- name: Read Harvester storage ClusterNetwork
+  kubernetes.core.k8s_info:
+    context: "{{ harvester_context }}"
+    api_version: network.harvesterhci.io/v1beta1
+    kind: ClusterNetwork
+    name: "{{ harvester_platform_cluster_network_name }}"
+  register: harvester_platform_cluster_network_query
+
+- name: Ensure Harvester storage ClusterNetwork exists
+  kubernetes.core.k8s:
+    context: "{{ harvester_context }}"
+    state: present
+    definition:
+      apiVersion: network.harvesterhci.io/v1beta1
+      kind: ClusterNetwork
+      metadata:
+        name: "{{ harvester_platform_cluster_network_name }}"
+  when: >-
+    harvester_platform_update_existing_networking | bool
+    or harvester_platform_cluster_network_query.resources | length == 0
+
+- name: Read Harvester storage VlanConfig
+  kubernetes.core.k8s_info:
+    context: "{{ harvester_context }}"
+    api_version: network.harvesterhci.io/v1beta1
+    kind: VlanConfig
+    name: "{{ harvester_platform_vlan_config_name }}"
+  register: harvester_platform_vlan_config_query
+
+- name: Ensure Harvester storage VlanConfig exists
+  kubernetes.core.k8s:
+    context: "{{ harvester_context }}"
+    state: present
+    definition: "{{ lookup('ansible.builtin.template', 'vlan-config.yml.j2') | from_yaml }}"
+  when: >-
+    harvester_platform_update_existing_networking | bool
+    or harvester_platform_vlan_config_query.resources | length == 0
+
+- name: Read Harvester storage-network setting
+  kubernetes.core.k8s_info:
+    context: "{{ harvester_context }}"
+    api_version: harvesterhci.io/v1beta1
+    kind: Setting
+    name: storage-network
+  register: harvester_platform_storage_network_query
+
+- name: Report existing Harvester platform network objects left unchanged
+  ansible.builtin.debug:
+    msg: >-
+      Existing Harvester platform network objects are left unchanged. Set
+      harvester_platform_update_existing_networking=true or
+      harvester_platform_update_storage_network_setting=true only during a planned
+      maintenance window when affected VMs are stopped.
+  when:
+    - not harvester_platform_update_existing_networking | bool or not harvester_platform_update_storage_network_setting | bool
+    - harvester_platform_cluster_network_query.resources | length > 0 or harvester_platform_vlan_config_query.resources | length > 0 or harvester_platform_storage_network_query.resources | length > 0
+
+- name: Configure Harvester storage-network setting
+  kubernetes.core.k8s:
+    context: "{{ harvester_context }}"
+    state: present
+    definition:
+      apiVersion: harvesterhci.io/v1beta1
+      kind: Setting
+      metadata:
+        name: storage-network
+      value: "{{ harvester_platform_storage_network | to_json }}"
+  when: >-
+    harvester_platform_update_storage_network_setting | bool
+    or harvester_platform_storage_network_query.resources | length == 0

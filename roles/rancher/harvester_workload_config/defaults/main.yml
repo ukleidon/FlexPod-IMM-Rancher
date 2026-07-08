@@ -1,0 +1,39 @@
+---
+harvester_workload_context: "{{ tenant_name | lower }}-rke"
+harvester_workload_state: "{{ lan_state | default('present') }}"
+harvester_workload_manifest_dir: "{{ tenants_dir }}/{{ tenant_name | lower }}/manifests/workload"
+harvester_workload_kasten_manifest_dir: "{{ tenants_dir }}/{{ tenant_name | lower }}/manifests/kasten"
+
+harvester_workload_apply_kube_vip: true
+harvester_workload_kube_vip_manifest: "{{ tenants_dir }}/{{ tenant_name | lower }}/manifests/kube-vip.yaml"
+harvester_workload_apply_trident_psa_rbac: true
+
+harvester_workload_snapshotclass_name: csi-snapclass
+harvester_workload_annotate_snapshotclass: true
+harvester_workload_harvester_storageclass: harvester
+harvester_workload_harvester_storageclass_default: false
+
+# Kasten K10 conversion from the legacy harvester/K10 and harvester/K11
+# directory. Keep installation opt-in so a new RKE2 cluster can be created
+# before add-ons are installed.
+harvester_workload_install_kasten: false
+harvester_workload_kasten_namespace: kasten-io
+harvester_workload_kasten_repo_name: kasten
+harvester_workload_kasten_repo_url: https://charts.kasten.io/
+harvester_workload_kasten_release_name: k10
+harvester_workload_kasten_chart_ref: kasten/k10
+harvester_workload_kasten_ingress_host: "{{ tenant_name | lower }}.example.com"
+
+harvester_workload_kasten_system_policy_enabled: true
+harvester_workload_kasten_basys_policy_enabled: true
+harvester_workload_kasten_location_profile_enabled: false
+harvester_workload_kasten_storagegrid_secret_name: storagegrid-secret-k10
+harvester_workload_kasten_profile_name: storagegrid
+harvester_workload_kasten_objectstore_name: "k10-backup-{{ tenant_name | lower }}"
+harvester_workload_kasten_objectstore_endpoint: ""
+harvester_workload_kasten_objectstore_region: us-east-1
+harvester_workload_kasten_objectstore_skip_ssl_verify: true
+harvester_workload_kasten_aws_access_key_id: ""
+harvester_workload_kasten_aws_secret_access_key: ""
+
+harvester_workload_extra_manifest_glob: "{{ tenants_dir }}/{{ tenant_name | lower }}/manifests/workload-extra/*.yml"

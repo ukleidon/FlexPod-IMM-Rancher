@@ -7,6 +7,8 @@ Use this page to understand what each role is expected to configure before openi
 | Role                                                                       | Called by                                          | Expected configuration                                                       |
 | -------------------------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------- |
 | [`rancher/env_vars`](../../roles/rancher/env_vars/README.md)               | `TENANT.yml`, `TENANT.yml`, `RKE2.yml`, `RKE2.yml` | Loads the ordered YAML variable stack used by the playbook.                  |
+| [`rancher/harvester_rke_cluster`](../../roles/rancher/harvester_rke_cluster/README.md) | `HARVESTER_RKE.yml` | Creates or removes a Rancher-provisioned RKE2 cluster on Harvester HCI. |
+| [`rancher/harvester_workload_config`](../../roles/rancher/harvester_workload_config/README.md) | `HARVESTER_RKE.yml` | Applies tenant kube-vip, storage annotations, and optional Kasten configuration to the downstream RKE2 cluster. |
 | [`rancher/pre_rke_install`](../../roles/rancher/pre_rke_install/README.md) | `TENANT.yml`, `RKE2.yml`                           | Prepares hosts for RKE2 installation, including proxy and prerequisite work. |
 | [`rancher/rke2_agent`](../../roles/rancher/rke2_agent/README.md)           | `TENANT.yml`, `RKE2.yml`                           | Installs and joins RKE2 worker/agent nodes.                                  |
 | [`rancher/rke2_common`](../../roles/rancher/rke2_common/README.md)         | -                                                  | Provides common RKE2 install, tarball, repository, image, and service tasks. |

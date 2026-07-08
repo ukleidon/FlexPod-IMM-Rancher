@@ -1,0 +1,46 @@
+---
+# Configure Harvester HCI platform support and one tenant's Harvester objects.
+#
+# Typical tenant run:
+#   ansible-playbook -i inventory HARVESTER.yml -e tenant=tenant01 -C
+#
+# Platform-wide settings are opt-in:
+#   ansible-playbook -i inventory HARVESTER.yml -e tenant=tenant01 -e harvester_manage_platform=true --tags harvester_platform
+
+- name: Preflight tenant input and variable files
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ harvester_ansible_python_interpreter | default(playbook_dir ~ '/.venv/bin/python') }}"
+  roles:
+    - role: common/tenant_preflight
+  tags:
+    - always
+    - preflight
+
+- name: Configure Harvester platform baseline
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    ansible_python_interpreter: "{{ harvester_ansible_python_interpreter | default(playbook_dir ~ '/.venv/bin/python') }}"
+  roles:
+    - role: TENANT/env_vars
+    - role: harvester/platform_config
+      when: harvester_manage_platform | default(false) | bool
+  tags:
+    - harvester
+    - harvester_platform
+
+- name: Configure Harvester tenant support objects
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    ansible_python_interpreter: "{{ harvester_ansible_python_interpreter | default(playbook_dir ~ '/.venv/bin/python') }}"
+  roles:
+    - role: TENANT/env_vars
+    - role: TENANT/harvester_tenant_config
+  tags:
+    - harvester
+    - harvester_tenant

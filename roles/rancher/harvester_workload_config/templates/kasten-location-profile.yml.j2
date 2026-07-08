@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ harvester_workload_kasten_storagegrid_secret_name }}"
+  namespace: "{{ harvester_workload_kasten_namespace }}"
+type: secrets.kanister.io/aws
+stringData:
+  aws_access_key_id: "{{ harvester_workload_kasten_aws_access_key_id }}"
+  aws_secret_access_key: "{{ harvester_workload_kasten_aws_secret_access_key }}"
+---
+apiVersion: config.kio.kasten.io/v1alpha1
+kind: Profile
+metadata:
+  name: "{{ harvester_workload_kasten_profile_name }}"
+  namespace: "{{ harvester_workload_kasten_namespace }}"
+spec:
+  type: Location
+  locationSpec:
+    credential:
+      secretType: AwsAccessKey
+      secret:
+        apiVersion: v1
+        kind: Secret
+        name: "{{ harvester_workload_kasten_storagegrid_secret_name }}"
+        namespace: "{{ harvester_workload_kasten_namespace }}"
+    type: ObjectStore
+    objectStore:
+      name: "{{ harvester_workload_kasten_objectstore_name }}"
+      endpoint: "{{ harvester_workload_kasten_objectstore_endpoint }}"
+      objectStoreType: S3
+      region: "{{ harvester_workload_kasten_objectstore_region }}"
+      skipSSLVerify: {{ harvester_workload_kasten_objectstore_skip_ssl_verify | bool | string | lower }}

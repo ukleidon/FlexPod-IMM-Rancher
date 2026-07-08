@@ -1,59 +1,65 @@
 # Role: `TENANT/harvester_tenant_config`
 
-[Framework README](../../../README.md) | [Role index](../../../docs/roles/README.md) | [Variables](../../../docs/variables.md)
+[Framework README](../../../README.md) | [Role index](../../../docs/roles/README.md) | [Tenant roles](../../../docs/roles/tenant.md)
 
 ## Purpose
 
-Runs the role task flow described below.
-
-This README is written for operators who understand basic infrastructure concepts but do not live inside this automation every day. Run syntax and check-mode validation before using the role against live devices.
+Creates or removes the Harvester HCI objects required for one virtual tenant.
+The role replaces the legacy CSV and shell-script workflow from
+the original lab artifact directory with tenant variables from
+`tenants/<tenant>/vars.yml`.
 
 ## Called By
 
-- `TEST.yml`
+- `HARVESTER.yml`
+- `HARVESTER_RKE.yml`
 
-## Task Flow
+## Functions Called
 
-Main tasks detected:
-
-- current_working_directory
-- Create a directory if it does not exist
-- Create Tenant namespace
-- Generate tenant access network config
-- Generate tenant storage network config
-- Apply tenant access network on the Harvester cluster
-- Apply tenant storage network on the Harvester cluster
-
-## Automation Functions Called
-
-These are the primary Ansible modules or task functions detected in this role:
-
-- `ansible.builtin.debug`
-- `ansible.builtin.file`
-- `kubernetes.core.k8s`
-- `template`
-
-## Inputs To Check
-
-Most values come from `group_vars/*.yml`, `group_vars/tenant_defaults.yml`, `host_vars/*.yml`, or `tenants/<tenant>/vars.yml`. Pay particular attention to:
-
-- `current_working_directory`
-- `tenant_name`
-- `harvester_context`
+- `ansible.builtin.assert` validates that the selected tenant is virtual and
+  has the required VLAN/CIDR values.
+- `kubernetes.core.k8s_info` reads the Harvester cloud-init template
+  `sle-micro-default`.
+- `ansible.builtin.template` writes generated manifests to
+  `tenants/<tenant>/manifests/harvester`.
+- `kubernetes.core.k8s` applies or removes Harvester namespace, network, DHCP,
+  and cloud-init resources.
 
 ## Configuration To Expect
 
-Expect the configuration described by the called task files. Review the task flow and variables before running live.
+For tenant `tenant01`, the role creates these resources on kube context
+`harvester`:
+
+- Namespace `tenant01`.
+- NetworkAttachmentDefinitions `tenant01-access` and `tenant01-storage`.
+- DHCP IPPools for the access and storage networks.
+- Tenant-adapted cloud-init ConfigMap `tenant01-sle-micro-default`.
+
+The access network uses `t_access_vlan_id` and `t_access_network_prefix`.
+The storage network uses `t_nfs_vlan_id` and `t_nfs_network_prefix`. Generated
+files stay inside the tenant directory so tenants remain independently
+configurable and removable.
+
+The `sle-micro-default` cloud-init template contains the token `[TENANT]` in
+entries such as `[TENANT].example.com`. The role replaces only the token with
+the lower-case tenant name, for example `tenant01`, so the rendered value is
+`tenant01.example.com`.
 
 ## Operator Runbook
 
-1. Confirm the inventory group targeted by the parent playbook has the expected devices.
-2. Confirm the tenant or infrastructure vars contain the VLAN IDs, CIDRs, credentials, and policy names for the environment.
-3. Run syntax-check on the parent playbook.
-4. Run check mode before live changes.
-5. Review device or controller diffs and only then run without `-C`.
+```bash
+ansible-playbook -i inventory HARVESTER.yml -e tenant=tenant01 -C
+ansible-playbook -i inventory HARVESTER.yml -e tenant=tenant01
+```
+
+To remove only the selected tenant's Harvester support objects:
+
+```bash
+ansible-playbook -i inventory HARVESTER.yml -e tenant=tenant01 -e lan_state=absent -C
+```
 
 ## Product References
 
+- [SUSE Harvester Documentation](https://docs.harvesterhci.io/)
+- [Rancher Kubernetes Engine 2](https://docs.rke2.io/)
 - [Cisco FlexPod Design Guides](https://www.cisco.com/c/en/us/solutions/design-zone/data-center-design-guides/flexpod-design-guides.html)
-- [NetApp FlexPod Solutions](https://docs.netapp.com/us-en/flexpod/)

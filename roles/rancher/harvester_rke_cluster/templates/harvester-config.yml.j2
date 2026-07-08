@@ -1,0 +1,39 @@
+---
+apiVersion: rke-machine-config.cattle.io/v1
+kind: HarvesterConfig
+metadata:
+  name: "{{ harvester_rke_machine_config_name }}"
+  namespace: "{{ rancher_namespace }}"
+  annotations:
+    field.cattle.io/creatorId: "{{ harvester_rke_effective_creator_id }}"
+cloudConfig: ""
+clusterId: ""
+clusterName: ""
+clusterType: ""
+cpuCount: "{{ harvester_rke_cpu_count }}"
+cpuPinning: false
+diskBus: ""
+diskInfo: '{{ {"disks": [{"imageName": harvester_rke_image_name_resolved, "bootOrder": harvester_rke_disk_boot_order | int, "size": harvester_rke_disk_size | int}]} | to_json }}'
+diskSize: "0"
+enableEfi: false
+enableSecureBoot: false
+enableTpm: false
+imageName: ""
+isolateEmulatorThread: false
+keyPairName: ""
+kubeconfigContent: ""
+memorySize: "{{ harvester_rke_memory_size }}"
+networkData: ""
+networkInfo: '{{ {"interfaces": [{"networkName": harvester_rke_access_network_name, "macAddress": ""}, {"networkName": harvester_rke_storage_network_name, "macAddress": ""}]} | to_json }}'
+networkModel: ""
+networkName: ""
+networkType: ""
+reservedMemorySize: "{{ harvester_rke_reserved_memory_size }}"
+sshPassword: ""
+sshPort: "{{ harvester_rke_ssh_port }}"
+sshPrivateKeyPath: ""
+sshUser: "{{ harvester_rke_ssh_user }}"
+userData: "{{ harvester_rke_user_data_b64 }}"
+vgpuInfo: ""
+vmAffinity: ""
+vmNamespace: "{{ harvester_rke_vm_namespace }}"
