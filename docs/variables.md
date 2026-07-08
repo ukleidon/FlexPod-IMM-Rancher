@@ -11,7 +11,7 @@ The framework separates shared defaults from tenant-local facts. This keeps the 
 | `group_vars/all.yml` | Global fabric and service defaults. | DNS, NTP, base VLANs, shared feature flags, shared service values. |
 | `group_vars/ucs.yml` | Global Cisco Intersight and UCS defaults. | Intersight endpoint, infrastructure org, OOB pool ranges, global UCS policy settings. |
 | `group_vars/storagegrid.yml` | Shared StorageGRID integration. | StorageGRID VLANs, port-channel values, grid/client network values. |
-| `group_vars/proxmox.yml` | Shared Proxmox integration. | Proxmox Nexus/uplink values. |
+| `group_vars/mgmt-cluster.yml` | Shared mgmt-cluster integration. | mgmt-cluster Nexus/uplink values. |
 | `group_vars/tenant_defaults.yml` | Reusable tenant defaults. | Generated policy names, descriptions, boot defaults, common list defaults. |
 | `host_vars/*.yml` | Per-device topology. | Nexus/MDS/ONTAP host-specific interface, peer, and platform settings. |
 | `tenants/<tenant>/vars.yml` | Tenant source of truth. | Tenant ID, VLAN IDs, CIDRs, API references, storage identities, profile counts. |

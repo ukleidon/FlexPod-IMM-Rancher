@@ -24,13 +24,13 @@ Builds or validates shared FlexPod infrastructure.
 ansible-playbook -i inventory INFRA.yml -C
 ```
 
-Expected configuration: Shared Nexus, ONTAP, Intersight, StorageGRID, Proxmox, and ASA integration objects.
+Expected configuration: Shared Nexus, ONTAP, Intersight, StorageGRID, mgmt-cluster, and ASA integration objects.
 
 ### Functions Called
 
 | Play                         | Hosts     | Roles called                                                                                                           |
 | ---------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Configure Nexus for FlexPod  | nexus     | `INFRA/env_vars`, `INFRA/nexus_config`, `INFRA/nexus_config_sg`, `INFRA/nexus_config_ip`, `INFRA/nexus_config_proxmox` |
+| Configure Nexus for FlexPod  | nexus     | `INFRA/env_vars`, `INFRA/nexus_config`, `INFRA/nexus_config_sg`, `INFRA/nexus_config_ip`, `INFRA/nexus_config_mgmt-cluster` |
 | Configure ONTAP for FlexPod  | ontap     | `INFRA/env_vars`, `INFRA/ontap_network`, `INFRA/ontap_svm`, `INFRA/ontap_volumes`, `INFRA/ontap_lifs`                  |
 | Create Tenant in Intersight  | localhost | `INFRA/env_vars`, `INFRA/ucs_create_pools`                                                                             |
 | Create Tenant in Intersight  | nexus     | `INFRA/env_vars`, `INFRA/nexus_config_asa`                                                                             |

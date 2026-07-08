@@ -1,4 +1,4 @@
-# Role: `TENANT/nexus_config_proxmox`
+# Role: `TENANT/nexus_config_mgmt-cluster`
 
 [Framework README](../../../README.md) | [Role index](../../../docs/roles/README.md) | [Variables](../../../docs/variables.md)
 
@@ -35,12 +35,12 @@ These are the primary Ansible modules or task functions detected in this role:
 
 Most values come from `group_vars/*.yml`, `group_vars/tenant_defaults.yml`, `host_vars/*.yml`, or `tenants/<tenant>/vars.yml`. Pay particular attention to:
 
-- `proxmox1_PC`
+- `mgmt_cluster1_PC`
 - `item`
-- `proxmox01_interface_list`
-- `proxmox2_PC`
-- `proxmox02_interface_list`
-- `proxmox_port_channels`
+- `mgmt_cluster01_interface_list`
+- `mgmt_cluster2_PC`
+- `mgmt_cluster02_interface_list`
+- `mgmt_cluster_port_channels`
 - `native_vlan_id`
 - `vlans_list`
 - `peerlink_PC`

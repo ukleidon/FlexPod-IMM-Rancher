@@ -8,9 +8,9 @@ IB_MGMT_ntp_dist_IP: "{{ ib_mgmt_ntp_servers[0].ip_address }}{{ ntp_distribution
 #
 uplink_interface_list:
   - interface: "Ethernet1/47"
-    description: "Uplink Proxmox"
+    description: "Uplink mgmt-cluster"
   - interface: "Ethernet1/48"
-    description: "Uplink Proxmox"
+    description: "Uplink mgmt-cluster"
 
 peerlink_interface_list:
   - interface:  "Ethernet1/53"

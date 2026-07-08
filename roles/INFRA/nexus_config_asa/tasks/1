@@ -14,7 +14,7 @@
   - { role: INFRA/nexus_config }
   - { role: INFRA/nexus_config_sg }
   - { role: INFRA/nexus_config_ip }
-  - { role: INFRA/nexus_config_proxmox }
+  - { role: INFRA/nexus_config_mgmt-cluster }
   tags:
   - nexus_config
 

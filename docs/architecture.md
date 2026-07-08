@@ -23,7 +23,7 @@ Tenant playbooks load variables in this order:
 1. `group_vars/all.yml`
 2. `group_vars/ucs.yml`
 3. `group_vars/storagegrid.yml`
-4. `group_vars/proxmox.yml`
+4. `group_vars/mgmt-cluster.yml`
 5. `group_vars/tenant_defaults.yml`
 6. `tenants/{{ tenant }}/vars.yml`
 

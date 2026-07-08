@@ -32,7 +32,7 @@ Use the Cisco FlexPod IaC CVD as the product sequencing reference, then run the 
 | Stage | Command | Purpose |
 | --- | --- | --- |
 | Shared foundation syntax | `ansible-playbook -i inventory INFRA.yml --syntax-check` | Confirm base playbook parsing before touching devices. |
-| Shared foundation check mode | `ansible-playbook -i inventory INFRA.yml -C` | Validate shared Nexus, ONTAP, Intersight, StorageGRID, Proxmox, and ASA intent. |
+| Shared foundation check mode | `ansible-playbook -i inventory INFRA.yml -C` | Validate shared Nexus, ONTAP, Intersight, StorageGRID, mgmt-cluster, and ASA intent. |
 | Shared foundation live | `ansible-playbook -i inventory INFRA.yml` | Configure shared infrastructure after check-mode output is understood. |
 | Tenant syntax | `ansible-playbook -i inventory TENANT.yml -e tenant=<name> --syntax-check` | Confirm the selected tenant variable stack loads. |
 | Tenant check mode | `ansible-playbook -i inventory TENANT.yml -e tenant=<name> -C` | Validate only that tenant's network, storage, compute, and optional platform intent. |

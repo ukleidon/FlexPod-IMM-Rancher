@@ -232,7 +232,7 @@ Platform or hub tenants can publish `vNN_*` registry entries for virtual tenants
 
 | Playbook | Roles called |
 | --- | --- |
-| `INFRA.yml` | INFRA/env_vars<br>INFRA/nexus_config<br>INFRA/nexus_config_sg<br>INFRA/nexus_config_ip<br>INFRA/nexus_config_proxmox<br>INFRA/env_vars<br>INFRA/ontap_network<br>INFRA/ontap_svm<br>INFRA/ontap_volumes<br>INFRA/ontap_lifs<br>INFRA/env_vars<br>INFRA/ucs_create_pools<br>INFRA/env_vars<br>INFRA/nexus_config_asa |
+| `INFRA.yml` | INFRA/env_vars<br>INFRA/nexus_config<br>INFRA/nexus_config_sg<br>INFRA/nexus_config_ip<br>INFRA/nexus_config_mgmt-cluster<br>INFRA/env_vars<br>INFRA/ontap_network<br>INFRA/ontap_svm<br>INFRA/ontap_volumes<br>INFRA/ontap_lifs<br>INFRA/env_vars<br>INFRA/ucs_create_pools<br>INFRA/env_vars<br>INFRA/nexus_config_asa |
 | `TENANT.yml` | TENANT/env_vars<br>TENANT/nexus_config<br>TENANT/nexus_config_ip<br>TENANT/nexus_config_sg<br>TENANT/nexus_config_asa<br>TENANT/env_vars<br>TENANT/ontap_network<br>TENANT/ontap_svm<br>TENANT/ontap_volumes<br>TENANT/ontap_lifs<br>TENANT/ontap_luns<br>TENANT/ontap_nvme<br>TENANT/env_vars<br>TENANT/ucs_create_pools<br>TENANT/ucs_create_server_policies<br>TENANT/ucs_create_sp_template<br>TENANT/env_vars<br>TENANT/ucs_create_server<br>TENANT/env_vars<br>TENANT/os_install_suse<br>rancher/env_vars<br>rancher/pre_rke_install<br>rancher/env_vars<br>rancher/rke2_server<br>rancher/rke2_agent<br>TENANT/env_vars<br>TENANT/trident_install |
 | `RKE2.yml` | rancher/env_vars<br>rancher/pre_rke_install<br>rancher/env_vars<br>rancher/rke2_server<br>rancher/rke2_agent |
 | `HARVESTER.yml` | common/tenant_preflight<br>TENANT/env_vars<br>harvester/platform_config<br>TENANT/harvester_tenant_config |

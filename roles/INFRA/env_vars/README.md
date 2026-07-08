@@ -38,7 +38,7 @@ Most values come from `group_vars/*.yml`, `group_vars/tenant_defaults.yml`, `hos
 - `env_vars_ontap_file`
 - `env_vars_ucs_file`
 - `env_vars_sg_file`
-- `env_vars_proxmox_file`
+- `env_vars_mgmt_cluster_file`
 
 ## Configuration To Expect
 

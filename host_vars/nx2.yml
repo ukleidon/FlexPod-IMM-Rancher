@@ -64,15 +64,15 @@ sg03_interface_list:
   - interface:  "Ethernet1/37"
     description: "sg5712-03-eth3"
 #
-proxmox01_interface_list:
+mgmt_cluster01_interface_list:
   - interface:  "Ethernet1/47"
-    description: "Uplink Proxmox"
-proxmox02_interface_list:
+    description: "Uplink mgmt-cluster"
+mgmt_cluster02_interface_list:
   - interface:  "Ethernet1/48"
-    description: "Uplink Proxmox"
+    description: "Uplink mgmt-cluster"
 #
 
-all_interfaces: "{{ uplink_interface_list + peerlink_interface_list + FI_A_interface_list + FI_B_interface_list + storage_A_interface_list + storage_B_interface_list + storage_C_interface_list + storage_D_interface_list + sg01_interface_list + sg02_interface_list + sg03_interface_list + proxmox01_interface_list + proxmox02_interface_list + asa_interface_list }}"
+all_interfaces: "{{ uplink_interface_list + peerlink_interface_list + FI_A_interface_list + FI_B_interface_list + storage_A_interface_list + storage_B_interface_list + storage_C_interface_list + storage_D_interface_list + sg01_interface_list + sg02_interface_list + sg03_interface_list + mgmt_cluster01_interface_list + mgmt_cluster02_interface_list + asa_interface_list }}"
 #
 # The baseIP is used as the last digit of the SVI IP address to support HSRP configuration configured in the all.yml or
 # tenant.yml files. The number must be between 2 and 254 and must be different as for nexus A.

@@ -1,6 +1,6 @@
 ---
 # Shared tenant defaults for TENANT.yml and rancher tenant loading.
-# Loaded after group_vars/all.yml, group_vars/ucs.yml, storagegrid/proxmox vars and before tenants/<tenant>/vars.yml.
+# Loaded after group_vars/all.yml, group_vars/ucs.yml, storagegrid/mgmt-cluster vars and before tenants/<tenant>/vars.yml.
 # Keep tenant identity, credentials, API key references, VLAN IDs, and CIDRs in the tenant vars file.
 # See docs/variables.md and docs/tenants/new-tenant.md.
 
